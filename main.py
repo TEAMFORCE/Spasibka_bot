@@ -4,111 +4,106 @@ from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
 
-from censored import token_tg, token_drf, drf_url
+from censored import token_tg
 
-import requests
-import json
+from API.api_requests import get_token, get_balance, send_like
+
+import re
+
 
 bot = Bot(token=token_tg)
 dp = Dispatcher(bot)
-
-'''
-Общие функции
-'''
-
-
-def get_token(telegram_id, group_id, telegram_name):
-    '''
-    :param telegram_id: id пользователя
-    :param group_id: id группы телеграм
-    :param telegram_name: имя пользователя телеграм
-    :return: токен пользователя в drf
-    '''
-    headers = {
-        "accept": "application/json",
-        "Authorization": token_drf,
-    }
-    body = {
-        "telegram_id": telegram_id,
-        "group_id": group_id,
-        "tg_name": telegram_name,
-    }
-    r = requests.post(drf_url + 'tg-get-user-token/', headers=headers, json=body)
-
-    if 'token' in r.json():
-        return r.json()['token']
-    elif 'status' in r.json():
-        return r.json()['status']
-    elif 'detail' in r.json():
-        return r.json()['detail']
-    else:
-        return 'Что то пошло не так'
-
-
-def get_balance(token):
-    '''
-    :param token: токен пользователя в drf
-    :return: json со статистикой пользователя
-    :format:
-    {
-    'income':
-    {'amount': 17.0, 'frozen': 0.0, 'sent': 0.0, 'received': 17.0, 'cancelled': 0.0},
-    'distr':
-    {'amount': 0.0, 'frozen': 0.0, 'sent': 0.0, 'received': 0.0, 'cancelled': 0.0, 'expire_date': '2023-01-30'}
-    }
-    - income - заработанные спасибки
-                - amount - общее количество
-                - frozen - на подтверждении
-                - sent - отправлено
-                - received - получено
-                - cancelled - аннулировано
-    - distr - спасибки для раздачи
-                - amount - общее количество
-                - expire_date - дата сгорания
-                - frozen - на подтверждении
-                - sent - отправлено
-                - received - получено
-                - cancelled - аннулировано
-                '''
-
-    if token == 'Что то пошло не так':
-        return token
-    elif token == 'Не найдена организация по переданному group_id':
-        return token
-    else:
-        headers = {
-            "accept": "application/json",
-            'Authorization': token,
-        }
-        r = requests.get(drf_url + 'user/balance/', headers=headers)
-        return r.json()
-
 
 '''
 Часть бота
 '''
 
 
-@dp.message_handler(commands=['count'])
-async def count(message: types.Message):
-    '''
-    Выводит в текущий чат количество лайков у пользователя
-    '''
-    telegram_id = message.from_user.id
-    group_id = message.chat.id
-    telegram_name = message.from_user.username
-    result = get_token(telegram_id, group_id, telegram_name)
-    balance = get_balance(result)
+async def on_startup(_):
+    print('Бот запущен')
 
-    await message.reply(f"{balance}")
+
+@dp.message_handler(content_types=['text'])
+async def test(message: types.Message):
+    '''
+    При получении сообщения начинающегося с '+' отправляет лайки пользователю цитируемого сообщения
+    :param message: Формат: +n 'необязательное сообщение', n-количество спасибок
+    :return:
+    '''
+    if message.text.startswith('+'):
+        pattern = r'\+(\d*)(.*)'
+        likes = re.match(pattern, message.text).group(1)
+        other = re.match(pattern, message.text).group(2)
+
+        # await bot.send_message(message.chat.id, f'Количество лайков: {likes}\nНеобязательное сообщение: {other}')
+
+        telegram_id = message.from_user.id
+        group_id = str(message.chat.id)
+        telegram_name = message.from_user.username
+        token = get_token(telegram_id, group_id, telegram_name)
+
+        telegram_id = str(message.reply_to_message.from_user.id)
+        telegram_name = message.reply_to_message.from_user.username
+        amount = likes
+
+        result = send_like(token, telegram_id, telegram_name, amount)
+
+        await bot.send_message(message.chat.id, result)
 
 
 @dp.message_handler(commands=['like'])
 async def like(message: types.Message):
     '''
-    Добавляет лайк пользователю
+    Добавляет 1 лайк пользователю по цитируемому сообщению
     '''
-    pass  # todo взаимодействие с DRF - запрос post , поставить лайк
+
+    telegram_id = message.from_user.id
+    group_id = str(message.chat.id)
+    telegram_name = message.from_user.username
+    token = get_token(telegram_id, group_id, telegram_name)
+
+    telegram_id = str(message.reply_to_message.from_user.id)
+    telegram_name = message.reply_to_message.from_user.username
+    amount = 1
+
+    result = send_like(token, telegram_id, telegram_name, amount)
+
+    await bot.send_message(message.chat.id, result)
+
+
+@dp.message_handler(commands=['баланс', 'balance'])
+async def count(message: types.Message):
+    '''
+    Выводит в текущий чат количество спасибок у пользователя
+    '''
+    telegram_id = message.from_user.id
+    group_id = message.chat.id
+    telegram_name = message.from_user.username
+    token = get_token(telegram_id, group_id, telegram_name)
+    balance = get_balance(token)
+
+    if balance == 'Что то пошло не так':
+        await message.reply(balance)
+    elif balance == 'Не найдена организация по переданному group_id':
+        await message.reply(token)
+    else:
+        try:
+            await message.reply(f"Заработанные спасибки: {int(balance['income']['amount'])}\n"
+                                f"Спасибки для раздачи: {int(balance['distr']['amount'])}")
+        except KeyError:
+            await message.reply("Что то пошло не так")
+
+
+@dp.message_handler(commands=['who'])
+async def who(message: types.Message):
+    try:
+        telegram_id = message.reply_to_message.from_user.id
+        telegram_name = message.reply_to_message.from_user.username
+
+        await bot.send_message(message.chat.id, f'Id: {telegram_id}\n'
+                                                f'Ник пользователя: {telegram_name}')
+    except AttributeError:
+        await bot.send_message(message.chat.id, 'Необходимо цитировать сообщение')
 
 
 @dp.message_handler(commands=['info'])
@@ -118,10 +113,5 @@ async def info(message: types.Message):
                         f'id группы: {message.chat.id}')
 
 
-@dp.message_handler()
-async def donno(message: types.Message):
-    await message.reply('Я не знаю что ответить')
-
-
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True, on_shutdown=shutdown)
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup, on_shutdown=shutdown)
