@@ -1,18 +1,16 @@
 from logging import shutdown
-
-from aiogram import Bot, types
-from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
-
-from censored import token_tg
-
-import re
-
 from create_bot import dp
+from database.database import create_tables
 
 
 async def on_startup(_):
+    '''
+    Запуск бота
+    '''
     print('Бот запущен')
+    create_tables()
+    print('БД создана')
 
 
 from handlers import client, admin, other

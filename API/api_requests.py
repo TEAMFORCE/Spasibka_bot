@@ -31,6 +31,34 @@ def get_token(telegram_id, group_id, telegram_name):
         return 'Что то пошло не так'
 
 
+def get_token_by_organization_id(telegram_id, organization_id, telegram_name):
+    '''
+    :param telegram_id: id пользователя
+    :param organization_id: id группы в RestAPI
+    :param telegram_name: имя пользователя телеграм
+    :return: токен пользователя в drf
+    '''
+    headers = {
+        "accept": "application/json",
+        "Authorization": token_drf,
+    }
+    body = {
+        "telegram_id": telegram_id,
+        "organization_id": organization_id,
+        "tg_name": telegram_name,
+    }
+    r = requests.post(drf_url + 'tg-get-user-token/', headers=headers, json=body)
+
+    if 'token' in r.json():
+        return r.json()['token']
+    elif 'status' in r.json():
+        return r.json()['status']
+    elif 'detail' in r.json():
+        return r.json()['detail']
+    else:
+        return 'Что то пошло не так'
+
+
 def get_balance(token):
     '''
     :param token: токен пользователя в drf
@@ -84,27 +112,36 @@ def send_like(token, telegram_id, telegram_name, amount):
         "reason": "sended_by_bot",
     }
 
-    r = requests.post('http://176.99.6.251:8888/send-coins/', headers=headers, json=body)
+    r = requests.post(drf_url +'send-coins/', headers=headers, json=body)
     try:
-        result = f'Получатель: {r.json()["recipient"]}\n' \
-                 f'Количество: {r.json()["amount"]}\n' \
-                 f'Спасибка отправлена'
+        result = 'Спасибка отправлена'
     except Exception:
-        result = r.json() # 'Что-то пошло не так'
+        result = r.json()[0] # 'Что-то пошло не так'
 
     return result
 
 
-if __name__ == "__main__":
-    print(get_token(
-        telegram_id="5148438149",
-        group_id="-888649764",
-        telegram_name="WLeeto",
-    ))
+def user_organizations(telegram_id):
+    '''
+    Выводит json со всеми организациями пользователя
+    :param token: telegram_id пользователя str
+    :return: json фаил
+    '''
+    headers = {
+        "accept": "application/json",
+        "Authorization": token_drf,
+    }
+    body = {
+        'telegram_id': telegram_id,
+    }
 
-    print(send_like(
-        token='Token da28bf6693a7018cedf679cc618d61a80529e3a6',
-        telegram_id="183417405",
-        telegram_name="Brukva2",
-        amount=1
-    ))
+    r = requests.post(drf_url + 'tg-user-organizations/', headers=headers, json=body)
+    try:
+        return r.json()
+    except:
+        return r
+
+
+if __name__ == "__main__":
+    print(get_token(telegram_id="5148438149", group_id="69", telegram_name="WLeeto"))
+    print(user_organizations(telegram_id="5148438149"))
