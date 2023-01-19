@@ -16,7 +16,14 @@ if __name__ == "__main__":
     #
     # activate_org(tg_id=5148438149, org_id=49)
 
-    # print(get_all_organizations(tg_id=2222438149))
+    print(get_all_organizations(tg_id=332932357))
+    print(get_all_organizations(tg_id=5148438149))
+
+    org_list = []
+    for org in session.query(Organization).join(UO.organization).filter(UO.user_id == 332932357):
+        status = session.query(UO).filter(UO.user_id == 332932357).filter(UO.org_id == org.id).first()
+        org_list.append({"name": org.org_name, "id": org.id, "status": status.is_active})
+    print(org_list)
 
     # active_group_id = session.query(UO).filter(UO.user_id == 5148438149).filter(UO.is_active == True).first()
     # print(active_group_id.org_id)

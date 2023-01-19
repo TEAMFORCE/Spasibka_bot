@@ -18,7 +18,7 @@ def get_user_organization_keyboard(telegram_id):
     user_organizations_kb = InlineKeyboardMarkup(row_width=2)
     for i in organization_list:
         if i["status"] == True:
-            button = InlineKeyboardButton(text='✅' + i['name'], callback_data='org ' + str(i['id']) + " " + i['name'])
+            button = InlineKeyboardButton(text=i['name'] + ' ✅', callback_data='org ' + str(i['id']) + " " + i['name'])
             user_organizations_kb.add(button)
         else:
             button = InlineKeyboardButton(text=i['name'], callback_data='org ' + str(i['id']) + " " + i['name'])

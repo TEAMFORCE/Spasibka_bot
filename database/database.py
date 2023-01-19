@@ -101,7 +101,7 @@ def get_all_organizations(tg_id):
     '''
     org_list = []
     for org in session.query(Organization).join(UO.organization).filter(UO.user_id == tg_id):
-        status = session.query(UO).filter(UO.org_id == org.id).first()
+        status = session.query(UO).filter(UO.user_id == tg_id).filter(UO.org_id == org.id).first()
         org_list.append({"name": org.org_name, "id": org.id, "status": status.is_active})
     return org_list
 
