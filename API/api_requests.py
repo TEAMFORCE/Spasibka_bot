@@ -59,7 +59,7 @@ def get_token_by_organization_id(telegram_id, organization_id, telegram_name):
         return 'Что то пошло не так'
 
 
-def get_balance(token):
+def get_balance(token: str):
     '''
     :param token: токен пользователя в drf
     :return: json со статистикой пользователя
@@ -98,7 +98,7 @@ def get_balance(token):
         return r.json()
 
 
-def send_like(token, telegram_id, telegram_name, amount):
+def send_like(token: str, telegram_id: str, telegram_name: str, amount: int):
     headers = {
         "accept": "application/json",
         "Authorization": "Token " + token,
@@ -121,7 +121,7 @@ def send_like(token, telegram_id, telegram_name, amount):
     return result
 
 
-def user_organizations(telegram_id):
+def user_organizations(telegram_id: str):
     '''
     Выводит json со всеми организациями пользователя
     :param token: telegram_id пользователя str
@@ -142,6 +142,57 @@ def user_organizations(telegram_id):
         return r
 
 
+def export_file_transactions_by_group_id(telegram_id: str, group_id: str):
+    '''
+    Для общения в группе. Возвращает фаил .xlxs со всеми транзакциями
+    '''
+    headers = {
+        "accept": "application/json",
+        "Authorization": token_drf,
+    }
+    body = {
+        "telegram_id": telegram_id,
+        "group_id": group_id
+    }
+
+    r = requests.post(drf_url + 'tg-export/', headers=headers, json=body)
+
+    if r.status_code == 200:
+        return r.content
+    elif r.status_code == 404:
+        return r.json()
+    elif r.status_code == 400:
+        return r.json()
+    else:
+        return {"message": "Что то пошло не так"}
+
+
+def export_file_transactions_by_organization_id(telegram_id: str, organization_id: int):
+    '''
+    Для общения в ЛС. Возвращает фаил .xlxs со всеми транзакциями активной организации
+    '''
+    headers = {
+        "accept": "application/json",
+        "Authorization": token_drf,
+    }
+    body = {
+        "telegram_id": telegram_id,
+        "organization_id": organization_id
+    }
+
+    r = requests.post(drf_url + 'tg-export/', headers=headers, json=body)
+
+    if r.status_code == 200:
+        return r.content
+    elif r.status_code == 404:
+        return r.json()
+    elif r.status_code == 400:
+        return r.json()
+    else:
+        return {"message": "Что то пошло не так"}
+
+
 if __name__ == "__main__":
-    print(get_token(telegram_id="5148438149", group_id="69", telegram_name="WLeeto"))
-    print(user_organizations(telegram_id="5148438149"))
+    # print(get_token(telegram_id="5148438149", group_id="69", telegram_name="WLeeto"))
+    # print(user_organizations(telegram_id="5148438149"))
+    print(export_file_transactions_by_group_id(telegram_id="5148438149", group_id="-88649764"))

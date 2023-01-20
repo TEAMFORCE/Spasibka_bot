@@ -37,9 +37,11 @@ async def who(message: types.Message):
         try:
             telegram_id = message.reply_to_message.from_user.id
             telegram_name = message.reply_to_message.from_user.username
+            telegram_group_id = message.reply_to_message.chat.id
 
             await bot.send_message(message.chat.id, f'Id: {telegram_id}\n'
-                                                    f'Ник пользователя: {telegram_name}')
+                                                    f'Ник пользователя: {telegram_name}\n'
+                                                    f'Id группы: {telegram_group_id}')
         except AttributeError:
             await bot.send_message(message.chat.id, 'Необходимо цитировать сообщение')
 
