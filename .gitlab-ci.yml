@@ -6,6 +6,7 @@ stages:
 # Deployment
 # ------------------------------------------------------------------------------
 .ssh_connection: &ssh_connection
+  - echo "# Init SSH!"
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - eval $(ssh-agent -s)
@@ -25,6 +26,7 @@ development-deploy:
   before_script:
     - *ssh_connection
   script:
+    - echo "# SSH conecting..."
     - |
         ssh \
           -p $CD_STAGING_SERVER_PORT \
