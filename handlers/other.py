@@ -19,8 +19,6 @@ async def likes(message: types.Message):
         likes = re.match(pattern, message.text).group(1)
         other = re.match(pattern, message.text).group(2)
 
-        # await bot.send_message(message.chat.id, f'Количество лайков: {likes}\nНеобязательное сообщение: {other}')
-
         telegram_id = message.from_user.id
         group_id = str(message.chat.id)
         telegram_name = message.from_user.username

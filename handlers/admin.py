@@ -33,6 +33,9 @@ async def like(message: types.Message):
 
 # @dp.message_handler(commands=['who'])
 async def who(message: types.Message):
+    '''
+    Необходимо цитировать сообщенеи. Выводит информацию о пользователе в ответном сообщении
+    '''
     if message.from_user.id in ID:
         try:
             telegram_id = message.reply_to_message.from_user.id
@@ -48,6 +51,9 @@ async def who(message: types.Message):
 
 # @dp.message_handler(commands=['info'])
 async def info(message: types.Message):
+    '''
+    Выводит информацию об отправителе
+    '''
     if message.from_user.id in ID:
         await message.reply(f'id пользователя: {message.from_user.id}\n'
                             f'имя пользователя {message.from_user.username}\n'
@@ -56,6 +62,9 @@ async def info(message: types.Message):
 
 # @dp.message_handler(commands=['drop_base'])
 async def drop_base(message: types.Message):
+    '''
+    Удаляет БД и все записи
+    '''
     if message.from_user.id in ID:
         drop_tables()
         create_tables()
