@@ -38,7 +38,7 @@ async def delete_message(message: types.Message, sleep_time: int=0):
         await message.delete()
 
 
-@dp.message_handler(commands=['test'])
+# @dp.message_handler(commands=['test'])
 async def test(message: types.Message):
     msg = await message.reply('Это сообщение будет удалено через 5 секунд')
     asyncio.create_task(delete_message(msg, 5))
@@ -184,3 +184,4 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(go, commands=['go'])
     dp.register_message_handler(export, commands=['export'])
     dp.register_message_handler(webwiev, commands=['webwiev'])
+    dp.register_message_handler(test, commands=['test'])

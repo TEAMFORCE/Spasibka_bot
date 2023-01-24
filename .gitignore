@@ -2,3 +2,5 @@ sandbox.py
 temp.txt
 censored.py
 test_db.py
+bot_db.sqlite
+.envs
