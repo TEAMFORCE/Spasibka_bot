@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 
 import aiogram.utils.exceptions
 
@@ -29,7 +28,7 @@ from aiogram.utils.exceptions import MessageToEditNotFound, MessageCantBeEdited,
 from dict_cloud.dicts import sleep_timer
 
 
-async def delete_message(message: types.Message, sleep_time: int=0):
+async def delete_message(message: types.Message, sleep_time: int = 0):
     '''
     Удаляет сообщение по истичению таймера sleep_time
     '''
