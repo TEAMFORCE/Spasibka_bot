@@ -108,7 +108,7 @@ def get_all_organizations(tg_id):
 
 def find_active_organization(tg_id):
     '''
-    Находит активную организацию при общении с ботом в личке. Возвращает id активной организации
+    Находит активную организацию. Возвращает id активной организации
     '''
     active_group_id = session.query(UO).filter(UO.user_id == tg_id).filter(UO.is_active == True).first()
     return active_group_id.org_id

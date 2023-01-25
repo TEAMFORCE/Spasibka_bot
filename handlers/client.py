@@ -5,14 +5,14 @@ import time
 import aiogram.utils.exceptions
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))  # todo наверняка импорт можно сделать проще
-from keyboards.inline_not_complited_transactions import not_complited_transactions
+from keyboards.inline_not_complited_transactions import get_not_complited_transactions_kb
 from keyboards.inline_user_organizations import get_user_organization_keyboard
 from keyboards.inline_webapp_test import start_web_app
 
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from API.api_requests import send_like, get_token, get_balance, user_organizations, get_token_by_organization_id,\
-    export_file_transactions_by_group_id, export_file_transactions_by_organization_id
+    export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes
 
 from dict_cloud import dicts
 
@@ -56,8 +56,13 @@ async def balance(message: types.Message):
         group_id = message.chat.id
         token = get_token(telegram_id, group_id, telegram_name)
     else:
-        organization_id = str(find_active_organization(telegram_id))
-        token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
+        organization_id = find_active_organization(telegram_id)
+        try:
+            token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
+        except TypeError:
+            answer = await message.reply(dicts.errors['no_active_organization'])
+            await delete_message(answer, sleep_time=sleep_timer)
+            return
 
     balance = get_balance(token)
 
@@ -87,14 +92,30 @@ async def ct(message: types.Message):
     '''
     Выводит инлайн клавиатуру с не проведенными транзакциями
     '''
-    try:
-        answer = await bot.send_message(
-            message.from_user.id, 'Для отмены транзакции выберите соответствующую транзакции кнопку',
-            reply_markup=not_complited_transactions)
-        await delete_message(answer, sleep_timer)
-    except:
-        answer = await message.reply(dicts.errors['no_chat_with_bot'])
-        await delete_message(answer, sleep_timer)
+    telegram_id = message.from_user.id
+    organization_id = find_active_organization(tg_id=telegram_id)
+    telegram_name = message.from_user.username
+    token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
+    list_of_cancelable_likes = get_all_cancelable_likes(user_token=token)
+    not_complited_transactions = get_not_complited_transactions_kb(user_token=token,
+                                                                   list_of_canceleble_likes=list_of_cancelable_likes)
+
+    if len(not_complited_transactions.values['inline_keyboard']) == 0:
+        try:
+            answer = await bot.send_message(message.from_user.id, dicts.errors['no_likes_to_cancel'])
+            await delete_message(answer, sleep_time=sleep_timer)
+        except:
+            answer = await message.reply(dicts.errors['no_chat_with_bot'])
+            await delete_message(answer, sleep_timer)
+    else:
+        try:
+            answer = await bot.send_message(
+                message.from_user.id, 'Для отмены транзакции выберите соответствующую транзакции кнопку',
+                reply_markup=not_complited_transactions)
+            await delete_message(answer, sleep_timer)
+        except:
+            answer = await message.reply(dicts.errors['no_chat_with_bot'])
+            await delete_message(answer, sleep_timer)
 
 
 # @dp.message_handler(commands=['go'])

@@ -98,10 +98,10 @@ def get_balance(token: str):
         return r.json()
 
 
-def send_like(token: str, telegram_id: str, telegram_name: str, amount: int):
+def send_like(user_token: str, telegram_id: str, telegram_name: str, amount: int):
     headers = {
         "accept": "application/json",
-        "Authorization": "Token " + token,
+        "Authorization": "Token " + user_token,
     }
 
     body = {
@@ -192,7 +192,51 @@ def export_file_transactions_by_organization_id(telegram_id: str, organization_i
         return {"message": "Что то пошло не так"}
 
 
+def get_all_cancelable_likes(user_token: str):
+    '''
+    Выводит список всех транзакций, которые возможно отменить
+    '''
+    headers = {
+        "accept": "application/json",
+        "Authorization": "Token " + user_token,
+    }
+    r = requests.get(drf_url + 'user/transactions/waiting/', headers=headers)
+
+    likes_list = []
+
+    for likes in r.json():
+        if likes['can_user_cancel'] == True:
+            likes_list.append({'amount': likes['amount'],
+                               'recipient': likes['recipient']['recipient_tg_name'],
+                               'id': likes['id'],
+                               'organization': likes['organization'],
+                               })
+    return likes_list
+
+
+def cansel_transaction(user_token: str, like_id: int):
+    '''
+    Отменяет спасибку, если это возможно
+    '''
+    headers = {
+        "accept": "application/json",
+        "Authorization": "Token " + user_token,
+    }
+    body = {
+        'status': 'C',
+    }
+    r = requests.put(f'{drf_url}cancel-transaction/{like_id}/', headers=headers, json=body)
+
+    if r.status_code == 200:
+        return 'Спасибка отменена'
+    else:
+        return 'Не получилось отменить спасибку'
+
+
 if __name__ == "__main__":
-    # print(get_token(telegram_id="5148438149", group_id="69", telegram_name="WLeeto"))
+    # print(find_active_organization(tg_id=5148438149))
+    # print(get_token(telegram_id="5148438149", group_id=group_id, telegram_name="WLeeto"))
     # print(user_organizations(telegram_id="5148438149"))
-    print(export_file_transactions_by_group_id(telegram_id="5148438149", group_id="-88649764"))
+    # print(export_file_transactions_by_group_id(telegram_id="5148438149", group_id="-88649764"))
+    print(get_token_by_organization_id(telegram_id="5148438149", organization_id=49, telegram_name="WLeeto"))
+    print(get_all_cancelable_likes(user_token="da28bf6693a7018cedf679cc618d61a80529e3a6"))

@@ -1,6 +1,6 @@
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
-from API.api_requests import send_like, get_token
+from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id
 from database.database import deactivate_all, activate_org
 import re
 import time
@@ -37,12 +37,16 @@ async def likes(message: types.Message):
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith('delete '))
-async def delete_transaction(callback_query: types.CallbackQuery):
+async def cancel_like(callback_query: types.CallbackQuery):
+    telegram_id = callback_query.from_user.id
+    organization_id = callback_query.data.split(" ")[2]
+    telegram_name = callback_query.from_user.username
+    token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
     await callback_query.answer(f'Отменяем транзакцию {callback_query.data.split(" ")[1]}')
-    await bot.edit_message_text(f'Транзакция {callback_query.data.split(" ")[1]} отменена',
+    message = cansel_transaction(user_token=token, like_id=int(callback_query.data.split(" ")[1]))
+    await bot.edit_message_text(text=message,
                                 chat_id=callback_query.from_user.id,
                                 message_id=callback_query.message.message_id)
-    # todo по созданию эндпоинта добавить отмену транзакции по идентификатору
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith('org '))
@@ -56,5 +60,5 @@ async def change_active_organization(callback_query: types.CallbackQuery):
 
 def register_handlers_other(dp: Dispatcher):
     dp.register_message_handler(likes, content_types=['text'])
-    dp.register_callback_query_handler(delete_transaction, lambda c: c.data.startswith('delete '))
+    dp.register_callback_query_handler(cancel_like, lambda c: c.data.startswith('delete '))
     dp.register_callback_query_handler(change_active_organization, lambda c: c.data.startswith('org '))
