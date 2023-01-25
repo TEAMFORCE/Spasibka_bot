@@ -92,9 +92,15 @@ async def ct(message: types.Message):
     Выводит инлайн клавиатуру с не проведенными транзакциями
     '''
     telegram_id = message.from_user.id
-    organization_id = find_active_organization(tg_id=telegram_id)
+    group_id = message.chat.id
     telegram_name = message.from_user.username
-    token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
+
+    if telegram_id == group_id:
+        organization_id = find_active_organization(tg_id=telegram_id)
+        token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
+    else:
+        token = get_token(telegram_id, group_id, telegram_name)
+
     list_of_cancelable_likes = get_all_cancelable_likes(user_token=token)
     not_complited_transactions = get_not_complited_transactions_kb(user_token=token,
                                                                    list_of_canceleble_likes=list_of_cancelable_likes)
