@@ -12,28 +12,35 @@ async def likes(message: types.Message):
     '''
     При получении сообщения начинающегося с '+' отправляет лайки пользователю цитируемого сообщения
     :param message: Формат: +n 'необязательное сообщение', n-количество спасибок
-    :return:
     '''
-    if message.text.startswith('+'):
-        pattern = r'\+(\d*)(.*)'
-        likes = re.match(pattern, message.text).group(1)
-        other = re.match(pattern, message.text).group(2)
+    pattern_username = re.search(r'@(\w+)', message.text).group(1)
 
-        telegram_id = message.from_user.id
-        group_id = str(message.chat.id)
-        telegram_name = message.from_user.username
-        token = get_token(telegram_id, group_id, telegram_name)
+    sender_telegram_id = message.from_user.id
+    group_id = str(message.chat.id)
+    sender_telegram_name = message.from_user.username
 
-        telegram_id = str(message.reply_to_message.from_user.id)
-        telegram_name = message.reply_to_message.from_user.username
-        amount = likes
+    token = get_token(telegram_id=sender_telegram_id,
+                      group_id=group_id,
+                      telegram_name=sender_telegram_name)
 
-        result = send_like(token, telegram_id, telegram_name, amount)
+    pattern = r'\+(\d*)(.*)'
+    amount = re.match(pattern, message.text).group(1)
+    # other = re.match(pattern, message.text).group(2)
+    if message.text.startswith('+') and message.reply_to_message:
+        recipient_telegram_id = str(message.reply_to_message.from_user.id)
+        recipient_telegram_name = message.reply_to_message.from_user.username
 
-        if result == 'Спасибка отправлена':
-            await message.reply(f'Перевод на {amount} для @{telegram_name} сформирован')
-        else:
-            await message.reply(result)
+        result = send_like(user_token=token,
+                           telegram_id=recipient_telegram_id,
+                           telegram_name=recipient_telegram_name,
+                           amount=amount)
+
+        await message.reply(result)
+
+    elif pattern_username:
+        recipient_telegram_name = pattern_username
+        result = send_like(user_token=token, telegram_name=recipient_telegram_name, amount=amount)
+        await message.reply(result)
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith('delete '))

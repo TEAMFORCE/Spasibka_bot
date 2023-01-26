@@ -24,11 +24,11 @@ def get_token(telegram_id, group_id, telegram_name):
     if 'token' in r.json():
         return r.json()['token']
     elif 'status' in r.json():
-        return r.json()['status']
+        print(r.json()['status'])
     elif 'detail' in r.json():
-        return r.json()['detail']
+        print(r.json()['detail'])
     else:
-        return 'Что то пошло не так'
+        print('Что то пошло не так')
 
 
 def get_token_by_organization_id(telegram_id, organization_id, telegram_name):
@@ -98,7 +98,7 @@ def get_balance(token: str):
         return r.json()
 
 
-def send_like(user_token: str, telegram_id: str, telegram_name: str, amount: int):
+def send_like(user_token: str, telegram_id: str = None, telegram_name: str = None, amount: int = None):
     headers = {
         "accept": "application/json",
         "Authorization": "Token " + user_token,
@@ -113,17 +113,19 @@ def send_like(user_token: str, telegram_id: str, telegram_name: str, amount: int
     }
 
     r = requests.post(drf_url +'send-coins/', headers=headers, json=body)
-    try:
-        result = 'Спасибка отправлена'
-    except Exception:
-        result = r.json()[0] # 'Что-то пошло не так'
 
-    return result
+    if r.status_code == 201:
+        return f'Перевод на {amount} для @{telegram_name} сформирован'
+    elif r.status_code == 500:
+        return 'Что то пошло не так'
+    else:
+        return r.json()[0]
 
 
 def user_organizations(telegram_id: str):
     '''
     Выводит json со всеми организациями пользователя
+    :type telegram_id: str
     :param token: telegram_id пользователя str
     :return: json фаил
     '''
