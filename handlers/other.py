@@ -13,7 +13,7 @@ async def likes(message: types.Message):
     При получении сообщения начинающегося с '+' отправляет лайки пользователю цитируемого сообщения
     :param message: Формат: +n 'необязательное сообщение', n-количество спасибок
     '''
-    pattern_username = re.search(r'@(\w+)', message.text).group(1)
+    pattern_username = re.search(r'@(\w+)', message.text)
 
     sender_telegram_id = message.from_user.id
     group_id = str(message.chat.id)
@@ -38,7 +38,7 @@ async def likes(message: types.Message):
         await message.reply(result)
 
     elif pattern_username:
-        recipient_telegram_name = pattern_username
+        recipient_telegram_name = pattern_username.group(1)
         result = send_like(user_token=token, telegram_name=recipient_telegram_name, amount=amount)
         await message.reply(result)
 
