@@ -23,9 +23,9 @@ import datetime
 import asyncio
 from contextlib import suppress
 from aiogram.utils.exceptions import MessageToEditNotFound, MessageCantBeEdited, MessageCantBeDeleted, \
-    MessageToDeleteNotFound
+    MessageToDeleteNotFound, CantInitiateConversation
 
-from dict_cloud.dicts import sleep_timer
+from dict_cloud.dicts import sleep_timer, messages
 
 
 async def delete_message(message: types.Message, sleep_time: int = 0):
@@ -35,6 +35,20 @@ async def delete_message(message: types.Message, sleep_time: int = 0):
     await asyncio.sleep(sleep_time)
     with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
         await message.delete()
+
+
+# @dp.message_handler(commands=['start', 'help'])
+async def start(message: types.Message):
+    if message.chat.id == message.from_user.id:
+        await bot.send_message(message.chat.id, messages['start_message'])
+    else:
+        try:
+            await bot.send_message(message.from_user.id, messages['start_message'])
+            answer = message.reply('Ответил в личку 😉')
+            await delete_message(answer, sleep_timer)
+        except CantInitiateConversation:
+            answer = await message.reply(dicts.errors['no_chat_with_bot'])
+            await delete_message(answer, sleep_timer)
 
 
 # @dp.message_handler(commands=['test'])
@@ -109,7 +123,7 @@ async def ct(message: types.Message):
         try:
             answer = await bot.send_message(message.from_user.id, dicts.errors['no_likes_to_cancel'])
             await delete_message(answer, sleep_time=sleep_timer)
-        except:
+        except CantInitiateConversation:
             answer = await message.reply(dicts.errors['no_chat_with_bot'])
             await delete_message(answer, sleep_timer)
     else:
@@ -118,7 +132,7 @@ async def ct(message: types.Message):
                 message.from_user.id, 'Для отмены транзакции выберите соответствующую транзакции кнопку',
                 reply_markup=not_complited_transactions)
             await delete_message(answer, sleep_timer)
-        except:
+        except CantInitiateConversation:
             answer = await message.reply(dicts.errors['no_chat_with_bot'])
             await delete_message(answer, sleep_timer)
 
@@ -135,14 +149,14 @@ async def go(message: types.Message):
             org = create_organization_if_not_exist(org_name=organization['name'], id=organization['id'])
             bind_user_org(user=user, org=org)
         if message.from_user.id != message.chat.id:
-            bot.delete_message(message.chat.id, message.message_id)
-        answer = await bot.send_message(
+            await bot.delete_message(message.chat.id, message.message_id)
+            answer = await bot.send_message(
             message.from_user.id,
             'Укажите вашу организацию:',
             reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id)
         )
         await delete_message(answer, sleep_timer)
-    except aiogram.utils.exceptions.CantInitiateConversation:
+    except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])
         await delete_message(answer, sleep_timer)
 
@@ -188,7 +202,7 @@ async def export(message: types.Message):
                                         chat_id=message.from_user.id
                                         )
                 os.remove(f'{filename}.xlsx')
-    except aiogram.utils.exceptions.CantInitiateConversation:
+    except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])
         await delete_message(answer, sleep_timer)
 
@@ -199,7 +213,7 @@ async def webwiev(message: types.Message):
         answer = await bot.send_message(chat_id=message.from_user.id, text='Для перехода в приложение нажимай:',
                                reply_markup=start_web_app)
         await delete_message(answer, sleep_timer)
-    except aiogram.utils.exceptions.CantInitiateConversation:
+    except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])
         await delete_message(answer, sleep_timer)
 
@@ -211,3 +225,4 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(export, commands=['export'])
     dp.register_message_handler(webwiev, commands=['webwiev'])
     dp.register_message_handler(test, commands=['test'])
+    dp.register_message_handler(start, commands=['start', 'help'])

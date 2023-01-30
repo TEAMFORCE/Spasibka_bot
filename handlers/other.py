@@ -1,10 +1,11 @@
 from aiogram import types, Dispatcher
+
 from create_bot import dp, bot
 from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id
 from database.database import deactivate_all, activate_org
+from dict_cloud.dicts import messages, sleep_timer
+from handlers.client import delete_message
 import re
-import time
-import asyncio
 
 
 # @dp.message_handler(content_types=['text'])
@@ -65,7 +66,18 @@ async def change_active_organization(callback_query: types.CallbackQuery):
     await bot.send_message(callback_query.from_user.id, f'Текущая организация изменена на {callback_query.data.split(" ")[2]}')
 
 
+# @dp.message_handler(content_types=[types.ContentType.NEW_CHAT_MEMBERS])
+async def greetings(message: types.Message):
+    new_member = message.new_chat_members[0]
+    me = await bot.get_me()
+    bot_name = me.username
+    answer = await bot.send_message(message.chat.id, messages['greetings'].format(user_name=new_member.username,
+                                                                                  bot_name=bot_name))
+    await delete_message(answer, sleep_timer)
+
+
 def register_handlers_other(dp: Dispatcher):
     dp.register_message_handler(likes, content_types=['text'])
     dp.register_callback_query_handler(cancel_like, lambda c: c.data.startswith('delete '))
     dp.register_callback_query_handler(change_active_organization, lambda c: c.data.startswith('org '))
+    dp.register_message_handler(greetings, content_types=[types.ContentType.NEW_CHAT_MEMBERS])
