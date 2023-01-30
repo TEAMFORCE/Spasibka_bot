@@ -40,11 +40,11 @@ async def delete_message(message: types.Message, sleep_time: int = 0):
 # @dp.message_handler(commands=['start', 'help'])
 async def start(message: types.Message):
     if message.chat.id == message.from_user.id:
-        await bot.send_message(message.chat.id, messages['start_message'])
+        await bot.send_message(message.chat.id, messages['start_message'].format(user_name=message.from_user.username))
     else:
         try:
-            await bot.send_message(message.from_user.id, messages['start_message'])
-            answer = message.reply('Ответил в личку 😉')
+            await bot.send_message(message.from_user.id, messages['start_message'].format(user_name=message.from_user.username))
+            answer = await message.reply('Ответил в личку 😉')
             await delete_message(answer, sleep_timer)
         except CantInitiateConversation:
             answer = await message.reply(dicts.errors['no_chat_with_bot'])
