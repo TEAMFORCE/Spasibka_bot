@@ -240,5 +240,7 @@ if __name__ == "__main__":
     # print(get_token(telegram_id="5148438149", group_id=group_id, telegram_name="WLeeto"))
     # print(user_organizations(telegram_id="5148438149"))
     # print(export_file_transactions_by_group_id(telegram_id="5148438149", group_id="-88649764"))
-    print(get_token_by_organization_id(telegram_id="5148438149", organization_id=49, telegram_name="WLeeto"))
-    print(get_all_cancelable_likes(user_token="da28bf6693a7018cedf679cc618d61a80529e3a6"))
+    # print(get_token_by_organization_id(telegram_id="5148438149", organization_id=49, telegram_name="WLeeto"))
+    # print(get_all_cancelable_likes(user_token="da28bf6693a7018cedf679cc618d61a80529e3a6"))
+
+    print(get_token(telegram_id=5148438149, group_id=-674694913, telegram_name='WLeeto'))
