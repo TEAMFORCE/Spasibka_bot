@@ -150,7 +150,7 @@ async def go(message: types.Message):
             bind_user_org(user=user, org=org)
         if message.from_user.id != message.chat.id:
             await bot.delete_message(message.chat.id, message.message_id)
-            answer = await bot.send_message(
+        answer = await bot.send_message(
             message.from_user.id,
             'Укажите вашу организацию:',
             reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id)
