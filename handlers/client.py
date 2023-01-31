@@ -91,7 +91,7 @@ async def balance(message: types.Message):
                                 f'Начальный баланс: _{int(balance["distr"]["amount"]) + int(balance["distr"]["sent"])}_\n'
                                 f'Отправлено: _{int(balance["distr"]["sent"])}_\n'
                                 f'Получено: _{int(balance["income"]["amount"])}_\n'
-                                f'Доступно для распределения: _{int(balance["distr"]["amount"])}_\n'
+                                f'Доступно для распределения: _{int(balance["distr"]["amount"]) + int(balance["income"]["amount"])}_\n'
                                 f'Сгорят: _{int(balance["distr"]["amount"]) + int(balance["distr"]["sent"]) - int(balance["distr"]["sent"])}_',
                                 parse_mode="Markdown")
             await delete_message(answer, sleep_timer)
@@ -150,11 +150,9 @@ async def go(message: types.Message):
             bind_user_org(user=user, org=org)
         if message.from_user.id != message.chat.id:
             await bot.delete_message(message.chat.id, message.message_id)
-        answer = await bot.send_message(
-            message.from_user.id,
-            'Укажите вашу организацию:',
-            reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id)
-        )
+        answer = await bot.send_message(message.from_user.id,
+                                            'Укажите вашу организацию:',
+                                            reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id))
         await delete_message(answer, sleep_timer)
     except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])
