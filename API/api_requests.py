@@ -99,7 +99,7 @@ def get_balance(token: str):
         return r.json()
 
 
-def send_like(user_token: str, telegram_id: str = None, telegram_name: str = None, amount: int = None, tags: int = None):
+def send_like(user_token: str, telegram_id: str = None, telegram_name: str = None, amount: int = None, tags: str = None):
     headers = {
         "accept": "application/json",
         "Authorization": "Token " + user_token,
@@ -111,11 +111,18 @@ def send_like(user_token: str, telegram_id: str = None, telegram_name: str = Non
         "amount": amount,
         "is_anonymous": True,
         "reason": "sended_by_bot",
+        "tags": tags,
     }
 
-    r = requests.post(drf_url +'send-coins/', headers=headers, json=body)
+    r = requests.post(drf_url + 'send-coins/', headers=headers, json=body)
 
-    if r.status_code == 201:
+    if r.status_code == 201 and tags:
+        all_tags = all_like_tags(user_token)
+        for i in all_tags:
+            if i['id'] == int(tags):
+                tag_name = i['name']
+        return f'Перевод на {amount} для @{telegram_name} сформирован с тегом #{tag_name}'
+    elif r.status_code == 201:
         return f'Перевод на {amount} для @{telegram_name} сформирован'
     elif r.status_code == 500:
         return 'Что то пошло не так'

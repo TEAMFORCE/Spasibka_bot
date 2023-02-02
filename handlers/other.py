@@ -1,7 +1,7 @@
 from aiogram import types, Dispatcher
 
 from create_bot import dp, bot
-from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id
+from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id, all_like_tags
 from database.database import deactivate_all, activate_org
 from dict_cloud.dicts import messages, sleep_timer
 from handlers.client import delete_message
@@ -9,65 +9,72 @@ import re
 
 
 # @dp.message_handler(content_types=['text'])
-# async def likes_test(message: types.Message):
-#     # if sender_telegram_id == group_id:
-#     #     return
-#
-#     sender_telegram_id = message.from_user.id
-#     sender_telegram_name = message.from_user.username
-#     group_id = message.chat.id
-#
-#     pattern_likes = r'\+(\d*) '
-#     pattern_nickname = r'@(\w*)'
-#     pattern_tag = r'#(\D*)'
-#
-#     likes = re.match(pattern_likes, message.text)
-#     nickname = re.search(pattern_nickname, message.text)
-#     tag = re.search(pattern_tag, message.text)
-#
-#     if message.text.startswith('+') and message.reply_to_message:
-#         pass
-#     elif message.text.startswith('+'):
-#         await message.reply(f'{likes}\n'
-#                             f'{nickname}\n'
-#                             f'{tag}')
-
-
-# @dp.message_handler(content_types=['text'])
 async def likes(message: types.Message):
     '''
     При получении сообщения начинающегося с '+' отправляет лайки пользователю цитируемого сообщения
-    :param message: Формат: +n 'необязательное сообщение', n-количество спасибок
+    Формат: +n 'необязательное сообщение', n-количество спасибок
+    Формат +n @Nickname 'необязательное сообщение', n-количество спасибок по никнейму
+    Формат +n @Nickname 'необязательное сообщение' #тэг, n-количество спасибок по никнейму с тэгом
     '''
-    pattern_username = re.search(r'@(\w+)', message.text)
-    pattern_tag = re.search(r'#(\D*)', message.text)
+    if message.text.startswith('+'):
+        pattern_username = re.search(r'@(\w+)', message.text)
+        pattern_tag = re.search(r'#(\D*)', message.text)
+        pattern_amount = re.match(r'\+(\d*)(.*)', message.text)
+        amount = pattern_amount.group(1)
+        result = None
 
-    sender_telegram_id = message.from_user.id
-    group_id = str(message.chat.id)
-    sender_telegram_name = message.from_user.username
+        if amount:
+            sender_telegram_id = message.from_user.id
+            group_id = str(message.chat.id)
+            sender_telegram_name = message.from_user.username
+            token = get_token(telegram_id=sender_telegram_id,
+                              group_id=group_id,
+                              telegram_name=sender_telegram_name)
 
-    token = get_token(telegram_id=sender_telegram_id,
-                      group_id=group_id,
-                      telegram_name=sender_telegram_name)
+            if message.reply_to_message:
+                recipient_telegram_id = str(message.reply_to_message.from_user.id)
+                recipient_telegram_name = message.reply_to_message.from_user.username
+                if pattern_tag:
+                    tag = pattern_tag.group(1)
+                    all_tags = all_like_tags(user_token=token)
+                    for i in all_tags:
+                        if i['name'] == tag:
+                            tag_id = str(i['id'])
+                            break
+                        else:
+                            tag_id = None
+                else:
+                    tag_id = None
 
-    pattern = r'\+(\d*)(.*)'
-    amount = re.match(pattern, message.text).group(1)
-    # other = re.match(pattern, message.text).group(2)
-    if message.text.startswith('+') and message.reply_to_message:
-        recipient_telegram_id = str(message.reply_to_message.from_user.id)
-        recipient_telegram_name = message.reply_to_message.from_user.username
+                result = send_like(user_token=token,
+                                   telegram_id=recipient_telegram_id,
+                                   telegram_name=recipient_telegram_name,
+                                   amount=amount,
+                                   tags=tag_id)
 
-        result = send_like(user_token=token,
-                           telegram_id=recipient_telegram_id,
-                           telegram_name=recipient_telegram_name,
-                           amount=amount)
+            elif pattern_username:
+                recipient_telegram_name = pattern_username.group(1)
+                if pattern_tag:
+                    tag = pattern_tag.group(1)
+                    all_tags = all_like_tags(user_token=token)
+                    for i in all_tags:
+                        if i['name'] == tag:
+                            tag_id = str(i['id'])
+                            break
+                        else:
+                            tag_id = None
 
-        await message.reply(result)
-
-    elif pattern_username:
-        recipient_telegram_name = pattern_username.group(1)
-        result = send_like(user_token=token, telegram_name=recipient_telegram_name, amount=amount)
-        await message.reply(result)
+                    result = send_like(user_token=token,
+                                       telegram_name=recipient_telegram_name,
+                                       amount=amount,
+                                       tags=tag_id)
+                else:
+                    result = send_like(user_token=token,
+                                       telegram_name=recipient_telegram_name,
+                                       amount=amount)
+        if result is not None:
+            answer = await message.reply(result)
+            await delete_message(answer, sleep_timer)
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith('delete '))
