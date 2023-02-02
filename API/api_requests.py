@@ -1,6 +1,7 @@
 import requests
 
 from censored import token_drf, drf_url
+from pprint import pprint
 
 
 def get_token(telegram_id, group_id, telegram_name):
@@ -98,7 +99,7 @@ def get_balance(token: str):
         return r.json()
 
 
-def send_like(user_token: str, telegram_id: str = None, telegram_name: str = None, amount: int = None):
+def send_like(user_token: str, telegram_id: str = None, telegram_name: str = None, amount: int = None, tags: int = None):
     headers = {
         "accept": "application/json",
         "Authorization": "Token " + user_token,
@@ -235,6 +236,21 @@ def cansel_transaction(user_token: str, like_id: int):
         return 'Не получилось отменить спасибку'
 
 
+def all_like_tags(user_token: str):
+    '''
+    Возвращает все теги для спасибок
+    '''
+    headers = {
+        "accept": "application/json",
+        "Authorization": "Token " + user_token,
+    }
+    r = requests.get('http://176.99.6.251:8888/send-coins-settings/', headers=headers)
+    if r.status_code == 200:
+        return r.json()['tags']
+    else:
+        return 'Что то пошло не так'
+
+
 if __name__ == "__main__":
     # print(find_active_organization(tg_id=5148438149))
     # print(get_token(telegram_id="5148438149", group_id=group_id, telegram_name="WLeeto"))
@@ -243,4 +259,4 @@ if __name__ == "__main__":
     # print(get_token_by_organization_id(telegram_id="5148438149", organization_id=49, telegram_name="WLeeto"))
     # print(get_all_cancelable_likes(user_token="da28bf6693a7018cedf679cc618d61a80529e3a6"))
 
-    print(get_token(telegram_id=5148438149, group_id=-674694913, telegram_name='WLeeto'))
+    pprint(all_like_tags(user_token="da28bf6693a7018cedf679cc618d61a80529e3a6"))

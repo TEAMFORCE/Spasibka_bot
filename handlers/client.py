@@ -10,8 +10,9 @@ from keyboards.inline_webapp_test import start_web_app
 
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
-from API.api_requests import send_like, get_token, get_balance, user_organizations, get_token_by_organization_id,\
-    export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes
+from API.api_requests import send_like, get_token, get_balance, user_organizations, get_token_by_organization_id, \
+    export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
+    all_like_tags
 
 from dict_cloud import dicts
 
@@ -70,15 +71,13 @@ async def balance(message: types.Message):
         token = get_token(telegram_id, group_id, telegram_name)
     else:
         organization_id = find_active_organization(telegram_id)
-        try:
+        if organization_id is not None:
             token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
-        except TypeError:
+        else:
             answer = await message.reply(dicts.errors['no_active_organization'])
             await delete_message(answer, sleep_time=sleep_timer)
             return
-
     balance = get_balance(token)
-
     if balance == 'Что то пошло не так':
         answer = await message.reply(balance)
         await delete_message(answer, sleep_timer)
@@ -216,6 +215,32 @@ async def webwiev(message: types.Message):
         await delete_message(answer, sleep_timer)
 
 
+# @dp.message_handler(commands=['tags'])
+async def tags(message: types.Message):
+    telegram_id = message.from_user.id
+    group_id = message.chat.id
+    telegram_name = message.from_user.username
+
+    if telegram_id == group_id:
+        organization_id = find_active_organization(telegram_id)
+        if organization_id is not None:
+            token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
+        else:
+            answer = await message.reply(dicts.errors['no_active_organization'])
+            await delete_message(answer, sleep_time=sleep_timer)
+            return
+    else:
+        token = get_token(telegram_id, group_id, telegram_name)
+
+    tags = all_like_tags(user_token=token)
+    tag_list = 'Вот список основных тэгов:\n'
+    for i in tags:
+        tag_list += f'{i["id"]} - {i["name"]}\n'
+
+    answer = await message.reply(tag_list)
+    await delete_message(answer, sleep_timer)
+
+
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(balance, commands=['баланс', 'balance'])
     dp.register_message_handler(ct, commands=['ct'])
@@ -224,3 +249,4 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(webwiev, commands=['webwiev'])
     dp.register_message_handler(test, commands=['test'])
     dp.register_message_handler(start, commands=['start', 'help'])
+    dp.register_message_handler(tags, commands=['tags'])

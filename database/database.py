@@ -111,4 +111,8 @@ def find_active_organization(tg_id):
     Находит активную организацию. Возвращает id активной организации
     '''
     active_group_id = session.query(UO).filter(UO.user_id == tg_id).filter(UO.is_active == True).first()
-    return active_group_id.org_id
+    if active_group_id is not None:
+        return active_group_id.org_id
+    else:
+        return None
+

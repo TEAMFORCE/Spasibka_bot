@@ -9,12 +9,38 @@ import re
 
 
 # @dp.message_handler(content_types=['text'])
+# async def likes_test(message: types.Message):
+#     # if sender_telegram_id == group_id:
+#     #     return
+#
+#     sender_telegram_id = message.from_user.id
+#     sender_telegram_name = message.from_user.username
+#     group_id = message.chat.id
+#
+#     pattern_likes = r'\+(\d*) '
+#     pattern_nickname = r'@(\w*)'
+#     pattern_tag = r'#(\D*)'
+#
+#     likes = re.match(pattern_likes, message.text)
+#     nickname = re.search(pattern_nickname, message.text)
+#     tag = re.search(pattern_tag, message.text)
+#
+#     if message.text.startswith('+') and message.reply_to_message:
+#         pass
+#     elif message.text.startswith('+'):
+#         await message.reply(f'{likes}\n'
+#                             f'{nickname}\n'
+#                             f'{tag}')
+
+
+# @dp.message_handler(content_types=['text'])
 async def likes(message: types.Message):
     '''
     При получении сообщения начинающегося с '+' отправляет лайки пользователю цитируемого сообщения
     :param message: Формат: +n 'необязательное сообщение', n-количество спасибок
     '''
     pattern_username = re.search(r'@(\w+)', message.text)
+    pattern_tag = re.search(r'#(\D*)', message.text)
 
     sender_telegram_id = message.from_user.id
     group_id = str(message.chat.id)
