@@ -251,7 +251,7 @@ def all_like_tags(user_token: str):
         "accept": "application/json",
         "Authorization": "Token " + user_token,
     }
-    r = requests.get('http://176.99.6.251:8888/send-coins-settings/', headers=headers)
+    r = requests.get(drf_url + 'send-coins-settings/', headers=headers)
     if r.status_code == 200:
         return r.json()['tags']
     else:
