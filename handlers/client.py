@@ -91,7 +91,7 @@ async def balance(message: types.Message):
                                 f'Отправлено: _{int(balance["distr"]["sent"])}_\n'
                                 f'Получено: _{int(balance["income"]["amount"])}_\n'
                                 f'Доступно для распределения: _{int(balance["distr"]["amount"]) + int(balance["income"]["amount"])}_\n'
-                                f'Сгорят: _{int(balance["distr"]["amount"]) + int(balance["distr"]["sent"]) - int(balance["distr"]["sent"])}_',
+                                f'Осталось раздать: _{int(balance["distr"]["amount"]) + int(balance["distr"]["sent"]) - int(balance["distr"]["sent"])}_',
                                 parse_mode="Markdown")
             await delete_message(answer, sleep_timer)
         except KeyError:
