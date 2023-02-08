@@ -99,7 +99,7 @@ def get_balance(token: str):
         return r.json()
 
 
-def send_like(user_token: str, telegram_id: str = None, telegram_name: str = None, amount: int = None, tags: str = None):
+def send_like(user_token: str, telegram_id: str = None, telegram_name: str = None, amount: str = None, tags: str = None):
     headers = {
         "accept": "application/json",
         "Authorization": "Token " + user_token,
@@ -116,14 +116,21 @@ def send_like(user_token: str, telegram_id: str = None, telegram_name: str = Non
 
     r = requests.post(drf_url + 'send-coins/', headers=headers, json=body)
 
+    #  Перевод 1 спасибки пользователю
+    thx = 'спасибки'
+    if int(amount) >= 5:
+        thx = 'спасибок'
+
     if r.status_code == 201 and tags:
         all_tags = all_like_tags(user_token)
         for i in all_tags:
             if i['id'] == int(tags):
                 tag_name = i['name']
-        return f'Перевод на {amount} для @{telegram_name} сформирован с тегом #{tag_name}'
+        return f'Перевод {amount} {thx} пользователю @{telegram_name} сформирован с тегом #{tag_name}'
+        # return f'Перевод на {amount} для @{telegram_name} сформирован с тегом #{tag_name}'
     elif r.status_code == 201:
-        return f'Перевод на {amount} для @{telegram_name} сформирован'
+        return f'Перевод {amount} {thx} пользователю @{telegram_name}'
+        # return f'Перевод на {amount} для @{telegram_name} сформирован'
     elif r.status_code == 500:
         return 'Что то пошло не так'
     else:
@@ -257,13 +264,3 @@ def all_like_tags(user_token: str):
     else:
         return 'Что то пошло не так'
 
-
-if __name__ == "__main__":
-    # print(find_active_organization(tg_id=5148438149))
-    # print(get_token(telegram_id="5148438149", group_id=group_id, telegram_name="WLeeto"))
-    # print(user_organizations(telegram_id="5148438149"))
-    # print(export_file_transactions_by_group_id(telegram_id="5148438149", group_id="-88649764"))
-    # print(get_token_by_organization_id(telegram_id="5148438149", organization_id=49, telegram_name="WLeeto"))
-    # print(get_all_cancelable_likes(user_token="da28bf6693a7018cedf679cc618d61a80529e3a6"))
-
-    pprint(all_like_tags(user_token="da28bf6693a7018cedf679cc618d61a80529e3a6"))
