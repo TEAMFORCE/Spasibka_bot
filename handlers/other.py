@@ -35,10 +35,10 @@ async def likes(message: types.Message):
                 recipient_telegram_id = str(message.reply_to_message.from_user.id)
                 recipient_telegram_name = message.reply_to_message.from_user.username
                 if pattern_tag:
-                    tag = pattern_tag.group(1)
+                    tag = pattern_tag.group(1).lower()
                     all_tags = all_like_tags(user_token=token)
                     for i in all_tags:
-                        if i['name'] == tag:
+                        if i['name'].lower() == tag:
                             tag_id = str(i['id'])
                             break
                         else:
@@ -55,10 +55,10 @@ async def likes(message: types.Message):
             elif pattern_username:
                 recipient_telegram_name = pattern_username.group(1)
                 if pattern_tag:
-                    tag = pattern_tag.group(1)
+                    tag = pattern_tag.group(1).lower()
                     all_tags = all_like_tags(user_token=token)
                     for i in all_tags:
-                        if i['name'] == tag:
+                        if i['name'].lower() == tag:
                             tag_id = str(i['id'])
                             break
                         else:
