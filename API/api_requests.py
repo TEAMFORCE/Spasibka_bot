@@ -109,7 +109,7 @@ def send_like(user_token: str, telegram_id: str = None, telegram_name: str = Non
         "recipient_telegram_id": telegram_id,
         "recipient_tg_name": telegram_name,
         "amount": amount,
-        "is_anonymous": True,
+        "is_anonymous": False,
         "reason": "sended_by_bot",
         "tags": tags,
     }
