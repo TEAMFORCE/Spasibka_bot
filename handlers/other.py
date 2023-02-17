@@ -1,8 +1,8 @@
 from aiogram import types, Dispatcher
 
 from create_bot import dp, bot
-from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id, all_like_tags
-from database.database import deactivate_all, activate_org
+from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id, all_like_tags, \
+    set_active_organization
 from dict_cloud.dicts import messages, sleep_timer
 from handlers.client import delete_message
 import re
@@ -92,11 +92,16 @@ async def cancel_like(callback_query: types.CallbackQuery):
 
 # @dp.callback_query_handler(lambda c: c.data.startswith('org '))
 async def change_active_organization(callback_query: types.CallbackQuery):
-    await callback_query.answer(f'Активируем {callback_query.data.split(" ")[1]}')
-    deactivate_all(tg_id=callback_query.from_user.id)
-    activate_org(tg_id=callback_query.from_user.id, org_id=callback_query.data.split(" ")[1])
-    await bot.delete_message(callback_query.from_user.id, callback_query.message.message_id)
-    await bot.send_message(callback_query.from_user.id, f'Текущая организация изменена на {callback_query.data.split(" ")[2]}')
+    organization_id = callback_query.data.split(" ")[1]
+    telegram_id = callback_query.from_user.id
+    result = set_active_organization(organization_id, telegram_id)
+    if result:
+        await callback_query.answer(f'Активируем {callback_query.data.split(" ")[2]}')
+        await bot.delete_message(telegram_id, callback_query.message.message_id)
+        await bot.send_message(telegram_id, f'Текущая организация изменена на {callback_query.data.split(" ")[2]}')
+    else:
+        await bot.delete_message(telegram_id, callback_query.message.message_id)
+        await bot.send_message(telegram_id, 'Не удалось сменить организацию')
 
 
 # @dp.message_handler(content_types=[types.ContentType.NEW_CHAT_MEMBERS])

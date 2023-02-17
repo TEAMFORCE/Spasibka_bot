@@ -12,7 +12,7 @@ from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from API.api_requests import send_like, get_token, get_balance, user_organizations, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
-    all_like_tags
+    all_like_tags, get_active_organization
 
 from dict_cloud import dicts
 
@@ -31,7 +31,7 @@ from dict_cloud.dicts import sleep_timer, messages
 
 async def delete_message(message: types.Message, sleep_time: int = 0):
     '''
-    Удаляет сообщение по истичению таймера sleep_time
+    Удаляет сообщение по истечению таймера sleep_time
     '''
     await asyncio.sleep(sleep_time)
     with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
@@ -70,7 +70,7 @@ async def balance(message: types.Message):
         group_id = message.chat.id
         token = get_token(telegram_id, group_id, telegram_name)
     else:
-        organization_id = find_active_organization(telegram_id)
+        organization_id = get_active_organization(telegram_id)
         if organization_id is not None:
             token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
         else:
@@ -142,20 +142,15 @@ async def go(message: types.Message):
     В личном общении выводит список доступных организаций в виде инлайн клавиатуры
     '''
     try:
-        user = create_user_if_not_exist(tg_id=message.from_user.id, tg_username=message.from_user.username)
-
-        for organization in user_organizations(telegram_id=message.from_user.id):
-            org = create_organization_if_not_exist(org_name=organization['name'], id=organization['id'])
-            bind_user_org(user=user, org=org)
-        if message.from_user.id != message.chat.id:
-            await bot.delete_message(message.chat.id, message.message_id)
-        answer = await bot.send_message(message.from_user.id,
-                                            'Укажите вашу организацию:',
-                                            reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id))
-        await delete_message(answer, sleep_timer)
+        answer = await bot.send_message(
+            message.from_user.id,
+            'Укажите вашу организацию:',
+            reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id)
+        )
+        asyncio.create_task(delete_message(answer, sleep_timer))
     except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])
-        await delete_message(answer, sleep_timer)
+        asyncio.create_task(delete_message(answer, sleep_timer))
 
 
 # @dp.message_handler(commands=['export'])

@@ -132,7 +132,8 @@ def send_like(user_token: str, telegram_id: str = None, telegram_name: str = Non
         return f'Перевод {amount} {thx} пользователю @{telegram_name}'
         # return f'Перевод на {amount} для @{telegram_name} сформирован'
     elif r.status_code == 500:
-        return 'Что то пошло не так'
+        return 'Что то пошло не так\n' \
+               'Проверьте что группа зарегистрирована в системе'
     else:
         return r.json()[0]
 
@@ -263,4 +264,48 @@ def all_like_tags(user_token: str):
         return r.json()['tags']
     else:
         return 'Что то пошло не так'
+
+
+def set_active_organization(organization_id: int, telegram_id: str):
+    '''
+    Делает активной выбранную организацию
+    '''
+    headers = {
+        "accept": "application/json",
+        "Authorization": token_drf,
+    }
+    body = {
+        "organization_id": organization_id,
+        "telegram_id": telegram_id,
+    }
+
+    r = requests.post(drf_url + 'set-bot-organization/', headers=headers, json=body)
+    if r.status_code == 201:
+        return True
+    else:
+        return False
+
+
+def get_active_organization(telegram_id: str):
+    '''
+    Отдает id активной организации или None если таких нет
+    '''
+    headers = {
+        "accept": "application/json",
+        "Authorization": token_drf,
+    }
+    body = {
+        'telegram_id': telegram_id,
+    }
+
+    r = requests.post(drf_url + 'tg-user-organizations/', headers=headers, json=body)
+
+    if r.status_code == 200:
+        for i in r.json():
+            if i['is_current']:
+                return i['id']
+    else:
+        return None
+
+
 
