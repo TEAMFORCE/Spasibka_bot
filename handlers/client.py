@@ -1,8 +1,6 @@
 import os
 import sys
 
-import aiogram.utils.exceptions
-
 sys.path.insert(1, os.path.join(sys.path[0], '..'))  # todo наверняка импорт можно сделать проще
 from keyboards.inline_not_complited_transactions import get_not_complited_transactions_kb
 from keyboards.inline_user_organizations import get_user_organization_keyboard
@@ -10,27 +8,26 @@ from keyboards.inline_webapp_test import start_web_app
 
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
-from API.api_requests import send_like, get_token, get_balance, user_organizations, get_token_by_organization_id, \
+from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
     all_like_tags, get_active_organization
 
 from dict_cloud import dicts
 
-
 import datetime
 
 import asyncio
 from contextlib import suppress
-from aiogram.utils.exceptions import MessageToEditNotFound, MessageCantBeEdited, MessageCantBeDeleted, \
+from aiogram.utils.exceptions import MessageCantBeDeleted, \
     MessageToDeleteNotFound, CantInitiateConversation
 
 from dict_cloud.dicts import sleep_timer, messages
 
 
 async def delete_message(message: types.Message, sleep_time: int = 0):
-    '''
+    """
     Удаляет сообщение по истечению таймера sleep_time
-    '''
+    """
     await asyncio.sleep(sleep_time)
     with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
         await message.delete()
@@ -42,7 +39,10 @@ async def start(message: types.Message):
         await bot.send_message(message.chat.id, messages['start_message'].format(user_name=message.from_user.username))
     else:
         try:
-            await bot.send_message(message.from_user.id, messages['start_message'].format(user_name=message.from_user.username))
+            await bot.send_message(
+                message.from_user.id,
+                messages['start_message'].format(user_name=message.from_user.username)
+            )
             answer = await message.reply('Ответил в личку 😉')
             await delete_message(answer, sleep_timer)
         except CantInitiateConversation:
@@ -58,10 +58,10 @@ async def test(message: types.Message):
 
 # @dp.message_handler(commands=['баланс', 'balance'])
 async def balance(message: types.Message):
-    '''
+    """
     Выводит в текущий чат количество спасибок у пользователя
     Если бот общается в ЛС, то выводит баланс по активной организации
-    '''
+    """
     telegram_id = message.from_user.id
     telegram_name = message.from_user.username
     if message.chat.id != telegram_id:
@@ -73,7 +73,7 @@ async def balance(message: types.Message):
             token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
         else:
             answer = await message.reply(dicts.errors['no_active_organization'])
-            await delete_message(answer, sleep_time=sleep_timer)
+            asyncio.create_task(delete_message(answer, sleep_time=sleep_timer))
             return
     balance = get_balance(token)
     if balance == 'Что то пошло не так':
@@ -84,13 +84,18 @@ async def balance(message: types.Message):
         await delete_message(answer, sleep_timer)
     else:
         try:
+            start_balance = int(balance["distr"]["amount"]) + int(balance["distr"]["sent"])
+            sent = int(balance["distr"]["sent"])
+            recived = int(balance["income"]["amount"])
+            allowed = int(balance["distr"]["amount"]) + int(balance["income"]["amount"])
+            remain = int(balance["distr"]["amount"]) + int(balance["distr"]["sent"]) - int(balance["distr"]["sent"])
             answer = await message.reply(f'*Баланс:*\n'
-                                f'Начальный баланс: _{int(balance["distr"]["amount"]) + int(balance["distr"]["sent"])}_\n'
-                                f'Отправлено: _{int(balance["distr"]["sent"])}_\n'
-                                f'Получено: _{int(balance["income"]["amount"])}_\n'
-                                f'Доступно для распределения: _{int(balance["distr"]["amount"]) + int(balance["income"]["amount"])}_\n'
-                                f'Осталось раздать: _{int(balance["distr"]["amount"]) + int(balance["distr"]["sent"]) - int(balance["distr"]["sent"])}_',
-                                parse_mode="Markdown")
+                                         f'Начальный баланс: _{start_balance}_\n'
+                                         f'Отправлено: _{sent}_\n'
+                                         f'Получено: _{recived}_\n'
+                                         f'Доступно для распределения: _{allowed}_\n'
+                                         f'Осталось раздать: _{remain}_',
+                                         parse_mode="Markdown")
             await delete_message(answer, sleep_timer)
         except KeyError:
             answer = await message.reply("Что то пошло не так")
@@ -99,9 +104,9 @@ async def balance(message: types.Message):
 
 # @dp.message_handler(commands=['ct'])
 async def ct(message: types.Message):
-    '''
+    """
     Выводит инлайн клавиатуру с не проведенными транзакциями
-    '''
+    """
     telegram_id = message.from_user.id
     group_id = message.chat.id
     telegram_name = message.from_user.username
@@ -113,8 +118,7 @@ async def ct(message: types.Message):
         token = get_token(telegram_id, group_id, telegram_name)
 
     list_of_cancelable_likes = get_all_cancelable_likes(user_token=token)
-    not_complited_transactions = get_not_complited_transactions_kb(user_token=token,
-                                                                   list_of_canceleble_likes=list_of_cancelable_likes)
+    not_complited_transactions = get_not_complited_transactions_kb(list_of_canceleble_likes=list_of_cancelable_likes)
 
     if len(list_of_cancelable_likes) == 0:
         try:
@@ -136,9 +140,9 @@ async def ct(message: types.Message):
 
 # @dp.message_handler(commands=['go'])
 async def go(message: types.Message):
-    '''
+    """
     В личном общении выводит список доступных организаций в виде инлайн клавиатуры
-    '''
+    """
     try:
         answer = await bot.send_message(
             message.from_user.id,
@@ -153,9 +157,9 @@ async def go(message: types.Message):
 
 # @dp.message_handler(commands=['export'])
 async def export(message: types.Message):
-    '''
+    """
     Отправляет .xlxs фаил со списком транзакций, если общение в ЛС - то фаил формируется по активной группе
-    '''
+    """
     telegram_id = message.from_user.id
     group_id = message.chat.id
     telegram_name = message.from_user.username
@@ -179,8 +183,9 @@ async def export(message: types.Message):
                 await delete_message(answer, sleep_timer)
 
         else:
-            organization_id = find_active_organization(tg_id=telegram_id)
-            response = export_file_transactions_by_organization_id(telegram_id=telegram_id, organization_id=organization_id)
+            organization_id = get_active_organization(telegram_id)
+            response = export_file_transactions_by_organization_id(telegram_id=telegram_id,
+                                                                   organization_id=organization_id)
             try:
                 r = response['message']
                 answer = await message.reply(r)
@@ -201,7 +206,7 @@ async def export(message: types.Message):
 async def webwiev(message: types.Message):
     try:
         answer = await bot.send_message(chat_id=message.from_user.id, text='Для перехода в приложение нажимай:',
-                               reply_markup=start_web_app)
+                                        reply_markup=start_web_app)
         await delete_message(answer, sleep_timer)
     except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])
@@ -215,7 +220,7 @@ async def tags(message: types.Message):
     telegram_name = message.from_user.username
 
     if telegram_id == group_id:
-        organization_id = find_active_organization(telegram_id)
+        organization_id = get_active_organization(telegram_id)
         if organization_id is not None:
             token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
         else:
@@ -225,9 +230,8 @@ async def tags(message: types.Message):
     else:
         token = get_token(telegram_id, group_id, telegram_name)
 
-    tags = all_like_tags(user_token=token)
     tag_list = 'Вот список основных тэгов:\n'
-    for i in tags:
+    for i in all_like_tags(user_token=token):
         tag_list += f'{i["id"]} - {i["name"]}\n'
 
     answer = await message.reply(tag_list)

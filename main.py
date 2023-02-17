@@ -3,16 +3,16 @@ from create_bot import dp
 
 
 async def on_startup(_):
-    '''
+    """
     Запуск бота
-    '''
+    """
     print('Бот запущен')
 
 
-async  def on_shutdown(_):
-    '''
+async def on_shutdown(_):
+    """
     Завершение работы
-    '''
+    """
     print('Бот отключен')
 
 

@@ -1,16 +1,15 @@
 import requests
 
 from censored import token_drf, drf_url
-from pprint import pprint
 
 
 def get_token(telegram_id, group_id, telegram_name):
-    '''
+    """
     :param telegram_id: id пользователя
     :param group_id: id группы телеграм
     :param telegram_name: имя пользователя телеграм
     :return: токен пользователя в drf
-    '''
+    """
     headers = {
         "accept": "application/json",
         "Authorization": token_drf,
@@ -33,12 +32,12 @@ def get_token(telegram_id, group_id, telegram_name):
 
 
 def get_token_by_organization_id(telegram_id, organization_id, telegram_name):
-    '''
+    """
     :param telegram_id: id пользователя
     :param organization_id: id группы в RestAPI
     :param telegram_name: имя пользователя телеграм
     :return: токен пользователя в drf
-    '''
+    """
     headers = {
         "accept": "application/json",
         "Authorization": token_drf,
@@ -61,7 +60,7 @@ def get_token_by_organization_id(telegram_id, organization_id, telegram_name):
 
 
 def get_balance(token: str):
-    '''
+    """
     :param token: токен пользователя в drf
     :return: json со статистикой пользователя
     :format:
@@ -84,7 +83,7 @@ def get_balance(token: str):
                 - sent - отправлено
                 - received - получено
                 - cancelled - аннулировано
-                '''
+                """
 
     if token == 'Что то пошло не так':
         return token
@@ -99,7 +98,12 @@ def get_balance(token: str):
         return r.json()
 
 
-def send_like(user_token: str, telegram_id: str = None, telegram_name: str = None, amount: str = None, tags: str = None):
+def send_like(user_token: str,
+              telegram_id: str = None,
+              telegram_name: str = None,
+              amount: str = None,
+              tags: str = None
+              ):
     headers = {
         "accept": "application/json",
         "Authorization": "Token " + user_token,
@@ -120,7 +124,7 @@ def send_like(user_token: str, telegram_id: str = None, telegram_name: str = Non
     thx = 'спасибки'
     if int(amount) >= 5:
         thx = 'спасибок'
-
+    tag_name = None
     if r.status_code == 201 and tags:
         all_tags = all_like_tags(user_token)
         for i in all_tags:
@@ -139,12 +143,11 @@ def send_like(user_token: str, telegram_id: str = None, telegram_name: str = Non
 
 
 def user_organizations(telegram_id: str):
-    '''
+    """
     Выводит json со всеми организациями пользователя
-    :type telegram_id: str
-    :param token: telegram_id пользователя str
+    :type telegram_id: telegram_id пользователя str
     :return: json фаил
-    '''
+    """
     headers = {
         "accept": "application/json",
         "Authorization": token_drf,
@@ -154,16 +157,18 @@ def user_organizations(telegram_id: str):
     }
 
     r = requests.post(drf_url + 'tg-user-organizations/', headers=headers, json=body)
-    try:
+
+    if r.status_code == 200:
         return r.json()
-    except:
-        return r
+    else:
+        print(r.json())
+        return None
 
 
 def export_file_transactions_by_group_id(telegram_id: str, group_id: str):
-    '''
+    """
     Для общения в группе. Возвращает фаил .xlxs со всеми транзакциями
-    '''
+    """
     headers = {
         "accept": "application/json",
         "Authorization": token_drf,
@@ -186,9 +191,9 @@ def export_file_transactions_by_group_id(telegram_id: str, group_id: str):
 
 
 def export_file_transactions_by_organization_id(telegram_id: str, organization_id: int):
-    '''
+    """
     Для общения в ЛС. Возвращает фаил .xlxs со всеми транзакциями активной организации
-    '''
+    """
     headers = {
         "accept": "application/json",
         "Authorization": token_drf,
@@ -211,9 +216,9 @@ def export_file_transactions_by_organization_id(telegram_id: str, organization_i
 
 
 def get_all_cancelable_likes(user_token: str):
-    '''
+    """
     Выводит список всех транзакций, которые возможно отменить
-    '''
+    """
     headers = {
         "accept": "application/json",
         "Authorization": "Token " + user_token,
@@ -223,7 +228,7 @@ def get_all_cancelable_likes(user_token: str):
     likes_list = []
 
     for likes in r.json():
-        if likes['can_user_cancel'] == True:
+        if likes['can_user_cancel']:
             likes_list.append({'amount': likes['amount'],
                                'recipient': likes['recipient']['recipient_tg_name'],
                                'id': likes['id'],
@@ -233,9 +238,9 @@ def get_all_cancelable_likes(user_token: str):
 
 
 def cansel_transaction(user_token: str, like_id: int):
-    '''
+    """
     Отменяет спасибку, если это возможно
-    '''
+    """
     headers = {
         "accept": "application/json",
         "Authorization": "Token " + user_token,
@@ -252,9 +257,9 @@ def cansel_transaction(user_token: str, like_id: int):
 
 
 def all_like_tags(user_token: str):
-    '''
+    """
     Возвращает все теги для спасибок
-    '''
+    """
     headers = {
         "accept": "application/json",
         "Authorization": "Token " + user_token,
@@ -267,9 +272,9 @@ def all_like_tags(user_token: str):
 
 
 def set_active_organization(organization_id: int, telegram_id: str):
-    '''
+    """
     Делает активной выбранную организацию
-    '''
+    """
     headers = {
         "accept": "application/json",
         "Authorization": token_drf,
@@ -287,9 +292,9 @@ def set_active_organization(organization_id: int, telegram_id: str):
 
 
 def get_active_organization(telegram_id: str):
-    '''
+    """
     Отдает id активной организации или None если таких нет
-    '''
+    """
     headers = {
         "accept": "application/json",
         "Authorization": token_drf,
@@ -306,6 +311,3 @@ def get_active_organization(telegram_id: str):
                 return i['id']
     else:
         return None
-
-
-

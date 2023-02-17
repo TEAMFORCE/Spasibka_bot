@@ -1,11 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 '''
-Temp
-'''
-
-
-'''
 Клавиатура для перехода в webapp
 '''
 

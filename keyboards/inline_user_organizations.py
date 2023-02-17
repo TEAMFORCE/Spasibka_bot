@@ -2,12 +2,6 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from API.api_requests import user_organizations
 
 '''
-Temp
-'''
-
-organization_list = [{'name': '007', 'id': 49}, {'name': 'ruDemo', 'id': 69}, {'name': 'TeamForce', 'id': 1}]
-
-'''
 Клавиатура для вывода организаций
 '''
 

@@ -10,12 +10,12 @@ import re
 
 # @dp.message_handler(content_types=['text'])
 async def likes(message: types.Message):
-    '''
+    """
     При получении сообщения начинающегося с '+' отправляет лайки пользователю цитируемого сообщения
     Формат: +n 'необязательное сообщение', n-количество спасибок
     Формат +n @Nickname 'необязательное сообщение', n-количество спасибок по никнейму
     Формат +n @Nickname 'необязательное сообщение' #тэг, n-количество спасибок по никнейму с тэгом
-    '''
+    """
     if message.text.startswith('+'):
         pattern_username = re.search(r'@(\w+)', message.text)
         pattern_tag = re.search(r'#(\D*)', message.text)
@@ -30,7 +30,7 @@ async def likes(message: types.Message):
             token = get_token(telegram_id=sender_telegram_id,
                               group_id=group_id,
                               telegram_name=sender_telegram_name)
-
+            tag_id = None
             if message.reply_to_message:
                 recipient_telegram_id = str(message.reply_to_message.from_user.id)
                 recipient_telegram_name = message.reply_to_message.from_user.username

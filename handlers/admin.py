@@ -1,10 +1,10 @@
-'''
+"""
 Раздел только для тестов с проверкой ID
-'''
+"""
 
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
-from API.api_requests import send_like, get_token, get_balance
+from API.api_requests import send_like, get_token
 
 
 ID = [5148438149, ]
@@ -12,9 +12,9 @@ ID = [5148438149, ]
 
 # @dp.message_handler(commands=['like'])
 async def like(message: types.Message):
-    '''
+    """
     Добавляет 1 лайк пользователю по цитируемому сообщению
-    '''
+    """
     if message.from_user.id in ID:
         telegram_id = message.from_user.id
         group_id = str(message.chat.id)
@@ -32,9 +32,9 @@ async def like(message: types.Message):
 
 # @dp.message_handler(commands=['who'])
 async def who(message: types.Message):
-    '''
-    Необходимо цитировать сообщенеи. Выводит информацию о пользователе в ответном сообщении
-    '''
+    """
+    Необходимо цитировать сообщение. Выводит информацию о пользователе в ответном сообщении
+    """
     if message.from_user.id in ID:
         try:
             telegram_id = message.reply_to_message.from_user.id
@@ -50,29 +50,16 @@ async def who(message: types.Message):
 
 # @dp.message_handler(commands=['info'])
 async def info(message: types.Message):
-    '''
+    """
     Выводит информацию об отправителе
-    '''
+    """
     if message.from_user.id in ID:
         await message.reply(f'id пользователя: {message.from_user.id}\n'
                             f'имя пользователя {message.from_user.username}\n'
                             f'id группы: {message.chat.id}')
 
 
-# @dp.message_handler(commands=['drop_base'])
-async def drop_base(message: types.Message):
-    '''
-    Удаляет БД и все записи
-    '''
-    if message.from_user.id in ID:
-        drop_tables()
-        create_tables()
-        await message.reply('База данных пересоздана')
-
-
 def register_handlers_admin(dp: Dispatcher):
     dp.register_message_handler(like, commands=['like'])
     dp.register_message_handler(who, commands=['who'])
     dp.register_message_handler(info, commands=['info'])
-    dp.register_message_handler(drop_base, commands=['drop_base'])
-
