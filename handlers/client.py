@@ -107,7 +107,7 @@ async def ct(message: types.Message):
     telegram_name = message.from_user.username
 
     if telegram_id == group_id:
-        organization_id = find_active_organization(tg_id=telegram_id)
+        organization_id = get_active_organization(telegram_id)
         token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
     else:
         token = get_token(telegram_id, group_id, telegram_name)
@@ -116,7 +116,7 @@ async def ct(message: types.Message):
     not_complited_transactions = get_not_complited_transactions_kb(user_token=token,
                                                                    list_of_canceleble_likes=list_of_cancelable_likes)
 
-    if len(not_complited_transactions.values['inline_keyboard']) == 0:
+    if len(list_of_cancelable_likes) == 0:
         try:
             answer = await bot.send_message(message.from_user.id, dicts.errors['no_likes_to_cancel'])
             await delete_message(answer, sleep_time=sleep_timer)
