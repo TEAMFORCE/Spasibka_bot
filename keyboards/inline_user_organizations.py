@@ -1,6 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from API.api_requests import user_organizations
-from database.database import get_all_organizations
 
 '''
 Temp

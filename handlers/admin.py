@@ -5,7 +5,6 @@
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from API.api_requests import send_like, get_token, get_balance
-from database.database import drop_tables, create_tables
 
 
 ID = [5148438149, ]

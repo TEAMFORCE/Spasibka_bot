@@ -16,8 +16,6 @@ from API.api_requests import send_like, get_token, get_balance, user_organizatio
 
 from dict_cloud import dicts
 
-from database.database import create_user_if_not_exist, create_organization_if_not_exist, bind_user_org,\
-    find_active_organization
 
 import datetime
 
