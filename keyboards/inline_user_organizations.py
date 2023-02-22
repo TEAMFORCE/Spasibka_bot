@@ -1,9 +1,9 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from API.api_requests import user_organizations
 
-'''
+"""
 Клавиатура для вывода организаций
-'''
+"""
 
 
 def get_user_organization_keyboard(telegram_id):
