@@ -73,7 +73,7 @@ async def likes(message: types.Message):
                                        telegram_name=recipient_telegram_name,
                                        amount=amount)
         if result is not None:
-            answer = await message.reply(f"⭐{result}⭐")
+            answer = await message.reply(f"{result}")
             await delete_message(answer, sleep_timer)
 
 
