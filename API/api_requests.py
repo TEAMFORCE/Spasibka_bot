@@ -20,11 +20,10 @@ def get_token(telegram_id, group_id, telegram_name):
         "tg_name": telegram_name,
     }
     r = requests.post(drf_url + 'tg-get-user-token/', headers=headers, json=body)
-
     if 'token' in r.json():
         return r.json()['token']
     elif 'status' in r.json():
-        print(r.json()['status'])
+        return r.json()['status']
     elif 'detail' in r.json():
         print(r.json()['detail'])
     else:

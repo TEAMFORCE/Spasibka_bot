@@ -75,12 +75,13 @@ async def balance(message: types.Message):
             answer = await message.reply(dicts.errors['no_active_organization'])
             asyncio.create_task(delete_message(answer, sleep_time=sleep_timer))
             return
+
     balance = get_balance(token)
     if balance == 'Что то пошло не так':
         answer = await message.reply(balance)
         await delete_message(answer, sleep_timer)
     elif balance == 'Не найдена организация по переданному group_id':
-        answer = await message.reply(token)
+        answer = await message.reply(f"{token}\nПередайте id группы {message.chat.id} админимтратору")
         await delete_message(answer, sleep_timer)
     else:
         try:
