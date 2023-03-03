@@ -3,8 +3,8 @@ from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id, all_like_tags, \
     set_active_organization
-from dict_cloud.dicts import messages, sleep_timer
-from handlers.client import delete_message
+from dict_cloud.dicts import messages
+from handlers.client import delete_message_bot_answer
 import re
 
 
@@ -74,7 +74,7 @@ async def likes(message: types.Message):
                                        amount=amount)
         if result is not None:
             answer = await message.reply(f"{result}")
-            await delete_message(answer, sleep_timer)
+            await delete_message_bot_answer(answer, message.chat.id)
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith('delete '))
@@ -111,7 +111,7 @@ async def greetings(message: types.Message):
     bot_name = me.username
     answer = await bot.send_message(message.chat.id, messages['greetings'].format(user_name=new_member.username,
                                                                                   bot_name=bot_name))
-    await delete_message(answer, sleep_timer)
+    await delete_message_bot_answer(answer, message.chat.id)
 
 
 def register_handlers_other(dp: Dispatcher):

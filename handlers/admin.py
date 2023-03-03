@@ -5,7 +5,7 @@
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from API.api_requests import send_like, get_token
-
+from handlers.client import delete_message_and_command
 
 ID = [5148438149, ]
 
@@ -41,11 +41,12 @@ async def who(message: types.Message):
             telegram_name = message.reply_to_message.from_user.username
             telegram_group_id = message.reply_to_message.chat.id
 
-            await bot.send_message(message.chat.id, f'Id: {telegram_id}\n'
-                                                    f'Ник пользователя: {telegram_name}\n'
-                                                    f'Id группы: {telegram_group_id}')
+            answer = await bot.send_message(message.chat.id, f'Id: {telegram_id}\n'
+                                                             f'Ник пользователя: {telegram_name}\n'
+                                                             f'Id группы: {telegram_group_id}')
         except AttributeError:
-            await bot.send_message(message.chat.id, 'Необходимо цитировать сообщение')
+            answer = await bot.send_message(message.chat.id, 'Необходимо цитировать сообщение')
+        await delete_message_and_command([message, answer], message.chat.id)
 
 
 # @dp.message_handler(commands=['info'])
