@@ -121,7 +121,8 @@ def send_like(user_token: str,
               telegram_id: str = None,
               telegram_name: str = None,
               amount: str = None,
-              tags: str = None
+              tags: str = None,
+              reason: str = None,
               ):
     headers = {
         "accept": "application/json",
@@ -133,7 +134,7 @@ def send_like(user_token: str,
         "recipient_tg_name": telegram_name,
         "amount": amount,
         "is_anonymous": False,
-        "reason": "sended_by_bot",
+        "reason": reason,
         "tags": tags,
     }
 
@@ -150,10 +151,8 @@ def send_like(user_token: str,
             if i['id'] == int(tags):
                 tag_name = i['name']
         return f'Перевод {amount} {thx} пользователю @{telegram_name} сформирован с тегом #{tag_name}'
-        # return f'Перевод на {amount} для @{telegram_name} сформирован с тегом #{tag_name}'
     elif r.status_code == 201:
         return f'Перевод {amount} {thx} пользователю @{telegram_name}'
-        # return f'Перевод на {amount} для @{telegram_name} сформирован'
     elif r.status_code == 500:
         return 'Что то пошло не так\n' \
                'Проверьте что группа зарегистрирована в системе'

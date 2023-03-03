@@ -20,6 +20,7 @@ async def likes(message: types.Message):
         pattern_username = re.search(r'@(\w+)', message.text)
         pattern_tag = re.search(r'#(\D*)', message.text)
         pattern_amount = re.match(r'\+(\d*)(.*)', message.text)
+        pattern_reason = re.match(r'\+1\s?(.*?)\s*(#|$)', message.text)
         amount = pattern_amount.group(1)
         result = None
 
@@ -46,11 +47,17 @@ async def likes(message: types.Message):
                 else:
                     tag_id = None
 
+                if pattern_reason:
+                    reason = pattern_reason.group(1).capitalize()
+                else:
+                    reason = None
+
                 result = send_like(user_token=token,
                                    telegram_id=recipient_telegram_id,
                                    telegram_name=recipient_telegram_name,
                                    amount=amount,
-                                   tags=tag_id)
+                                   tags=tag_id,
+                                   reason=reason)
 
             elif pattern_username:
                 recipient_telegram_name = pattern_username.group(1)
@@ -63,15 +70,17 @@ async def likes(message: types.Message):
                             break
                         else:
                             tag_id = None
-
-                    result = send_like(user_token=token,
-                                       telegram_name=recipient_telegram_name,
-                                       amount=amount,
-                                       tags=tag_id)
+                if pattern_reason:
+                    reason = pattern_reason.group(1).capitalize()
                 else:
-                    result = send_like(user_token=token,
-                                       telegram_name=recipient_telegram_name,
-                                       amount=amount)
+                    reason = None
+
+                result = send_like(user_token=token,
+                                   telegram_name=recipient_telegram_name,
+                                   amount=amount,
+                                   tags=tag_id,
+                                   reason=reason)
+
         if result is not None:
             answer = await message.reply(f"{result}")
             await delete_message_bot_answer(answer, message.chat.id)
