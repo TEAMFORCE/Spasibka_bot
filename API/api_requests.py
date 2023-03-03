@@ -3,7 +3,27 @@ import requests
 from censored import token_drf, drf_url
 
 
-def get_token(telegram_id, group_id, telegram_name):
+def messages_lifetime(group_id: str) -> dict:
+    """
+    Возвращает словарь со значениями времени жизни сообщений для группы
+    :param group_id: id группы из тг
+    :return: словарь с ключами bot_messages_lifetime и bot_commands_lifetime
+    """
+    headers = {
+        "accept": "application/json",
+        "Authorization": token_drf,
+    }
+    body = {
+        "group_id": group_id,
+    }
+    r = requests.post(drf_url + 'tg-organization-settings/', headers=headers, json=body)
+    if r.status_code == 200:
+        return r.json()
+    else:
+        return None
+
+
+def get_token(telegram_id, group_id, telegram_name=None):
     """
     :param telegram_id: id пользователя
     :param group_id: id группы телеграм

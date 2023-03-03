@@ -10,7 +10,7 @@ from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
-    all_like_tags, get_active_organization
+    all_like_tags, get_active_organization, messages_lifetime
 
 from dict_cloud import dicts
 
@@ -21,16 +21,47 @@ from contextlib import suppress
 from aiogram.utils.exceptions import MessageCantBeDeleted, \
     MessageToDeleteNotFound, CantInitiateConversation
 
-from dict_cloud.dicts import sleep_timer, messages
+from dict_cloud.dicts import messages
 
 
-async def delete_message(message: types.Message, sleep_time: int = 0):
-    """
-    Удаляет сообщение по истечению таймера sleep_time
-    """
-    await asyncio.sleep(sleep_time)
+async def delete_message_bot_answer(answer, group_id):
+    lifetime_dict = messages_lifetime(group_id)
+    if lifetime_dict is None:
+        lifetime_dict = {'bot_messages_lifetime': 5, 'bot_commands_lifetime': 0}
+    await asyncio.sleep(lifetime_dict["bot_messages_lifetime"])
     with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
-        await message.delete()
+        await answer.delete()
+
+
+async def delete_message_and_command(message: list[types.Message], group_id: str = None):
+    """
+    Вычисляет время жизни сообщений относительно настроек группы и удаляет их
+    В message передается список ["команда", "ответ"]
+    """
+    lifetime_dict = messages_lifetime(group_id)
+    if lifetime_dict is None:
+        lifetime_dict = {'bot_messages_lifetime': 5, 'bot_commands_lifetime': 0}
+    if lifetime_dict["bot_messages_lifetime"] > lifetime_dict["bot_commands_lifetime"]:
+        await asyncio.sleep(lifetime_dict["bot_commands_lifetime"])
+        with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
+            await message[0].delete()
+        sleep_rest = lifetime_dict["bot_messages_lifetime"] - lifetime_dict["bot_commands_lifetime"]
+        await asyncio.sleep(sleep_rest)
+        with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
+            await message[1].delete()
+    if lifetime_dict["bot_messages_lifetime"] < lifetime_dict["bot_commands_lifetime"]:
+        await asyncio.sleep(lifetime_dict["bot_messages_lifetime"])
+        with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
+            await message[1].delete()
+        sleep_rest = lifetime_dict["bot_commands_lifetime"] - lifetime_dict["bot_messages_lifetime"]
+        await asyncio.sleep(sleep_rest)
+        with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
+            await message[0].delete()
+    else:
+        await asyncio.sleep(lifetime_dict["bot_commands_lifetime"])
+        with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
+            for i in message:
+                await i.delete()
 
 
 # @dp.message_handler(commands=['start', 'help'])
@@ -44,16 +75,20 @@ async def start(message: types.Message):
                 messages['start_message'].format(user_name=message.from_user.username)
             )
             answer = await message.reply('Ответил в личку 😉')
-            await delete_message(answer, sleep_timer)
+            await delete_message_and_command([message, answer], message.chat.id)
         except CantInitiateConversation:
             answer = await message.reply(dicts.errors['no_chat_with_bot'])
-            await delete_message(answer, sleep_timer)
+            await delete_message_and_command([message, answer], message.chat.id)
 
 
 # @dp.message_handler(commands=['test'])
 async def test(message: types.Message):
-    msg = await message.reply('Это сообщение будет удалено через 5 секунд')
-    asyncio.create_task(delete_message(msg, 5))
+    if message.chat.id == message.from_user.id:
+        answer = await message.reply('Бот работает. Это сообщение будет удалено через 5 секунд')
+        await delete_message_and_command([message, answer])
+    else:
+        answer = await message.reply('Бот работает. Это сообщение будет удалено через 5 секунд')
+        await delete_message_and_command([message, answer], message.chat.id)
 
 
 # @dp.message_handler(commands=['баланс', 'balance'])
@@ -73,16 +108,16 @@ async def balance(message: types.Message):
             token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
         else:
             answer = await message.reply(dicts.errors['no_active_organization'])
-            asyncio.create_task(delete_message(answer, sleep_time=sleep_timer))
+            asyncio.create_task(delete_message_and_command([message, answer], message.chat.id))
             return
 
     balance = get_balance(token)
     if balance == 'Что то пошло не так':
         answer = await message.reply(balance)
-        await delete_message(answer, sleep_timer)
-    elif balance == 'Не найдена организация по переданному group_id':
-        answer = await message.reply(f"{token}\nПередайте id группы {message.chat.id} админимтратору")
-        await delete_message(answer, sleep_timer)
+        await delete_message_and_command([message, answer], message.chat.id)
+    elif balance == 'Не найдена организация по переданному group_id.':
+        answer = await message.reply(f"{token}\nПожалуйста, передайте id группы {message.chat.id} администратору")
+        await delete_message_and_command([message, answer], message.chat.id)
     else:
         try:
             start_balance = int(balance["distr"]["amount"]) + int(balance["distr"]["sent"])
@@ -97,10 +132,10 @@ async def balance(message: types.Message):
                                          f'Доступно для распределения: _{allowed}_\n'
                                          f'Осталось раздать: _{remain}_',
                                          parse_mode="Markdown")
-            await delete_message(answer, sleep_timer)
+            await delete_message_and_command([message, answer], message.chat.id)
         except KeyError:
             answer = await message.reply("Что то пошло не так")
-            await delete_message(answer, sleep_timer)
+            await delete_message_and_command([message, answer], message.chat.id)
 
 
 # @dp.message_handler(commands=['ct'])
@@ -124,19 +159,19 @@ async def ct(message: types.Message):
     if len(list_of_cancelable_likes) == 0:
         try:
             answer = await bot.send_message(message.from_user.id, dicts.errors['no_likes_to_cancel'])
-            await delete_message(answer, sleep_time=sleep_timer)
+            await delete_message_and_command([message, answer], message.chat.id)
         except CantInitiateConversation:
             answer = await message.reply(dicts.errors['no_chat_with_bot'])
-            await delete_message(answer, sleep_timer)
+            await delete_message_and_command([message, answer], message.chat.id)
     else:
         try:
             answer = await bot.send_message(
                 message.from_user.id, 'Для отмены транзакции выберите соответствующую транзакции кнопку',
                 reply_markup=not_complited_transactions)
-            await delete_message(answer, sleep_timer)
+            await delete_message_and_command([message, answer], message.chat.id)
         except CantInitiateConversation:
             answer = await message.reply(dicts.errors['no_chat_with_bot'])
-            await delete_message(answer, sleep_timer)
+            await delete_message_and_command([message, answer], message.chat.id)
 
 
 # @dp.message_handler(commands=['go'])
@@ -150,10 +185,10 @@ async def go(message: types.Message):
             'Укажите вашу организацию:',
             reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id)
         )
-        asyncio.create_task(delete_message(answer, sleep_timer))
+        await delete_message_and_command([message, answer], message.chat.id)
     except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])
-        asyncio.create_task(delete_message(answer, sleep_timer))
+        await delete_message_and_command([message, answer], message.chat.id)
 
 
 # @dp.message_handler(commands=['export'])
@@ -172,7 +207,7 @@ async def export(message: types.Message):
             try:
                 r = response['message']
                 answer = await message.reply(r)
-                await delete_message(answer, sleep_timer)
+                await delete_message_and_command([message, answer], message.chat.id)
             except TypeError or KeyError:
                 with open(f'{filename}.xlsx', 'wb') as file:
                     file.write(response)
@@ -181,7 +216,7 @@ async def export(message: types.Message):
                                         chat_id=message.from_user.id
                                         )
                 os.remove(f'{filename}.xlsx')
-                await delete_message(answer, sleep_timer)
+                await delete_message_and_command([message, answer], message.chat.id)
 
         else:
             organization_id = get_active_organization(telegram_id)
@@ -190,17 +225,18 @@ async def export(message: types.Message):
             try:
                 r = response['message']
                 answer = await message.reply(r)
-                await delete_message(answer, sleep_timer)
+                await delete_message_and_command([message, answer], message.chat.id)
             except TypeError or KeyError:
                 with open(f'{filename}.xlsx', 'wb') as file:
                     file.write(response)
-                await bot.send_document(document=open(f'{filename}.xlsx', 'rb'),
-                                        chat_id=message.from_user.id
-                                        )
+                answer = await bot.send_document(document=open(f'{filename}.xlsx', 'rb'),
+                                                 chat_id=message.from_user.id
+                                                 )
                 os.remove(f'{filename}.xlsx')
+                await delete_message_and_command([message, answer], message.chat.id)
     except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])
-        await delete_message(answer, sleep_timer)
+        await delete_message_and_command([message, answer], message.chat.id)
 
 
 # @dp.message_handler(commands=['webwiev'])
@@ -208,10 +244,10 @@ async def webwiev(message: types.Message):
     try:
         answer = await bot.send_message(chat_id=message.from_user.id, text='Для перехода в приложение нажимай:',
                                         reply_markup=start_web_app)
-        await delete_message(answer, sleep_timer)
+        await delete_message_and_command([message, answer], message.chat.id)
     except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])
-        await delete_message(answer, sleep_timer)
+        await delete_message_and_command([message, answer], message.chat.id)
 
 
 # @dp.message_handler(commands=['tags'])
@@ -226,7 +262,7 @@ async def tags(message: types.Message):
             token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
         else:
             answer = await message.reply(dicts.errors['no_active_organization'])
-            await delete_message(answer, sleep_time=sleep_timer)
+            await delete_message_and_command([message, answer], message.chat.id)
             return
     else:
         token = get_token(telegram_id, group_id, telegram_name)
@@ -236,7 +272,7 @@ async def tags(message: types.Message):
         tag_list += f'{i["id"]} - {i["name"]}\n'
 
     answer = await message.reply(tag_list)
-    await delete_message(answer, sleep_timer)
+    await delete_message_and_command([message, answer], message.chat.id)
 
 
 def register_handlers_client(dp: Dispatcher):
