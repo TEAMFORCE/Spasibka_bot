@@ -115,7 +115,7 @@ async def balance(message: types.Message):
     if balance == 'Что то пошло не так':
         answer = await message.reply(balance)
         await delete_message_and_command([message, answer], message.chat.id)
-    elif balance == 'Не найдена организация по переданному group_id.':
+    elif balance == 'Не найдена организация по переданному group_id':
         answer = await message.reply(f"{token}\nПожалуйста, передайте id группы {message.chat.id} администратору")
         await delete_message_and_command([message, answer], message.chat.id)
     else:
