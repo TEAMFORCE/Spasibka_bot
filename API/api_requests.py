@@ -50,7 +50,7 @@ def get_token(telegram_id, group_id, telegram_name=None):
         print('Что то пошло не так')
 
 
-def get_token_by_organization_id(telegram_id, organization_id, telegram_name):
+def get_token_by_organization_id(telegram_id, organization_id, telegram_name=None):
     """
     :param telegram_id: id пользователя
     :param organization_id: id группы в RestAPI

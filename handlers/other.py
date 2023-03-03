@@ -2,7 +2,7 @@ from aiogram import types, Dispatcher
 
 from create_bot import dp, bot
 from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id, all_like_tags, \
-    set_active_organization
+    set_active_organization, get_active_organization
 from dict_cloud.dicts import messages
 from handlers.client import delete_message_bot_answer
 import re
@@ -20,47 +20,73 @@ async def likes(message: types.Message):
         pattern_username = re.search(r'@(\w+)', message.text)
         pattern_tag = re.search(r'#(\D*)', message.text)
         pattern_amount = re.match(r'\+(\d*)(.*)', message.text)
-        pattern_reason = re.match(r'\+1\s?(.*?)\s*(#|$)', message.text)
+        pattern_reason = re.match(r'\+\d*\s?(@\w*)?\s?(.*?)\s*(#|$)', message.text)
         amount = pattern_amount.group(1)
         result = None
 
-        if amount:
-            sender_telegram_id = message.from_user.id
-            group_id = str(message.chat.id)
-            sender_telegram_name = message.from_user.username
-            token = get_token(telegram_id=sender_telegram_id,
-                              group_id=group_id,
-                              telegram_name=sender_telegram_name)
-            tag_id = None
-            if message.reply_to_message:
-                recipient_telegram_id = str(message.reply_to_message.from_user.id)
-                recipient_telegram_name = message.reply_to_message.from_user.username
-                if pattern_tag:
-                    tag = pattern_tag.group(1).lower()
-                    all_tags = all_like_tags(user_token=token)
-                    for i in all_tags:
-                        if i['name'].lower() == tag:
-                            tag_id = str(i['id'])
-                            break
-                        else:
-                            tag_id = None
-                else:
-                    tag_id = None
+        if message.chat.id != message.from_user.id:
+            if amount:
+                sender_telegram_id = message.from_user.id
+                group_id = str(message.chat.id)
+                token = get_token(telegram_id=sender_telegram_id,
+                                  group_id=group_id)
+                tag_id = None
+                if message.reply_to_message:
+                    recipient_telegram_id = str(message.reply_to_message.from_user.id)
+                    recipient_telegram_name = message.reply_to_message.from_user.username
+                    if pattern_tag:
+                        tag = pattern_tag.group(1).lower()
+                        all_tags = all_like_tags(user_token=token)
+                        for i in all_tags:
+                            if i['name'].lower() == tag:
+                                tag_id = str(i['id'])
+                                break
+                            else:
+                                tag_id = None
+                    else:
+                        tag_id = None
 
-                if pattern_reason:
-                    reason = pattern_reason.group(1).capitalize()
-                else:
-                    reason = None
+                    if pattern_reason:
+                        reason = pattern_reason.group(2).capitalize()
+                    else:
+                        reason = None
 
-                result = send_like(user_token=token,
-                                   telegram_id=recipient_telegram_id,
-                                   telegram_name=recipient_telegram_name,
-                                   amount=amount,
-                                   tags=tag_id,
-                                   reason=reason)
+                    result = send_like(user_token=token,
+                                       telegram_id=recipient_telegram_id,
+                                       telegram_name=recipient_telegram_name,
+                                       amount=amount,
+                                       tags=tag_id,
+                                       reason=reason)
 
-            elif pattern_username:
+                elif pattern_username:
+                    recipient_telegram_name = pattern_username.group(1)
+                    if pattern_tag:
+                        tag = pattern_tag.group(1).lower()
+                        all_tags = all_like_tags(user_token=token)
+                        for i in all_tags:
+                            if i['name'].lower() == tag:
+                                tag_id = str(i['id'])
+                                break
+                            else:
+                                tag_id = None
+                    if pattern_reason:
+                        reason = pattern_reason.group(2).capitalize()
+                    else:
+                        reason = None
+
+                    result = send_like(user_token=token,
+                                       telegram_name=recipient_telegram_name,
+                                       amount=amount,
+                                       tags=tag_id,
+                                       reason=reason)
+        else:
+            if pattern_username:
                 recipient_telegram_name = pattern_username.group(1)
+                sender_telegram_id = message.from_user.id
+                organization_id = get_active_organization(sender_telegram_id)
+                token = get_token_by_organization_id(telegram_id=sender_telegram_id,
+                                                     organization_id=organization_id)
+                tag_id = None
                 if pattern_tag:
                     tag = pattern_tag.group(1).lower()
                     all_tags = all_like_tags(user_token=token)
@@ -70,8 +96,9 @@ async def likes(message: types.Message):
                             break
                         else:
                             tag_id = None
+
                 if pattern_reason:
-                    reason = pattern_reason.group(1).capitalize()
+                    reason = pattern_reason.group(2).capitalize()
                 else:
                     reason = None
 
@@ -80,6 +107,8 @@ async def likes(message: types.Message):
                                    amount=amount,
                                    tags=tag_id,
                                    reason=reason)
+            else:
+                return
 
         if result is not None:
             answer = await message.reply(f"{result}")
