@@ -27,7 +27,7 @@ from dict_cloud.dicts import messages
 async def delete_message_bot_answer(answer, group_id):
     lifetime_dict = messages_lifetime(group_id)
     if lifetime_dict is None:
-        lifetime_dict = {'bot_messages_lifetime': 5, 'bot_commands_lifetime': 0}
+        lifetime_dict = {'bot_messages_lifetime': 10, 'bot_commands_lifetime': 3}
     await asyncio.sleep(lifetime_dict["bot_messages_lifetime"])
     with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
         await answer.delete()
@@ -116,7 +116,7 @@ async def balance(message: types.Message):
         answer = await message.reply(balance)
         await delete_message_and_command([message, answer], message.chat.id)
     elif balance == 'Не найдена организация по переданному group_id':
-        answer = await message.reply(f"{token}\nПожалуйста, передайте id группы {message.chat.id} администратору")
+        answer = await message.reply(f'{token}\nПожалуйста, передайте id группы "{message.chat.id}" администратору')
         await delete_message_and_command([message, answer], message.chat.id)
     else:
         try:
