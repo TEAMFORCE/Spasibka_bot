@@ -28,9 +28,12 @@ async def delete_message_bot_answer(answer, group_id):
     lifetime_dict = messages_lifetime(group_id)
     if lifetime_dict is None:
         lifetime_dict = {'bot_messages_lifetime': 10, 'bot_commands_lifetime': 3}
-    await asyncio.sleep(lifetime_dict["bot_messages_lifetime"])
-    with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
-        await answer.delete()
+    if lifetime_dict["bot_messages_lifetime"] != 0:
+        await asyncio.sleep(lifetime_dict["bot_messages_lifetime"])
+        with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
+            await answer.delete()
+    else:
+        return
 
 
 async def delete_message_and_command(message: list[types.Message], group_id: str = None):
