@@ -25,6 +25,9 @@ from dict_cloud.dicts import messages
 
 
 async def delete_message_bot_answer(answer, group_id):
+    """
+    Удаляет только одно сообщение от бота, в соответствии с настройками сервера
+    """
     lifetime_dict = messages_lifetime(group_id)
     if lifetime_dict is None:
         lifetime_dict = {'bot_messages_lifetime': 10, 'bot_commands_lifetime': 3}

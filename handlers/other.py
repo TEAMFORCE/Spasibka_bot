@@ -111,7 +111,7 @@ async def likes(message: types.Message):
                 return
 
         if result is not None:
-            answer = await message.reply(f"{result}")
+            answer = await message.reply(f"🌹{result}🌹")
             await delete_message_bot_answer(answer, message.chat.id)
 
 
