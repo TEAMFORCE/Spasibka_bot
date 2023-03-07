@@ -38,9 +38,24 @@ async def delete_message_and_command(message: list[types.Message], group_id: str
     Вычисляет время жизни сообщений относительно настроек группы и удаляет их
     В message передается список ["команда", "ответ"]
     """
-    lifetime_dict = messages_lifetime(group_id)
+    lifetime_dict = None # messages_lifetime(group_id)
+
     if lifetime_dict is None:
         lifetime_dict = {'bot_messages_lifetime': 5, 'bot_commands_lifetime': 0}
+
+    if lifetime_dict['bot_messages_lifetime'] == 0 and lifetime_dict['bot_commands_lifetime'] != 0:
+        await asyncio.sleep(lifetime_dict["bot_commands_lifetime"])
+        with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
+            await message[0].delete()
+        return
+    elif lifetime_dict['bot_commands_lifetime'] == 0 and lifetime_dict['bot_messages_lifetime'] != 0:
+        await asyncio.sleep(lifetime_dict["bot_messages_lifetime"])
+        with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
+            await message[1].delete()
+        return
+    elif lifetime_dict['bot_messages_lifetime'] == 0 and lifetime_dict['bot_commands_lifetime'] == 0:
+        return
+
     if lifetime_dict["bot_messages_lifetime"] > lifetime_dict["bot_commands_lifetime"]:
         await asyncio.sleep(lifetime_dict["bot_commands_lifetime"])
         with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
