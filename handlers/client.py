@@ -38,7 +38,7 @@ async def delete_message_and_command(message: list[types.Message], group_id: str
     Вычисляет время жизни сообщений относительно настроек группы и удаляет их
     В message передается список ["команда", "ответ"]
     """
-    lifetime_dict = None # messages_lifetime(group_id)
+    lifetime_dict = messages_lifetime(group_id)
 
     if lifetime_dict is None:
         lifetime_dict = {'bot_messages_lifetime': 5, 'bot_commands_lifetime': 0}
