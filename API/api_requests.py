@@ -118,6 +118,7 @@ def get_balance(token: str):
 
 
 def send_like(user_token: str,
+              group_id: str = None,
               telegram_id: str = None,
               telegram_name: str = None,
               amount: str = None,
@@ -132,6 +133,7 @@ def send_like(user_token: str,
     body = {
         "recipient_telegram_id": telegram_id,
         "recipient_tg_name": telegram_name,
+        "group_id": group_id,
         "amount": amount,
         "is_anonymous": False,
         "reason": reason,

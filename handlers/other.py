@@ -23,11 +23,11 @@ async def likes(message: types.Message):
         pattern_reason = re.match(r'\+\d*\s?(@\w*)?\s?(.*?)\s*(#|$)', message.text)
         amount = pattern_amount.group(1)
         result = None
+        group_id = str(message.chat.id)
 
         if message.chat.id != message.from_user.id:
             if amount:
                 sender_telegram_id = message.from_user.id
-                group_id = str(message.chat.id)
                 token = get_token(telegram_id=sender_telegram_id,
                                   group_id=group_id)
                 tag_id = None
@@ -56,7 +56,8 @@ async def likes(message: types.Message):
                                        telegram_name=recipient_telegram_name,
                                        amount=amount,
                                        tags=tag_id,
-                                       reason=reason)
+                                       reason=reason,
+                                       group_id=group_id)
 
                 elif pattern_username:
                     recipient_telegram_name = pattern_username.group(1)
@@ -78,7 +79,8 @@ async def likes(message: types.Message):
                                        telegram_name=recipient_telegram_name,
                                        amount=amount,
                                        tags=tag_id,
-                                       reason=reason)
+                                       reason=reason,
+                                       group_id=group_id)
         else:
             if pattern_username:
                 recipient_telegram_name = pattern_username.group(1)
@@ -106,7 +108,8 @@ async def likes(message: types.Message):
                                    telegram_name=recipient_telegram_name,
                                    amount=amount,
                                    tags=tag_id,
-                                   reason=reason)
+                                   reason=reason,
+                                   group_id=group_id)
             else:
                 return
 
