@@ -24,6 +24,7 @@ async def likes(message: types.Message):
         amount = pattern_amount.group(1)
         result = None
         group_id = str(message.chat.id)
+        reason = "Отправлено через telegram"
 
         if message.chat.id != message.from_user.id:
             if amount:
@@ -46,10 +47,8 @@ async def likes(message: types.Message):
                     else:
                         tag_id = None
 
-                    if pattern_reason:
+                    if len(pattern_reason.group(2)) > 0:
                         reason = pattern_reason.group(2).capitalize()
-                    else:
-                        reason = "Отправлено через telegram"
 
                     result = send_like(user_token=token,
                                        telegram_id=recipient_telegram_id,
@@ -70,10 +69,8 @@ async def likes(message: types.Message):
                                 break
                             else:
                                 tag_id = None
-                    if pattern_reason:
+                    if len(pattern_reason.group(2)) > 0:
                         reason = pattern_reason.group(2).capitalize()
-                    else:
-                        reason = "Отправлено через telegram"
 
                     result = send_like(user_token=token,
                                        telegram_name=recipient_telegram_name,
@@ -99,10 +96,8 @@ async def likes(message: types.Message):
                         else:
                             tag_id = None
 
-                if pattern_reason:
+                if len(pattern_reason.group(2)) > 0:
                     reason = pattern_reason.group(2).capitalize()
-                else:
-                    reason = "Отправлено через telegram"
 
                 result = send_like(user_token=token,
                                    telegram_name=recipient_telegram_name,
