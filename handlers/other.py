@@ -49,7 +49,7 @@ async def likes(message: types.Message):
                     if pattern_reason:
                         reason = pattern_reason.group(2).capitalize()
                     else:
-                        reason = None
+                        reason = "Отправлено через telegram"
 
                     result = send_like(user_token=token,
                                        telegram_id=recipient_telegram_id,
@@ -73,7 +73,7 @@ async def likes(message: types.Message):
                     if pattern_reason:
                         reason = pattern_reason.group(2).capitalize()
                     else:
-                        reason = None
+                        reason = "Отправлено через telegram"
 
                     result = send_like(user_token=token,
                                        telegram_name=recipient_telegram_name,
@@ -102,7 +102,7 @@ async def likes(message: types.Message):
                 if pattern_reason:
                     reason = pattern_reason.group(2).capitalize()
                 else:
-                    reason = None
+                    reason = "Отправлено через telegram"
 
                 result = send_like(user_token=token,
                                    telegram_name=recipient_telegram_name,
