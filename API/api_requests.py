@@ -123,7 +123,7 @@ def send_like(user_token: str,
               telegram_name: str = None,
               amount: str = None,
               tags: str = None,
-              reason: str = None,
+              reason: str = "Отправлено через telegram",
               ):
     headers = {
         "accept": "application/json",
