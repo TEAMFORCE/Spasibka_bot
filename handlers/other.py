@@ -65,6 +65,7 @@ async def likes(message: types.Message):
                         reason = pattern_reason.group(2).capitalize()
 
         else:
+            group_id = get_active_organization(message.from_id)
             if pattern_username:
                 recipient_telegram_name = pattern_username.group(1)
                 sender_telegram_id = message.from_user.id
