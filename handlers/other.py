@@ -64,7 +64,7 @@ async def likes(message: types.Message):
                 recipient_telegram_name = pattern_username.group(1)
                 sender_telegram_id = message.from_user.id
                 organization_id = get_active_organization(sender_telegram_id)
-                group_id = None  # todo найти tg id организации
+                group_id = None
                 token = get_token_by_organization_id(telegram_id=sender_telegram_id,
                                                      organization_id=organization_id)
                 if pattern_tag:
