@@ -1,6 +1,9 @@
+import asyncio
+
 import requests
 
 from censored import token_drf, drf_url
+from logs.log_func import create_transaction_log
 
 
 def messages_lifetime(group_id: str) -> dict:
@@ -147,18 +150,62 @@ def send_like(user_token: str,
     if int(amount) >= 5:
         thx = 'спасибок'
     tag_name = None
+
     if r.status_code == 201 and tags:
         all_tags = all_like_tags(user_token)
         for i in all_tags:
             if i['id'] == int(tags):
                 tag_name = i['name']
+        asyncio.create_task(create_transaction_log(
+            user_token=user_token,
+            group_id=group_id,
+            telegram_id=telegram_id,
+            telegram_name=telegram_name,
+            amount=amount,
+            tags=tags,
+            reason=reason,
+            response_code=r.status_code,
+        ))
         return f'Перевод {amount} {thx} пользователю @{telegram_name} сформирован с тегом #{tag_name}'
+
     elif r.status_code == 201:
+        asyncio.create_task(create_transaction_log(
+            user_token=user_token,
+            group_id=group_id,
+            telegram_id=telegram_id,
+            telegram_name=telegram_name,
+            amount=amount,
+            tags=tags,
+            reason=reason,
+            response_code=r.status_code,
+        ))
         return f'Перевод {amount} {thx} пользователю @{telegram_name}'
+
     elif r.status_code == 500:
+        asyncio.create_task(create_transaction_log(
+            user_token=user_token,
+            group_id=group_id,
+            telegram_id=telegram_id,
+            telegram_name=telegram_name,
+            amount=amount,
+            tags=tags,
+            reason=reason,
+            response_code=r.status_code,
+        ))
         return 'Что то пошло не так\n' \
                'Проверьте что группа зарегистрирована в системе'
+
     else:
+        asyncio.create_task(create_transaction_log(
+            user_token=user_token,
+            group_id=group_id,
+            telegram_id=telegram_id,
+            telegram_name=telegram_name,
+            amount=amount,
+            tags=tags,
+            reason=reason,
+            response_code=r.status_code,
+        ))
         return r.json()[0]
 
 
