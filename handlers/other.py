@@ -77,6 +77,12 @@ async def likes(message: types.Message):
             else:
                 return
 
+        if tag_id is None and pattern_tag:
+            answer = await message.answer(f"Тег {tag} не найден, спасибка не отправлена\n"
+                                          f"Можно использовать только теги из списка /tags")
+            await delete_message_bot_answer(answer, message.chat.id)
+            return
+
         if token:
             result = send_like(user_token=token,
                                telegram_id=recipient_telegram_id,
@@ -85,12 +91,7 @@ async def likes(message: types.Message):
                                tags=tag_id,
                                reason=reason,
                                group_id=group_id)
-
-        if tag_id is None and pattern_tag:
-            answer = await message.answer(f"Тег {tag} не найден, спасибка не отправлена\n"
-                                          f"Можно использовать только теги из списка /tags")
-            await delete_message_bot_answer(answer, message.chat.id)
-        elif result is not None:
+        if result is not None:
             answer = await message.reply(f"{result}")
             await delete_message_bot_answer(answer, message.chat.id)
 
