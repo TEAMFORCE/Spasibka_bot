@@ -120,92 +120,54 @@ def get_balance(token: str):
         return r.json()
 
 
-def send_like(user_token: str,
-              group_id: str = None,
-              telegram_id: str = None,
-              telegram_name: str = None,
-              amount: str = None,
-              tags: str = None,
-              reason: str = "Отправлено через telegram",
-              ):
+def send_like(user_token: str, **kwargs):
+    global tag_name
     headers = {
         "accept": "application/json",
         "Authorization": "Token " + user_token,
     }
-
     body = {
-        "recipient_telegram_id": telegram_id,
-        "recipient_tg_name": telegram_name,
-        "group_id": group_id,
-        "amount": amount,
+        "recipient_telegram_id": kwargs.get("telegram_id"),
+        "recipient_tg_name": kwargs.get("telegram_name"),
+        "group_id": kwargs.get("group_id"),
+        "amount": kwargs.get("amount"),
         "is_anonymous": False,
-        "reason": reason,
-        "tags": tags,
+        "reason": kwargs.get("reason"),
+        "tags": kwargs.get("tags"),
     }
 
     r = requests.post(drf_url + 'send-coins/', headers=headers, json=body)
 
+    # Пишем лог
+    asyncio.create_task(create_transaction_log(
+        user_token=user_token,
+        group_id=kwargs.get("group_id"),
+        telegram_id=kwargs.get("telegram_id"),
+        telegram_name=kwargs.get("telegram_name"),
+        amount=kwargs.get("amount"),
+        tags=kwargs.get("tags"),
+        reason=kwargs.get("reason"),
+        response_code=r.status_code,
+    ))
+
     #  Перевод 1 спасибки пользователю
     thx = 'спасибки'
-    if int(amount) >= 5:
+    if int(kwargs.get("amount")) >= 5:
         thx = 'спасибок'
-    tag_name = None
 
-    if r.status_code == 201 and tags:
+    if r.status_code == 201 and kwargs.get("tags"):
         all_tags = all_like_tags(user_token)
         for i in all_tags:
-            if i['id'] == int(tags):
+            if i['id'] == int(kwargs.get("tags")):
                 tag_name = i['name']
-        asyncio.create_task(create_transaction_log(
-            user_token=user_token,
-            group_id=group_id,
-            telegram_id=telegram_id,
-            telegram_name=telegram_name,
-            amount=amount,
-            tags=tags,
-            reason=reason,
-            response_code=r.status_code,
-        ))
-        return f'Перевод {amount} {thx} пользователю @{telegram_name} сформирован с тегом #{tag_name}'
-
+        return f'Перевод {kwargs.get("amount")} {thx} пользователю @{kwargs.get("telegram_name")} ' \
+               f'сформирован с тегом #{tag_name}'
     elif r.status_code == 201:
-        asyncio.create_task(create_transaction_log(
-            user_token=user_token,
-            group_id=group_id,
-            telegram_id=telegram_id,
-            telegram_name=telegram_name,
-            amount=amount,
-            tags=tags,
-            reason=reason,
-            response_code=r.status_code,
-        ))
-        return f'Перевод {amount} {thx} пользователю @{telegram_name}'
-
+        return f'Перевод {kwargs.get("amount")} {thx} пользователю @{kwargs.get("telegram_name")}'
     elif r.status_code == 500:
-        asyncio.create_task(create_transaction_log(
-            user_token=user_token,
-            group_id=group_id,
-            telegram_id=telegram_id,
-            telegram_name=telegram_name,
-            amount=amount,
-            tags=tags,
-            reason=reason,
-            response_code=r.status_code,
-        ))
         return 'Что то пошло не так\n' \
                'Проверьте что группа зарегистрирована в системе'
-
     else:
-        asyncio.create_task(create_transaction_log(
-            user_token=user_token,
-            group_id=group_id,
-            telegram_id=telegram_id,
-            telegram_name=telegram_name,
-            amount=amount,
-            tags=tags,
-            reason=reason,
-            response_code=r.status_code,
-        ))
         return r.json()[0]
 
 

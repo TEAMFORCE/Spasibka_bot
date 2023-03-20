@@ -23,15 +23,20 @@ async def likes(message: types.Message):
         pattern_reason = re.match(r'\+\d*\s?(@\w*)?\s?(.*?)\s*(#|$)', message.text)
         amount = pattern_amount.group(1)
         result = None
-        group_id = str(message.chat.id)
+        tag_id = None
+        token = None
+        recipient_telegram_id = None
+        recipient_telegram_name = None
+        tag = None
+        group_id = None
         reason = "Отправлено через telegram"
 
         if message.chat.id != message.from_user.id:
             if amount:
                 sender_telegram_id = message.from_user.id
+                group_id = str(message.chat.id)
                 token = get_token(telegram_id=sender_telegram_id,
                                   group_id=group_id)
-                tag_id = None
                 if message.reply_to_message:
                     recipient_telegram_id = str(message.reply_to_message.from_user.id)
                     recipient_telegram_name = message.reply_to_message.from_user.username
@@ -42,21 +47,9 @@ async def likes(message: types.Message):
                             if i['name'].lower() == tag:
                                 tag_id = str(i['id'])
                                 break
-                            else:
-                                tag_id = None
-                    else:
-                        tag_id = None
 
                     if len(pattern_reason.group(2)) > 0:
                         reason = pattern_reason.group(2).capitalize()
-
-                    result = send_like(user_token=token,
-                                       telegram_id=recipient_telegram_id,
-                                       telegram_name=recipient_telegram_name,
-                                       amount=amount,
-                                       tags=tag_id,
-                                       reason=reason,
-                                       group_id=group_id)
 
                 elif pattern_username:
                     recipient_telegram_name = pattern_username.group(1)
@@ -67,17 +60,10 @@ async def likes(message: types.Message):
                             if i['name'].lower() == tag:
                                 tag_id = str(i['id'])
                                 break
-                            else:
-                                tag_id = None
+
                     if len(pattern_reason.group(2)) > 0:
                         reason = pattern_reason.group(2).capitalize()
 
-                    result = send_like(user_token=token,
-                                       telegram_name=recipient_telegram_name,
-                                       amount=amount,
-                                       tags=tag_id,
-                                       reason=reason,
-                                       group_id=group_id)
         else:
             if pattern_username:
                 recipient_telegram_name = pattern_username.group(1)
@@ -85,7 +71,6 @@ async def likes(message: types.Message):
                 organization_id = get_active_organization(sender_telegram_id)
                 token = get_token_by_organization_id(telegram_id=sender_telegram_id,
                                                      organization_id=organization_id)
-                tag_id = None
                 if pattern_tag:
                     tag = pattern_tag.group(1).lower()
                     all_tags = all_like_tags(user_token=token)
@@ -93,22 +78,30 @@ async def likes(message: types.Message):
                         if i['name'].lower() == tag:
                             tag_id = str(i['id'])
                             break
-                        else:
-                            tag_id = None
+
+                    if tag_id is None:
+                        return
 
                 if len(pattern_reason.group(2)) > 0:
                     reason = pattern_reason.group(2).capitalize()
 
-                result = send_like(user_token=token,
-                                   telegram_name=recipient_telegram_name,
-                                   amount=amount,
-                                   tags=tag_id,
-                                   reason=reason,
-                                   group_id=group_id)
             else:
                 return
 
-        if result is not None:
+        if token:
+            result = send_like(user_token=token,
+                               telegram_id=recipient_telegram_id,
+                               telegram_name=recipient_telegram_name,
+                               amount=amount,
+                               tags=tag_id,
+                               reason=reason,
+                               group_id=group_id)
+
+        if tag_id is None and pattern_tag:
+            answer = await message.answer(f"Тег {tag} не найден, спасибка не отправлена\n"
+                                          f"Можно использовать только теги из списка /tags")
+            await delete_message_bot_answer(answer, message.chat.id)
+        elif result is not None:
             answer = await message.reply(f"{result}")
             await delete_message_bot_answer(answer, message.chat.id)
 
