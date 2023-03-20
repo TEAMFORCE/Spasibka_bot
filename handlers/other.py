@@ -29,14 +29,16 @@ async def likes(message: types.Message):
         recipient_telegram_name = None
         tag = None
         group_id = None
-        reason = "Отправлено через telegram"
+        if len(pattern_reason.group(2)) > 0:
+            reason = pattern_reason.group(2).capitalize()
+        else:
+            reason = "Отправлено через telegram"
 
         if message.chat.id != message.from_user.id:
             if amount:
                 sender_telegram_id = message.from_user.id
                 group_id = str(message.chat.id)
-                token = get_token(telegram_id=sender_telegram_id,
-                                  group_id=group_id)
+                token = get_token(telegram_id=sender_telegram_id, group_id=group_id)
                 if message.reply_to_message:
                     recipient_telegram_id = str(message.reply_to_message.from_user.id)
                     recipient_telegram_name = message.reply_to_message.from_user.username
@@ -48,9 +50,6 @@ async def likes(message: types.Message):
                                 tag_id = str(i['id'])
                                 break
 
-                    if len(pattern_reason.group(2)) > 0:
-                        reason = pattern_reason.group(2).capitalize()
-
                 elif pattern_username:
                     recipient_telegram_name = pattern_username.group(1)
                     if pattern_tag:
@@ -60,16 +59,12 @@ async def likes(message: types.Message):
                             if i['name'].lower() == tag:
                                 tag_id = str(i['id'])
                                 break
-
-                    if len(pattern_reason.group(2)) > 0:
-                        reason = pattern_reason.group(2).capitalize()
-
         else:
-            group_id = get_active_organization(message.from_id)
             if pattern_username:
                 recipient_telegram_name = pattern_username.group(1)
                 sender_telegram_id = message.from_user.id
                 organization_id = get_active_organization(sender_telegram_id)
+                group_id = None  # todo найти tg id организации
                 token = get_token_by_organization_id(telegram_id=sender_telegram_id,
                                                      organization_id=organization_id)
                 if pattern_tag:
@@ -79,13 +74,6 @@ async def likes(message: types.Message):
                         if i['name'].lower() == tag:
                             tag_id = str(i['id'])
                             break
-
-                    if tag_id is None:
-                        return
-
-                if len(pattern_reason.group(2)) > 0:
-                    reason = pattern_reason.group(2).capitalize()
-
             else:
                 return
 

@@ -1,0 +1,11 @@
+--- *** ---
+New transaction:
+user_token: da28bf6693a7018cedf679cc618d61a80529e3a6
+group_id: None
+telegram_id: None
+telegram_name: Brukva2
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+
