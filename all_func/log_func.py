@@ -16,7 +16,7 @@ async def create_transaction_log(**kwargs):
            f"reason: {kwargs.get('reason')}\n" \
            f"Response code: {kwargs.get('response_code')}\n\n"
     os.chdir("transaction_logs")
-    with open(f"Transactions {today}.txt", "a", encoding="utf-8") as log:
+    with open(f"Transactions_{today}.txt", "a", encoding="utf-8") as log:
         log.write(temp)
         print("Log added")
     # Удаляем фаил

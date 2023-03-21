@@ -3,7 +3,7 @@ import asyncio
 import requests
 
 from censored import token_drf, drf_url
-from transaction_logs.log_func import create_transaction_log
+from all_func.log_func import create_transaction_log
 
 
 def messages_lifetime(group_id: str) -> dict:
