@@ -26,4 +26,4 @@ async def create_transaction_log(**kwargs):
         print("Log deleted")
     except FileNotFoundError:
         pass
-    os.chdir("../")
+    os.chdir("..")
