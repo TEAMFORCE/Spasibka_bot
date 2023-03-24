@@ -277,7 +277,6 @@ tags
 !.envs/.local/
 
 # Mine
-transaction_logs
 sandbox.py
 temp.txt
 <<<<<<< HEAD
