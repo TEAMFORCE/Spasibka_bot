@@ -20,10 +20,10 @@ async def create_transaction_log(**kwargs):
         log.write(temp)
         print("Log added")
     # Удаляем фаил
-    file_path = fr"Transactions {today - one_month}.txt"
+    file_path = fr"Transactions_{today - one_month}.txt"
     try:
         os.unlink(file_path)
         print("Log deleted")
     except FileNotFoundError:
         pass
-    os.chdir("..")
+    os.chdir("../")
