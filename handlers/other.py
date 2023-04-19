@@ -115,9 +115,9 @@ async def change_active_organization(callback_query: types.CallbackQuery):
     telegram_id = callback_query.from_user.id
     result = set_active_organization(organization_id, telegram_id)
     if result:
-        await callback_query.answer(f'Активируем {callback_query.data.split(" ")[2]}')
+        await callback_query.answer(f'Смена организации')
         await bot.delete_message(telegram_id, callback_query.message.message_id)
-        await bot.send_message(telegram_id, f'Текущая организация изменена на {callback_query.data.split(" ")[2]}')
+        await bot.send_message(telegram_id, f'Текущая организация изменена')
     else:
         await bot.delete_message(telegram_id, callback_query.message.message_id)
         await bot.send_message(telegram_id, 'Не удалось сменить организацию')
