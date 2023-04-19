@@ -13,11 +13,11 @@ def get_user_organization_keyboard(telegram_id):
         if i['is_current']:
             button = InlineKeyboardButton(
                 text=i['name'] + ' ✅',
-                callback_data='org ' + str(i['id']) + " " + i['name'])
+                callback_data='org ' + str(i['id']) + " " + i['name'].replace(" ", "_"))
             user_organizations_kb.add(button)
         else:
             button = InlineKeyboardButton(
                 text=i['name'],
-                callback_data='org ' + str(i['id']) + " " + i['name'])
+                callback_data='org ' + str(i['id']) + " " + i['name'].replace(" ", "_"))
             user_organizations_kb.add(button)
     return user_organizations_kb
