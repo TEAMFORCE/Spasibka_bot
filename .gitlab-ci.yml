@@ -43,8 +43,8 @@ development-deploy:
         git pull origin $DEPLOY_BRANCH;
 
         echo "### Restart docker-compose"
-        docker-compose -f '$CD_DC_FILE' down
-        docker-compose -f '$CD_DC_FILE' up --build -d
+        docker compose -f '$CD_DC_FILE' down
+        docker compose -f '$CD_DC_FILE' up --build -d
 
         exit
         EOT
