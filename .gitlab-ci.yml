@@ -6,11 +6,12 @@ stages:
 # Deployment
 # ------------------------------------------------------------------------------
 .ssh_connection: &ssh_connection
-  - echo "# Init SSH!"
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - eval $(ssh-agent -s)
   - echo "$CD_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  - ssh-keyscan -t rsa  $SRV_HOST >> ~/.ssh/known_hosts
 
 
 development-deploy:
