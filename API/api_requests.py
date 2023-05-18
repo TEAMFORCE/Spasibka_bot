@@ -26,8 +26,10 @@ def messages_lifetime(group_id: str) -> dict:
         return None
 
 
-def get_token(telegram_id, group_id, telegram_name=None):
+def get_token(telegram_id, group_id, telegram_name=None, first_name=None, last_name=None):
     """
+    :param last_name:
+    :param first_name:
     :param telegram_id: id пользователя
     :param group_id: id группы телеграм
     :param telegram_name: имя пользователя телеграм
@@ -41,6 +43,8 @@ def get_token(telegram_id, group_id, telegram_name=None):
         "telegram_id": telegram_id,
         "group_id": group_id,
         "tg_name": telegram_name,
+        "first_name": first_name,
+        "last_name": last_name,
     }
     r = requests.post(drf_url + 'tg-get-user-token/', headers=headers, json=body)
     if 'token' in r.json():
@@ -53,8 +57,10 @@ def get_token(telegram_id, group_id, telegram_name=None):
         print('Что то пошло не так')
 
 
-def get_token_by_organization_id(telegram_id, organization_id, telegram_name=None):
+def get_token_by_organization_id(telegram_id, organization_id, telegram_name=None, first_name=None, last_name=None):
     """
+    :param last_name:
+    :param first_name:
     :param telegram_id: id пользователя
     :param organization_id: id группы в RestAPI
     :param telegram_name: имя пользователя телеграм
@@ -68,6 +74,8 @@ def get_token_by_organization_id(telegram_id, organization_id, telegram_name=Non
         "telegram_id": telegram_id,
         "organization_id": organization_id,
         "tg_name": telegram_name,
+        "first_name": first_name,
+        "last_name": last_name,
     }
     r = requests.post(drf_url + 'tg-get-user-token/', headers=headers, json=body)
 

@@ -149,13 +149,15 @@ async def balance(message: types.Message):
     """
     telegram_id = message.from_user.id
     telegram_name = message.from_user.username
+    first_name = message.from_user.first_name
+    last_name = message.from_user.last_name
     if message.chat.id != telegram_id:
         group_id = message.chat.id
-        token = get_token(telegram_id, group_id, telegram_name)
+        token = get_token(telegram_id, group_id, telegram_name, first_name, last_name)
     else:
         organization_id = get_active_organization(telegram_id)
         if organization_id is not None:
-            token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
+            token = get_token_by_organization_id(telegram_id, organization_id, telegram_name, first_name, last_name)
         else:
             answer = await message.reply(dicts.errors['no_active_organization'])
             asyncio.create_task(delete_message_and_command([message, answer], message.chat.id))
@@ -196,12 +198,13 @@ async def ct(message: types.Message):
     telegram_id = message.from_user.id
     group_id = message.chat.id
     telegram_name = message.from_user.username
-
+    first_name = message.from_user.first_name
+    last_name = message.from_user.last_name
     if telegram_id == group_id:
         organization_id = get_active_organization(telegram_id)
-        token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
+        token = get_token_by_organization_id(telegram_id, organization_id, telegram_name, first_name, last_name)
     else:
-        token = get_token(telegram_id, group_id, telegram_name)
+        token = get_token(telegram_id, group_id, telegram_name, first_name, last_name)
 
     list_of_cancelable_likes = get_all_cancelable_likes(user_token=token)
     not_complited_transactions = get_not_complited_transactions_kb(list_of_canceleble_likes=list_of_cancelable_likes)
@@ -305,17 +308,18 @@ async def tags(message: types.Message):
     telegram_id = message.from_user.id
     group_id = message.chat.id
     telegram_name = message.from_user.username
-
+    first_name = message.from_user.first_name
+    last_name = message.from_user.last_name
     if telegram_id == group_id:
         organization_id = get_active_organization(telegram_id)
         if organization_id is not None:
-            token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
+            token = get_token_by_organization_id(telegram_id, organization_id, telegram_name, first_name, last_name)
         else:
             answer = await message.reply(dicts.errors['no_active_organization'])
             await delete_message_and_command([message, answer], message.chat.id)
             return
     else:
-        token = get_token(telegram_id, group_id, telegram_name)
+        token = get_token(telegram_id, group_id, telegram_name, first_name, last_name)
 
     tag_list = 'Вот список основных тэгов:\n'
     for i in all_like_tags(user_token=token):

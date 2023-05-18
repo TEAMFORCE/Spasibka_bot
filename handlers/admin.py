@@ -19,7 +19,9 @@ async def like(message: types.Message):
         telegram_id = message.from_user.id
         group_id = str(message.chat.id)
         telegram_name = message.from_user.username
-        token = get_token(telegram_id, group_id, telegram_name)
+        first_name = message.from_user.first_name
+        last_name = message.from_user.last_name
+        token = get_token(telegram_id, group_id, telegram_name, first_name, last_name)
 
         telegram_id = str(message.reply_to_message.from_user.id)
         telegram_name = message.reply_to_message.from_user.username

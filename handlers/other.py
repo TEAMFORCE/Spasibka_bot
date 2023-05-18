@@ -29,6 +29,8 @@ async def likes(message: types.Message):
         recipient_telegram_name = None
         tag = None
         group_id = None
+        first_name = message.from_user.first_name
+        last_name = message.from_user.last_name
         if len(pattern_reason.group(2)) > 0:
             reason = pattern_reason.group(2).capitalize()
         else:
@@ -38,7 +40,8 @@ async def likes(message: types.Message):
             if amount:
                 sender_telegram_id = message.from_user.id
                 group_id = str(message.chat.id)
-                token = get_token(telegram_id=sender_telegram_id, group_id=group_id)
+                token = get_token(telegram_id=sender_telegram_id, group_id=group_id, first_name=first_name,
+                                  last_name=last_name)
                 if message.reply_to_message:
                     recipient_telegram_id = str(message.reply_to_message.from_user.id)
                     recipient_telegram_name = message.reply_to_message.from_user.username
@@ -66,7 +69,9 @@ async def likes(message: types.Message):
                 organization_id = get_active_organization(sender_telegram_id)
                 group_id = None
                 token = get_token_by_organization_id(telegram_id=sender_telegram_id,
-                                                     organization_id=organization_id)
+                                                     organization_id=organization_id,
+                                                     first_name=first_name,
+                                                     last_name=last_name)
                 if pattern_tag:
                     tag = pattern_tag.group(1).lower()
                     all_tags = all_like_tags(user_token=token)
@@ -101,7 +106,9 @@ async def cancel_like(callback_query: types.CallbackQuery):
     telegram_id = callback_query.from_user.id
     organization_id = callback_query.data.split(" ")[2]
     telegram_name = callback_query.from_user.username
-    token = get_token_by_organization_id(telegram_id, organization_id, telegram_name)
+    first_name = callback_query.from_user.first_name
+    last_name = callback_query.from_user.last_name
+    token = get_token_by_organization_id(telegram_id, organization_id, telegram_name, first_name, last_name)
     await callback_query.answer(f'Отменяем транзакцию {callback_query.data.split(" ")[1]}')
     message = cansel_transaction(user_token=token, like_id=int(callback_query.data.split(" ")[1]))
     await bot.edit_message_text(text=message,
