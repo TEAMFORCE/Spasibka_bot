@@ -10,7 +10,7 @@ from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
-    all_like_tags, get_active_organization, messages_lifetime
+    all_like_tags, get_active_organization, messages_lifetime, tg_handle_start
 
 from dict_cloud import dicts
 
@@ -85,8 +85,34 @@ async def delete_message_and_command(message: list[types.Message], group_id: str
                 await i.delete()
 
 
-# @dp.message_handler(commands=['start', 'help'])
+# @dp.message_handler(commands="start")
 async def start(message: types.Message):
+    if not message.from_user.username:
+        await message.answer("Похоже у вас не указан tg_username.\n"
+                             "Чтобы задать Username вашему аккаунту перейдите в настройки профиля.")
+        return
+    tg_name = message.from_user.username.replace("@", "")
+    tg_id = message.from_user.id
+    resp = tg_handle_start(tg_name, tg_id)
+    resp_status = resp["status"]
+    if resp_status == 0:
+        text = f"Hello, {message.from_user.first_name}! Use /go to select Organization"
+    elif resp_status == 2:
+        text = f"Hello, {message.from_user.first_name}!\n" \
+               "You have to register in community to continue.\n" \
+               f"Please, use your invite link, or create your own community on tf360.com " \
+               f"(use <code>{message.from_user.username}</code> as login)"
+    elif resp_status == -1:
+        text = f"Hello, {message.from_user.first_name}! Your account blocked, please contact support."
+    elif resp_status == 1:
+        text = f"Hello, {message.from_user.first_name}! Your code is: <code>{resp['verification_code']}</code>"
+    else:
+        text = resp_status
+    await message.answer(text, parse_mode=types.ParseMode.HTML)
+
+
+# @dp.message_handler(commands=['help'])
+async def help_message(message: types.Message):
     if message.chat.id == message.from_user.id:
         await bot.send_message(message.chat.id, messages['start_message'].format(user_name=message.from_user.username))
     else:
@@ -297,11 +323,12 @@ async def tags(message: types.Message):
 
 
 def register_handlers_client(dp: Dispatcher):
+    dp.register_message_handler(start, commands=['start'])
     dp.register_message_handler(balance, commands=['баланс', 'balance'])
     dp.register_message_handler(ct, commands=['ct'])
     dp.register_message_handler(go, commands=['go'])
     dp.register_message_handler(export, commands=['export'])
     dp.register_message_handler(webwiev, commands=['webwiev'])
     dp.register_message_handler(test, commands=['test'])
-    dp.register_message_handler(start, commands=['start', 'help'])
+    dp.register_message_handler(help_message, commands=['help'])
     dp.register_message_handler(tags, commands=['tags'])

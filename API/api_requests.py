@@ -340,3 +340,24 @@ def get_active_organization(telegram_id: str):
                 return i['id']
     else:
         return None
+
+
+def tg_handle_start(tg_name: str, telegram_id: str) -> str or False:
+    """
+    Для команды /start. Возвращает номер статуса или str если запрос выполнен неверно.
+    """
+    headers = {
+        "accept": "application/json",
+        "Authorization": token_drf,
+    }
+    body = {
+        "tg_name": tg_name,
+        'telegram_id': telegram_id,
+    }
+
+    r = requests.post(drf_url + 'tg-handle-start/', headers=headers, json=body)
+
+    if r.status_code == 200:
+        return r.json()
+    else:
+        return False
