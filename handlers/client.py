@@ -94,21 +94,24 @@ async def start(message: types.Message):
     tg_name = message.from_user.username.replace("@", "")
     tg_id = message.from_user.id
     resp = tg_handle_start(tg_name, tg_id)
-    resp_status = resp["status"]
-    if resp_status == 0:
-        text = f"Hello, {message.from_user.first_name}! Use /go to select Organization"
-    elif resp_status == 2:
-        text = f"Hello, {message.from_user.first_name}!\n" \
-               "You have to register in community to continue.\n" \
-               f"Please, use your invite link, or create your own community on tf360.com " \
-               f"(use <code>{message.from_user.username}</code> as login)"
-    elif resp_status == -1:
-        text = f"Hello, {message.from_user.first_name}! Your account blocked, please contact support."
-    elif resp_status == 1:
-        text = f"Hello, {message.from_user.first_name}! Your code is: <code>{resp['verification_code']}</code>"
+    if resp:
+        resp_status = resp["status"]
+        if resp_status == 0:
+            text = f"Hello, {message.from_user.first_name}! Use /go to select Organization"
+        elif resp_status == 2:
+            text = f"Hello, {message.from_user.first_name}!\n" \
+                   "You have to register in community to continue.\n" \
+                   f"Please, use your invite link, or create your own community on tf360.com " \
+                   f"(use <code>{message.from_user.username}</code> as login)"
+        elif resp_status == -1:
+            text = f"Hello, {message.from_user.first_name}! Your account blocked, please contact support."
+        elif resp_status == 1:
+            text = f"Hello, {message.from_user.first_name}! Your code is: <code>{resp['verification_code']}</code>"
+        else:
+            text = resp_status
+        await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
-        text = resp_status
-    await message.answer(text, parse_mode=types.ParseMode.HTML)
+        await message.answer(resp)
 
 
 # @dp.message_handler(commands=['help'])

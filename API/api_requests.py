@@ -358,6 +358,8 @@ def tg_handle_start(tg_name: str, telegram_id: str) -> str or False:
     r = requests.post(drf_url + 'tg-handle-start/', headers=headers, json=body)
 
     if r.status_code == 200:
+        print(r.json)
         return r.json()
     else:
+        print(r.status_code)
         return False
