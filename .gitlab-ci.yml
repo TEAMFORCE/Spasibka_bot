@@ -6,11 +6,12 @@ stages:
 # Deployment
 # ------------------------------------------------------------------------------
 .ssh_connection: &ssh_connection
-  - echo "# Init SSH!"
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   - eval $(ssh-agent -s)
   - echo "$CD_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  - ssh-keyscan -t rsa  $CD_SERVER_HOST >> ~/.ssh/known_hosts
 
 
 development-deploy:
@@ -42,8 +43,8 @@ development-deploy:
         git pull origin $DEPLOY_BRANCH;
 
         echo "### Restart docker-compose"
-        docker-compose -f '$CD_DC_FILE' down
-        docker-compose -f '$CD_DC_FILE' up --build -d
+        docker compose -f '$CD_DC_FILE' down
+        docker compose -f '$CD_DC_FILE' up --build -d
 
         exit
         EOT
