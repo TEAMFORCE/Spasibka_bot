@@ -85,15 +85,26 @@ async def delete_message_and_command(message: list[types.Message], group_id: str
                 await i.delete()
 
 
+@dp.message_handler(commands="r")
+async def ready(message: types.Message):
+    chat_member = await bot.get_chat_member(message.chat.id, message.from_user.id)
+    print(chat_member)
+    community = message.chat.title
+    print(community)
+
+
 # @dp.message_handler(commands="start")
 async def start(message: types.Message):
-    if not message.from_user.username:
-        await message.answer("Похоже у вас не указан tg_username.\n"
-                             "Чтобы задать Username вашему аккаунту перейдите в настройки профиля.")
-        return
     tg_name = message.from_user.username.replace("@", "")
     tg_id = message.from_user.id
-    resp = tg_handle_start(tg_name, tg_id)
+    if message.chat.type == types.ChatType.GROUP:
+        chat_member = await bot.get_chat_member(message.chat.id, message.from_user.id)
+        group_id = message.chat.id
+        user_role = chat_member.status
+        group_name = message.chat.title
+        resp = tg_handle_start(tg_name, tg_id, group_id, user_role, group_name)
+    else:
+        resp = tg_handle_start(tg_name, tg_id)
     if resp:
         resp_status = resp["status"]
         if resp_status == 0:
