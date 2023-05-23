@@ -97,14 +97,16 @@ async def ready(message: types.Message):
 async def start(message: types.Message):
     tg_name = message.from_user.username.replace("@", "")
     tg_id = message.from_user.id
+    first_name = message.from_user.first_name
+    last_name = message.from_user.last_name
     if message.chat.type == types.ChatType.GROUP:
         chat_member = await bot.get_chat_member(message.chat.id, message.from_user.id)
         group_id = message.chat.id
         user_role = chat_member.status
         group_name = message.chat.title
-        resp = tg_handle_start(tg_name, tg_id, group_id, user_role, group_name)
+        resp = tg_handle_start(tg_name, tg_id, group_id, user_role, group_name, first_name, last_name)
     else:
-        resp = tg_handle_start(tg_name, tg_id)
+        resp = tg_handle_start(tg_name, tg_id, first_name=first_name, last_name=last_name)
     if resp:
         resp_status = resp["status"]
         if resp_status == 0:
@@ -122,7 +124,7 @@ async def start(message: types.Message):
             text = resp_status
         await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
-        await message.answer(resp)
+        await message.answer("Ошибка ответа от сервера, обратитесь к администратору")
 
 
 # @dp.message_handler(commands=['help'])

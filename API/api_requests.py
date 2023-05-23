@@ -351,7 +351,7 @@ def get_active_organization(telegram_id: str):
 
 
 def tg_handle_start(tg_name: str, telegram_id: str, group_id: int = None, user_role: str = None,
-                    group_name: str = None) -> str:
+                    group_name: str = None, first_name: str = None, last_name: str = None) -> str:
     """
     Для команды /start. Возвращает номер статуса или str если запрос выполнен неверно.
     """
@@ -364,14 +364,16 @@ def tg_handle_start(tg_name: str, telegram_id: str, group_id: int = None, user_r
         "telegram_id": telegram_id,
         "group_id": group_id,
         "user_role": user_role,
-        "group_name": group_name
+        "group_name": group_name,
+        "first_name": first_name,
+        "last_name": last_name,
     }
 
     r = requests.post(drf_url + 'tg-handle-start/', headers=headers, json=body)
 
     if r.status_code == 200:
-        print(r.json)
         return r.json()
     else:
-        text = f"Ошибка при обработе запроса {r.status_code}"
-        return text
+        print(f"Ошибка при обработе запроса {r.status_code}")
+        print(r.json())
+        return False
