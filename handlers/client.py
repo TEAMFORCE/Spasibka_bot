@@ -122,7 +122,11 @@ async def start(message: types.Message):
             text = f"Hello, {message.from_user.first_name}! Your code is: <code>{resp['verification_code']}</code>"
         else:
             text = resp_status
-        await message.answer(text, parse_mode=types.ParseMode.HTML)
+        try:
+            await bot.send_message(chat_id=message.from_user.id, text=text, parse_mode=types.ParseMode.HTML)
+        except CantInitiateConversation:
+            await message.answer("Начните чат с ботом чтобы я смог отправить ваш код вам в ЛС")
+
     else:
         await message.answer("Ошибка ответа от сервера, обратитесь к администратору")
 
