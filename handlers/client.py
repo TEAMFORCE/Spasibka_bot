@@ -353,6 +353,7 @@ async def rating(message: types.Message):
     statistics_list = None
     user_rating = None
     if message.chat.type == types.ChatType.GROUP:
+        limit = 5
         user_token = get_token(telegram_id=message.from_user.id,
                                group_id=message.chat.id,
                                telegram_name=message.from_user.username,
@@ -360,6 +361,7 @@ async def rating(message: types.Message):
                                last_name=message.from_user.last_name)
         statistics_list = get_ratings(user_token)
     elif message.chat.type == types.ChatType.PRIVATE:
+        limit = 500
         active_organization_id = get_active_organization(message.from_user.id)
         if not active_organization_id:
             await message.answer("У вас не выбрано ни одной организации.\n"
@@ -380,7 +382,7 @@ async def rating(message: types.Message):
                    '<b>Статистика по ТОП пользователям:</b>\n\n'
         else:
             text = '<b>Статистика по ТОП пользователям:</b>\n\n'
-        for i in statistics_list[:6]:
+        for i in statistics_list[:limit]:
             text += f"Пользователь: <code>{i['user']['tg_name']}</code>\n" \
                     f"Рейтинг: <code>{i['rating']}</code>\n\n"
         answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
