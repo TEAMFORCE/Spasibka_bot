@@ -395,3 +395,24 @@ def get_ratings(user_token: str) -> list or None:
     else:
         print(r.text)
         return None
+
+
+def get_rating_xls(user_token: str) -> tuple or None:
+    """
+    Возвращает rb tuple для формирования xls.
+    """
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Token {user_token}",
+    }
+    body = {
+        "format": "excel",
+    }
+
+    r = requests.post(drf_url + 'rating/download/', headers=headers, json=body)
+
+    if r.status_code == 200:
+        return r.content
+    else:
+        print(r.text)
+        return None

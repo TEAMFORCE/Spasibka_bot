@@ -10,7 +10,7 @@ from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
-    all_like_tags, get_active_organization, messages_lifetime, tg_handle_start, get_ratings
+    all_like_tags, get_active_organization, messages_lifetime, tg_handle_start, get_ratings, get_rating_xls
 
 from dict_cloud import dicts
 
@@ -390,6 +390,46 @@ async def rating(message: types.Message):
         await delete_message_and_command([message, answer], message.chat.id)
 
 
+# @dp.message_handler(commands='ratingxls')
+async def ratingxls(message: types.Message):
+    user_token = None
+    filename = f"{message.from_user.id}_{datetime.datetime.now().strftime('%d_%m_%y_%H_%M')}.xlsx"
+    if message.chat.type == types.ChatType.GROUP:
+        user_token = get_token(telegram_id=message.from_user.id,
+                               group_id=message.chat.id,
+                               telegram_name=message.from_user.username,
+                               first_name=message.from_user.first_name,
+                               last_name=message.from_user.last_name)
+    elif message.chat.type == types.ChatType.PRIVATE:
+        active_organization_id = get_active_organization(message.from_user.id)
+        if not active_organization_id:
+            await message.answer("У вас не выбрано ни одной организации.\n"
+                                 "Используйте /go чтобы выбрать организацию")
+            return
+        user_token = get_token_by_organization_id(telegram_id=message.from_user.id,
+                                                  organization_id=active_organization_id,
+                                                  telegram_name=message.from_user.username,
+                                                  first_name=message.from_user.first_name,
+                                                  last_name=message.from_user.last_name)
+    temp_answer = await bot.send_message(chat_id=message.from_user.id, text="Формирую фаил")
+    content = get_rating_xls(user_token)
+    if content:
+        with open(filename, "wb") as file:
+            file.write(content)
+        try:
+            await bot.send_document(chat_id=message.from_user.id, document=open(filename, "rb"))
+            await temp_answer.delete()
+        except CantInitiateConversation:
+            await message.answer("Чтобы получить фаил начни со мной диалог")
+            await asyncio.sleep(5)
+            await message.delete()
+        os.remove(filename)
+    else:
+        error_message = await message.answer("Ошибка при обработке запроса")
+        await asyncio.sleep(5)
+        await error_message.delete()
+
+
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(start, commands=['start'])
     dp.register_message_handler(balance, commands=['баланс', 'balance'])
@@ -400,4 +440,5 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(test, commands=['test'])
     dp.register_message_handler(help_message, commands=['help'])
     dp.register_message_handler(tags, commands=['tags'])
-    dp.register_message_handler(rating, commands='rating')
+    dp.register_message_handler(rating, commands=['rating'])
+    dp.register_message_handler(ratingxls, commands=['ratingxls'])
