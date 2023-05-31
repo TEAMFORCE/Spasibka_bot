@@ -10,7 +10,7 @@ from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
-    all_like_tags, get_active_organization, messages_lifetime, tg_handle_start
+    all_like_tags, get_active_organization, messages_lifetime, tg_handle_start, get_ratings
 
 from dict_cloud import dicts
 
@@ -129,6 +129,7 @@ async def start(message: types.Message):
 
     else:
         await message.answer("Ошибка ответа от сервера, обратитесь к администратору")
+    await message.delete()
 
 
 # @dp.message_handler(commands=['help'])
@@ -151,10 +152,11 @@ async def help_message(message: types.Message):
 # @dp.message_handler(commands=['test'])
 async def test(message: types.Message):
     if message.chat.id == message.from_user.id:
-        answer = await message.reply('Бот работает. Это сообщение будет удалено через 5 секунд')
+        answer = await message.answer('Бот работает. Это сообщение будет удалено через 5 секунд')
         await delete_message_and_command([message, answer])
     else:
-        answer = await message.reply('Бот работает. Это сообщение будет удалено через 5 секунд')
+        answer = await message.answer('Бот работает. Это сообщение будет удалено через 5 секунд\n'
+                                      f'Group_id: <code>{message.chat.id}</code>', parse_mode=types.ParseMode.HTML)
         await delete_message_and_command([message, answer], message.chat.id)
 
 
@@ -346,6 +348,47 @@ async def tags(message: types.Message):
     await delete_message_and_command([message, answer], message.chat.id)
 
 
+# @dp.message_handler(commands='rating')
+async def rating(message: types.Message):
+    statistics_list = None
+    user_rating = None
+    if message.chat.type == types.ChatType.GROUP:
+        user_token = get_token(telegram_id=message.from_user.id,
+                               group_id=message.chat.id,
+                               telegram_name=message.from_user.username,
+                               first_name=message.from_user.first_name,
+                               last_name=message.from_user.last_name)
+        statistics_list = get_ratings(user_token)
+    elif message.chat.type == types.ChatType.PRIVATE:
+        active_organization_id = get_active_organization(message.from_user.id)
+        if not active_organization_id:
+            await message.answer("У вас не выбрано ни одной организации.\n"
+                                 "Используйте /go чтобы выбрать организацию")
+            return
+        user_token = get_token_by_organization_id(telegram_id=message.from_user.id,
+                                                  organization_id=active_organization_id,
+                                                  telegram_name=message.from_user.username,
+                                                  first_name=message.from_user.first_name,
+                                                  last_name=message.from_user.last_name)
+        statistics_list = get_ratings(user_token)
+    if statistics_list:
+        for i in statistics_list:
+            if i['user']['tg_name'] == message.from_user.username:
+                user_rating = i['rating']
+        if user_rating:
+            text = f'<u><b>Твой рейтинг:</b> <code>{user_rating}</code></u></b>\n\n' \
+                   '<b>Статистика по ТОП пользователям:</b>\n\n'
+        else:
+            text = '<b>Статистика по ТОП пользователям:</b>\n\n'
+        for i in statistics_list[:6]:
+            text += f"Пользователь: <code>{i['user']['tg_name']}</code>\n" \
+                    f"Рейтинг: <code>{i['rating']}</code>\n\n"
+        answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
+    else:
+        answer = await message.answer("Ошибка ответа от сервера")
+    await delete_message_and_command([message, answer], message.chat.id)
+
+
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(start, commands=['start'])
     dp.register_message_handler(balance, commands=['баланс', 'balance'])
@@ -356,3 +399,4 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(test, commands=['test'])
     dp.register_message_handler(help_message, commands=['help'])
     dp.register_message_handler(tags, commands=['tags'])
+    dp.register_message_handler(rating, commands='rating')

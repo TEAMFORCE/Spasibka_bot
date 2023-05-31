@@ -377,3 +377,21 @@ def tg_handle_start(tg_name: str, telegram_id: str, group_id: int = None, user_r
         print(f"Ошибка при обработе запроса {r.status_code}")
         print(r.json())
         return False
+
+
+def get_ratings(user_token: str) -> list or None:
+    """
+    Возвращает статистику по группе. Группа определяется токеном.
+    """
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Token {user_token}",
+    }
+
+    r = requests.get(drf_url + 'rating/overall/', headers=headers)
+
+    if r.status_code == 200:
+        return r.json()
+    else:
+        print(r.text)
+        return None

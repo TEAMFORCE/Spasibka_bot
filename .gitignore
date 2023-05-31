@@ -279,7 +279,5 @@ tags
 # Mine
 sandbox.py
 temp.txt
-<<<<<<< HEAD
-=======
 .envs/
->>>>>>> 5cccb3a0f1e9fa4d9c1903e1e7e40b5d63a98339
+req_sandbox.py
