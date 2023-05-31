@@ -425,7 +425,7 @@ async def ratingxls(message: types.Message):
             await message.delete()
         os.remove(filename)
     else:
-        error_message = await message.answer("Ошибка при обработке запроса")
+        error_message = await temp_answer.edit_text("Ошибка при обработке запроса")
         await asyncio.sleep(5)
         await error_message.delete()
 

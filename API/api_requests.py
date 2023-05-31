@@ -1,6 +1,7 @@
 import asyncio
 
 import requests
+import sys
 
 from censored import token_drf, drf_url
 from all_func.log_func import create_transaction_log
@@ -414,5 +415,5 @@ def get_rating_xls(user_token: str) -> tuple or None:
     if r.status_code == 200:
         return r.content
     else:
-        print(r.text)
+        print(r.text, file=sys.stderr)
         return None
