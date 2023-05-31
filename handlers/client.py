@@ -376,7 +376,7 @@ async def rating(message: types.Message):
             if i['user']['tg_name'] == message.from_user.username:
                 user_rating = i['rating']
         if user_rating:
-            text = f'<u><b>Твой рейтинг:</b> <code>{user_rating}</code></u></b>\n\n' \
+            text = f'<u><b>Твой рейтинг:</b> <code>{user_rating}</code></u>\n\n' \
                    '<b>Статистика по ТОП пользователям:</b>\n\n'
         else:
             text = '<b>Статистика по ТОП пользователям:</b>\n\n'
@@ -386,7 +386,8 @@ async def rating(message: types.Message):
         answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
         answer = await message.answer("Ошибка ответа от сервера")
-    await delete_message_and_command([message, answer], message.chat.id)
+    if message.chat.type == types.ChatType.GROUP:
+        await delete_message_and_command([message, answer], message.chat.id)
 
 
 def register_handlers_client(dp: Dispatcher):
