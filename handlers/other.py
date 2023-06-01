@@ -41,7 +41,7 @@ async def likes(message: types.Message):
         else:
             reason = "Отправлено через telegram"
 
-        if message.chat.type == types.ChatType.GROUP:
+        if message.from_user.id != message.chat.id:
             if amount:
                 group_id = str(message.chat.id)
                 token = get_token(telegram_id=sender_telegram_id, group_id=group_id, telegram_name=sender_telegram_name,

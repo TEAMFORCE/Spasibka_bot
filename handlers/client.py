@@ -356,7 +356,7 @@ async def rating(message: types.Message):
     user_rating = None
     user = None
     limit = 5
-    if message.chat.type == types.ChatType.GROUP:
+    if message.from_user.id != message.chat.id:
         user = get_user(telegram_id=message.from_user.id,
                         group_id=message.chat.id,
                         telegram_name=message.from_user.username,
