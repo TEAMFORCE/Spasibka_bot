@@ -10,7 +10,7 @@ from aiogram import types, Dispatcher
 from create_bot import dp, bot, logger
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
-    all_like_tags, get_active_organization, messages_lifetime, tg_handle_start, get_ratings, get_rating_xls
+    all_like_tags, get_active_organization, messages_lifetime, tg_handle_start, get_ratings, get_rating_xls, get_user
 
 from dict_cloud import dicts
 
@@ -355,14 +355,14 @@ async def tags(message: types.Message):
 async def rating(message: types.Message):
     statistics_list = None
     user_rating = None
+    user = None
+    limit = 5
     if message.chat.type == types.ChatType.GROUP:
-        limit = 5
-        user_token = get_token(telegram_id=message.from_user.id,
-                               group_id=message.chat.id,
-                               telegram_name=message.from_user.username,
-                               first_name=message.from_user.first_name,
-                               last_name=message.from_user.last_name)
-        statistics_list = get_ratings(user_token)
+        user = get_user(telegram_id=message.from_user.id,
+                        group_id=message.chat.id,
+                        telegram_name=message.from_user.username,
+                        first_name=message.from_user.first_name,
+                        last_name=message.from_user.last_name)
     elif message.chat.type == types.ChatType.PRIVATE:
         limit = 500
         active_organization_id = get_active_organization(message.from_user.id)
@@ -370,21 +370,23 @@ async def rating(message: types.Message):
             await message.answer("У вас не выбрано ни одной организации.\n"
                                  "Используйте /go чтобы выбрать организацию")
             return
-        user_token = get_token_by_organization_id(telegram_id=message.from_user.id,
-                                                  organization_id=active_organization_id,
-                                                  telegram_name=message.from_user.username,
-                                                  first_name=message.from_user.first_name,
-                                                  last_name=message.from_user.last_name)
-        statistics_list = get_ratings(user_token)
+        user = get_user(telegram_id=message.from_user.id,
+                        organization_id=active_organization_id,
+                        telegram_name=message.from_user.username,
+                        first_name=message.from_user.first_name,
+                        last_name=message.from_user.last_name)
+    if not user:
+        error = await message.answer(errors["no_token"])
+        await asyncio.wait(5)
+        await error.delete()
+        return
+    statistics_list = get_ratings(user["token"])
     if statistics_list:
         for i in statistics_list:
-            if i['user']['tg_name'] == message.from_user.username:
+            if i['user']['userId'] == user["user_id"]:
                 user_rating = i['rating']
-        if user_rating:
-            text = f'<u><b>Твой рейтинг:</b> <code>{user_rating}</code></u>\n\n' \
-                   '<b>Статистика по ТОП пользователям:</b>\n\n'
-        else:
-            text = '<b>Статистика по ТОП пользователям:</b>\n\n'
+        text = f'<u><b>Твой рейтинг:</b> <code>{user_rating}</code></u>\n\n' \
+               '<b>Статистика по ТОП пользователям:</b>\n\n'
         for i in statistics_list[:limit]:
             text += f"Пользователь: <code>{i['user']['tg_name']}</code>\n" \
                     f"Рейтинг: <code>{i['rating']}</code>\n\n"

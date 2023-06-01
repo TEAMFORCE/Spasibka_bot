@@ -63,6 +63,34 @@ def get_token(telegram_id, group_id, telegram_name=None, first_name=None, last_n
         return None
 
 
+def get_user(telegram_id, group_id=None, organization_id=None, telegram_name=None, first_name=None, last_name=None):
+    """
+    Возвращает json с токеном и id пользователя.
+    Принимает либо group_id либо organization_id, но не оба сразу.
+    """
+    headers = {
+        "accept": "application/json",
+        "Authorization": token_drf,
+    }
+    body = {
+        "telegram_id": telegram_id,
+        "group_id": group_id,
+        "tg_name": telegram_name,
+        "first_name": first_name,
+        "last_name": last_name,
+        "organization_id": organization_id,
+    }
+    r = requests.post(drf_url + 'tg-get-user-token/', headers=headers, json=body)
+
+    if r.status_code == 200:
+        return r.json()
+    else:
+        logger.error(f"tg-get-user-token/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}, body: {body}\n"
+                     f"Error info: {r.text}")
+        return None
+
+
 def get_token_by_organization_id(telegram_id, organization_id, telegram_name=None, first_name=None, last_name=None) \
         -> str or None:
     """
@@ -341,7 +369,7 @@ def set_active_organization(organization_id: int, telegram_id: str):
 
 def get_active_organization(telegram_id: str):
     """
-    Отдает id активной организации или None если таких нет
+    Отдает id активной организации или None если таких нет.
     """
     headers = {
         "accept": "application/json",
