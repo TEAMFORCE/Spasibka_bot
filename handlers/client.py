@@ -353,7 +353,6 @@ async def tags(message: types.Message):
 
 # @dp.message_handler(commands='rating')
 async def rating(message: types.Message):
-    statistics_list = None
     user_rating = None
     user = None
     limit = 5
@@ -383,8 +382,11 @@ async def rating(message: types.Message):
     statistics_list = get_ratings(user["token"])
     if statistics_list:
         for i in statistics_list:
-            if i['user']['userId'] == user["user_id"]:
-                user_rating = i['rating']
+            try:
+                if i['user']['userId'] == user["user_id"]:
+                    user_rating = i['rating']
+            except KeyError:
+                continue
         text = f'<u><b>Твой рейтинг:</b> <code>{user_rating}</code></u>\n\n' \
                '<b>Статистика по ТОП пользователям:</b>\n\n'
         for i in statistics_list[:limit]:
