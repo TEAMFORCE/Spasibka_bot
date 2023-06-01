@@ -376,7 +376,7 @@ async def rating(message: types.Message):
                         last_name=message.from_user.last_name)
     if not user:
         error = await message.answer(errors["no_token"])
-        await asyncio.wait(5)
+        await asyncio.sleep(5)
         await error.delete()
         return
     statistics_list = get_ratings(user["token"])
