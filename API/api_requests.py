@@ -6,6 +6,8 @@ import sys
 from censored import token_drf, drf_url
 from all_func.log_func import create_transaction_log
 
+from create_bot import logger
+
 
 def messages_lifetime(group_id: str) -> dict:
     """
@@ -24,6 +26,9 @@ def messages_lifetime(group_id: str) -> dict:
     if r.status_code == 200:
         return r.json()
     else:
+        logger.error(f"tg-organization-settings/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}, body: {body}\n"
+                     f"Error info: {r.text}")
         return None
 
 
@@ -48,17 +53,18 @@ def get_token(telegram_id, group_id, telegram_name=None, first_name=None, last_n
         "last_name": last_name,
     }
     r = requests.post(drf_url + 'tg-get-user-token/', headers=headers, json=body)
-    if 'token' in r.json():
+
+    if r.status_code == 200:
         return r.json()['token']
-    elif 'status' in r.json():
-        return r.json()['status']
-    elif 'detail' in r.json():
-        print(r.json()['detail'])
     else:
-        print('Что то пошло не так')
+        logger.error(f"tg-get-user-token/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}, body: {body}\n"
+                     f"Error info: {r.text}")
+        return None
 
 
-def get_token_by_organization_id(telegram_id, organization_id, telegram_name=None, first_name=None, last_name=None):
+def get_token_by_organization_id(telegram_id, organization_id, telegram_name=None, first_name=None, last_name=None) \
+        -> str or None:
     """
     :param last_name:
     :param first_name:
@@ -80,14 +86,13 @@ def get_token_by_organization_id(telegram_id, organization_id, telegram_name=Non
     }
     r = requests.post(drf_url + 'tg-get-user-token/', headers=headers, json=body)
 
-    if 'token' in r.json():
+    if r.status_code == 200:
         return r.json()['token']
-    elif 'status' in r.json():
-        return r.json()['status']
-    elif 'detail' in r.json():
-        return r.json()['detail']
     else:
-        return 'Что то пошло не так'
+        logger.error(f"tg-get-user-token/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}, body: {body}\n"
+                     f"Error info: {r.text}")
+        return None
 
 
 def get_balance(token: str):
@@ -116,17 +121,18 @@ def get_balance(token: str):
                 - cancelled - аннулировано
                 """
 
-    if token == 'Что то пошло не так':
-        return token
-    elif token == 'Не найдена организация по переданному group_id':
-        return token
-    else:
-        headers = {
-            "accept": "application/json",
-            'Authorization': f"Token {token}",
-        }
-        r = requests.get(drf_url + 'user/balance/', headers=headers)
+    headers = {
+        "accept": "application/json",
+        'Authorization': f"Token {token}",
+    }
+    r = requests.get(drf_url + 'user/balance/', headers=headers)
+    if r.status_code == 200:
         return r.json()
+    else:
+        logger.error(f"user/balance/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}\n"
+                     f"Error info: {r.text}")
+        return None
 
 
 def send_like(user_token: str, **kwargs):
@@ -143,6 +149,8 @@ def send_like(user_token: str, **kwargs):
         "is_anonymous": False,
         "reason": kwargs.get("reason"),
         "tags": kwargs.get("tags"),
+        "recipient_name": kwargs.get("recipient_name"),
+        "recipient_second_name": kwargs.get("recipient_last_name"),
     }
 
     r = requests.post(drf_url + 'send-coins/', headers=headers, json=body)
@@ -199,7 +207,9 @@ def user_organizations(telegram_id: str):
     if r.status_code == 200:
         return r.json()
     else:
-        print(r.json())
+        logger.error(f"user/balance/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}\n"
+                     f"Error info: {r.text}")
         return None
 
 
@@ -348,6 +358,9 @@ def get_active_organization(telegram_id: str):
             if i['is_current']:
                 return i['id']
     else:
+        logger.error(f"tg-user-organizations/ returns {r.status_code} on request:\n"
+                     f"headers: {headers} body: {body}\n"
+                     f"Error info: {r.text}")
         return None
 
 

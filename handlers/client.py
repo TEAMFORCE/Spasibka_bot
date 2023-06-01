@@ -7,7 +7,7 @@ from keyboards.inline_user_organizations import get_user_organization_keyboard
 from keyboards.inline_webapp_test import start_web_app
 
 from aiogram import types, Dispatcher
-from create_bot import dp, bot
+from create_bot import dp, bot, logger
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
     all_like_tags, get_active_organization, messages_lifetime, tg_handle_start, get_ratings, get_rating_xls
@@ -21,7 +21,7 @@ from contextlib import suppress
 from aiogram.utils.exceptions import MessageCantBeDeleted, \
     MessageToDeleteNotFound, CantInitiateConversation
 
-from dict_cloud.dicts import messages
+from dict_cloud.dicts import messages, errors
 
 
 async def delete_message_bot_answer(answer, group_id):
@@ -87,10 +87,8 @@ async def delete_message_and_command(message: list[types.Message], group_id: str
 
 @dp.message_handler(commands="r")
 async def ready(message: types.Message):
-    chat_member = await bot.get_chat_member(message.chat.id, message.from_user.id)
-    print(chat_member)
-    community = message.chat.title
-    print(community)
+    temp = message.from_user
+    print(temp)
 
 
 # @dp.message_handler(commands="start")
@@ -170,11 +168,21 @@ async def balance(message: types.Message):
     telegram_name = message.from_user.username
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name
-    if message.chat.id != telegram_id:
+    if message.chat.type == types.ChatType.GROUP:
         group_id = message.chat.id
         token = get_token(telegram_id, group_id, telegram_name, first_name, last_name)
+        if not token:
+            answer = await message.answer(errors["no_organization_by_id"].format(organization_id=message.chat.id),
+                                          parse_mode=types.ParseMode.HTML)
+            await delete_message_and_command([message, answer], message.chat.id)
+            return
     else:
         organization_id = get_active_organization(telegram_id)
+        if not organization_id:
+            answer = await message.answer(errors["no_active_organization"].format(organization_id=message.chat.id),
+                                          parse_mode=types.ParseMode.HTML)
+            await delete_message_and_command([message, answer], message.chat.id)
+            return
         if organization_id is not None:
             token = get_token_by_organization_id(telegram_id, organization_id, telegram_name, first_name, last_name)
         else:
@@ -183,30 +191,24 @@ async def balance(message: types.Message):
             return
 
     balance = get_balance(token)
-    if balance == 'Что то пошло не так':
-        answer = await message.reply(balance)
-        await delete_message_and_command([message, answer], message.chat.id)
-    elif balance == 'Не найдена организация по переданному group_id':
-        answer = await message.reply(f'{token}\nПожалуйста, передайте id группы "{message.chat.id}" администратору')
-        await delete_message_and_command([message, answer], message.chat.id)
-    else:
-        try:
-            start_balance = int(balance["distr"]["amount"]) + int(balance["distr"]["sent"])
-            sent = int(balance["distr"]["sent"])
-            recived = int(balance["income"]["amount"])
-            allowed = int(balance["distr"]["amount"]) + int(balance["income"]["amount"])
-            remain = int(balance["distr"]["amount"]) + int(balance["distr"]["sent"]) - int(balance["distr"]["sent"])
-            answer = await message.reply(f'*Баланс:*\n'
-                                         f'Начальный баланс: _{start_balance}_\n'
-                                         f'Отправлено: _{sent}_\n'
-                                         f'Получено: _{recived}_\n'
-                                         f'Доступно для распределения: _{allowed}_\n'
-                                         f'Осталось раздать: _{remain}_',
-                                         parse_mode="Markdown")
+    try:
+        start_balance = int(balance["distr"]["amount"]) + int(balance["distr"]["sent"])
+        sent = int(balance["distr"]["sent"])
+        recived = int(balance["income"]["amount"])
+        allowed = int(balance["distr"]["amount"]) + int(balance["income"]["amount"])
+        remain = int(balance["distr"]["amount"]) + int(balance["distr"]["sent"]) - int(balance["distr"]["sent"])
+        answer = await message.reply(f'*Баланс:*\n'
+                                     f'Начальный баланс: _{start_balance}_\n'
+                                     f'Отправлено: _{sent}_\n'
+                                     f'Получено: _{recived}_\n'
+                                     f'Доступно для распределения: _{allowed}_\n'
+                                     f'Осталось раздать: _{remain}_',
+                                     parse_mode="Markdown")
+        if message.chat.type == types.ChatType.GROUP:
             await delete_message_and_command([message, answer], message.chat.id)
-        except KeyError:
-            answer = await message.reply("Что то пошло не так")
-            await delete_message_and_command([message, answer], message.chat.id)
+    except KeyError:
+        answer = await message.reply("Что то пошло не так")
+        await delete_message_and_command([message, answer], message.chat.id)
 
 
 # @dp.message_handler(commands=['ct'])
@@ -257,7 +259,8 @@ async def go(message: types.Message):
             'Укажите вашу организацию:',
             reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id)
         )
-        await delete_message_and_command([message, answer], message.chat.id)
+        if message.chat.type == types.ChatType.GROUP:
+            await delete_message_and_command([message, answer], message.chat.id)
     except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])
         await delete_message_and_command([message, answer], message.chat.id)

@@ -1,0 +1,66 @@
+--- *** ---
+New transaction:
+user_token: 2b0b3ae48bf99fdd9a7b5bd870f095843b30be75
+group_id: -772059375
+telegram_id: 5148438149
+telegram_name: WLeeto
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: 2b0b3ae48bf99fdd9a7b5bd870f095843b30be75
+group_id: -772059375
+telegram_id: 5148438149
+telegram_name: WLeeto
+amount: 35
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: 5616270cd1026e0aa392ef1718274db8dadc7b61
+group_id: -772059375
+telegram_id: 183417405
+telegram_name: Brukva2
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: 5616270cd1026e0aa392ef1718274db8dadc7b61
+group_id: -772059375
+telegram_id: 5148438149
+telegram_name: WLeeto
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 400
+
+--- *** ---
+New transaction:
+user_token: 5616270cd1026e0aa392ef1718274db8dadc7b61
+group_id: -772059375
+telegram_id: 436315762
+telegram_name: thisisflight
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: 7ef578fe1fffe94b1d67f3c9c72c3a38c8c4f86b
+group_id: -888649764
+telegram_id: 5148438149
+telegram_name: WLeeto
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 400
+

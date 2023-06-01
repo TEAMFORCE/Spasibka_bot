@@ -1,6 +1,8 @@
 from datetime import date, timedelta
 import os
 
+from create_bot import logger
+
 
 async def create_transaction_log(**kwargs):
     today = date.today()
@@ -18,7 +20,7 @@ async def create_transaction_log(**kwargs):
     os.chdir("transaction_logs")
     with open(f"Transactions_{today}.txt", "a", encoding="utf-8") as log:
         log.write(temp)
-        print("Log added")
+        logger.info("Log added")
     # Удаляем фаил
     file_path = fr"Transactions_{today - one_month}.txt"
     try:

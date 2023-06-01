@@ -45,7 +45,10 @@ async def who(message: types.Message):
 
             answer = await bot.send_message(message.chat.id, f'Id: {telegram_id}\n'
                                                              f'Ник пользователя: {telegram_name}\n'
-                                                             f'Id группы: {telegram_group_id}')
+                                                             f'Id группы: {telegram_group_id}\n\n'
+                                                             f'Полный объект user:\n'
+                                                             f'{message.reply_to_message.from_user}')
+            print(message.reply_to_message.from_user)
         except AttributeError:
             answer = await bot.send_message(message.chat.id, 'Необходимо цитировать сообщение')
         await delete_message_and_command([message, answer], message.chat.id)

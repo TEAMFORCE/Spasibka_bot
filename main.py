@@ -6,6 +6,7 @@ async def on_startup(_):
     """
     Запуск бота
     """
+
     print('Бот запущен')
 
 

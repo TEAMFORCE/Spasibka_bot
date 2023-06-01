@@ -3,7 +3,7 @@ from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id, all_like_tags, \
     set_active_organization, get_active_organization
-from dict_cloud.dicts import messages
+from dict_cloud.dicts import messages, errors
 from handlers.client import delete_message_bot_answer
 import re
 
@@ -29,22 +29,31 @@ async def likes(message: types.Message):
         recipient_telegram_name = None
         tag = None
         group_id = None
+        recipient_name = None
+        recipient_last_name = None
         first_name = message.from_user.first_name
         last_name = message.from_user.last_name
+        sender_telegram_id = message.from_user.id
+        sender_telegram_name = message.from_user.username
+
         if len(pattern_reason.group(2)) > 0:
             reason = pattern_reason.group(2).capitalize()
         else:
             reason = "Отправлено через telegram"
 
-        if message.chat.id != message.from_user.id:
+        if message.chat.type == types.ChatType.GROUP:
             if amount:
-                sender_telegram_id = message.from_user.id
                 group_id = str(message.chat.id)
-                token = get_token(telegram_id=sender_telegram_id, group_id=group_id, first_name=first_name,
-                                  last_name=last_name)
+                token = get_token(telegram_id=sender_telegram_id, group_id=group_id, telegram_name=sender_telegram_name,
+                                  first_name=first_name, last_name=last_name)
+                if not token:
+                    await message.answer(errors["no_token"])
+                    return
                 if message.reply_to_message:
                     recipient_telegram_id = str(message.reply_to_message.from_user.id)
                     recipient_telegram_name = message.reply_to_message.from_user.username
+                    recipient_name = message.reply_to_message.from_user.first_name
+                    recipient_last_name = message.reply_to_message.from_user.last_name
                     if pattern_tag:
                         tag = pattern_tag.group(1).lower()
                         all_tags = all_like_tags(user_token=token)
@@ -65,13 +74,16 @@ async def likes(message: types.Message):
         else:
             if pattern_username:
                 recipient_telegram_name = pattern_username.group(1)
-                sender_telegram_id = message.from_user.id
                 organization_id = get_active_organization(sender_telegram_id)
                 group_id = None
                 token = get_token_by_organization_id(telegram_id=sender_telegram_id,
+                                                     telegram_name=sender_telegram_name,
                                                      organization_id=organization_id,
                                                      first_name=first_name,
                                                      last_name=last_name)
+                if not token:
+                    await message.answer(errors["no_token"])
+                    return
                 if pattern_tag:
                     tag = pattern_tag.group(1).lower()
                     all_tags = all_like_tags(user_token=token)
@@ -95,7 +107,9 @@ async def likes(message: types.Message):
                                amount=amount,
                                tags=tag_id,
                                reason=reason,
-                               group_id=group_id)
+                               group_id=group_id,
+                               recipient_name=recipient_name,
+                               recipient_last_name=recipient_last_name)
         if result is not None:
             answer = await message.reply(f"{result}")
             await delete_message_bot_answer(answer, message.chat.id)
