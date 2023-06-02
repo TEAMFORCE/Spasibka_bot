@@ -362,7 +362,7 @@ async def tags(message: types.Message):
 async def rating(message: types.Message):
     user_rating = None
     limit = 5
-    text_end = ""
+    text_end = []
     if message.chat.type != types.ChatType.PRIVATE:
         user = get_user(telegram_id=message.from_user.id,
                         group_id=message.chat.id,
@@ -387,13 +387,13 @@ async def rating(message: types.Message):
         return
     statistics_list = get_ratings(user["token"])
     if statistics_list:
-        for i in statistics_list[:limit]:
+        for i in statistics_list:
             if i['user']['userId'] == user["user_id"]:
                 user_rating = i['rating']
-            text_end += f"Пользователь: <code>{i['user']['tg_name']}</code>\n" \
-                        f"Рейтинг: <code>{i['rating']}</code>\n\n"
+            text_end.append(f"Пользователь: <code>{i['user']['tg_name']}</code>\n"
+                            f"Рейтинг: <code>{i['rating']}</code>\n\n")
         text = f'<u><b>Твой рейтинг:</b></u> <code>{user_rating}</code>\n\n' \
-               '<b>Статистика по ТОП пользователям:</b>\n\n' + text_end
+               '<b>Статистика по ТОП пользователям:</b>\n\n' + "".join(text_end[:limit])
         answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
         error = await message.answer(errors["server_error"])
