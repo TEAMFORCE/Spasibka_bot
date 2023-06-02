@@ -99,7 +99,7 @@ async def start(message: types.Message):
     tg_id = message.from_user.id
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name
-    if message.chat.type == types.ChatType.GROUP:
+    if message.chat.type == types.ChatType.GROUP:  # todo переделать проверку
         chat_member = await bot.get_chat_member(message.chat.id, message.from_user.id)
         group_id = message.chat.id
         user_role = chat_member.status
@@ -170,7 +170,7 @@ async def balance(message: types.Message):
     telegram_name = message.from_user.username
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name
-    if message.chat.type == types.ChatType.GROUP:
+    if message.chat.id != message.from_user.id:
         group_id = message.chat.id
         token = get_token(telegram_id, group_id, telegram_name, first_name, last_name)
         if not token:
@@ -397,7 +397,7 @@ async def rating(message: types.Message):
         answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
         answer = await message.answer("Ошибка ответа от сервера")
-    if message.chat.type == types.ChatType.GROUP:
+    if message.chat.type != types.ChatType.PRIVATE:
         await delete_message_and_command([message, answer], message.chat.id)
 
 
