@@ -213,6 +213,9 @@ def send_like(user_token: str, **kwargs):
         return 'Что то пошло не так\n' \
                'Проверьте что группа зарегистрирована в системе'
     else:
+        logger.error(f"send-coins/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}, body: {body}\n"
+                     f"Error info: {r.text}")
         return r.json()[0]
 
 
@@ -393,7 +396,7 @@ def get_active_organization(telegram_id: str):
 
 
 def tg_handle_start(tg_name: str, telegram_id: str, group_id: int = None, user_role: str = None,
-                    group_name: str = None, first_name: str = None, last_name: str = None) -> str:
+                    group_name: str = None, first_name: str = None, last_name: str = None) -> str or None:
     """
     Для команды /start. Возвращает номер статуса или str если запрос выполнен неверно.
     """
@@ -416,9 +419,10 @@ def tg_handle_start(tg_name: str, telegram_id: str, group_id: int = None, user_r
     if r.status_code == 200:
         return r.json()
     else:
-        print(f"Ошибка при обработе запроса {r.status_code}")
-        print(r.json())
-        return False
+        logger.error(f"tg-handle-start/ returns {r.status_code} on request:\n"
+                     f"headers: {headers} body: {body}\n"
+                     f"Error info: {r.text}")
+        return None
 
 
 def get_ratings(user_token: str) -> list or None:
@@ -435,7 +439,9 @@ def get_ratings(user_token: str) -> list or None:
     if r.status_code == 200:
         return r.json()
     else:
-        print(r.text)
+        logger.error(f"rating/overall/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}\n"
+                     f"Error info: {r.text}")
         return None
 
 
@@ -456,5 +462,7 @@ def get_rating_xls(user_token: str) -> tuple or None:
     if r.status_code == 200:
         return r.content
     else:
-        print(r.text, file=sys.stderr)
+        logger.error(f"rating/download/ returns {r.status_code} on request:\n"
+                     f"headers: {headers} body: {body}\n"
+                     f"Error info: {r.text}")
         return None

@@ -88,8 +88,8 @@ async def delete_message_and_command(message: list[types.Message], group_id: str
 @dp.message_handler(commands="log")
 async def ready(message: types.Message):
     temp = message.from_user
-    logger.info(f"User info: {message.from_user}")
-    logger.info(f"Group info: {message.chat}")
+    logger.warning(f"User info: {message.from_user}")
+    logger.warning(f"Group info: {message.chat}")
     await message.delete()
 
 
@@ -99,7 +99,7 @@ async def start(message: types.Message):
     tg_id = message.from_user.id
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name
-    if message.chat.type == types.ChatType.GROUP:  # todo переделать проверку
+    if message.chat.type != types.ChatType.PRIVATE:  # todo переделать проверку
         chat_member = await bot.get_chat_member(message.chat.id, message.from_user.id)
         group_id = message.chat.id
         user_role = chat_member.status
@@ -152,10 +152,10 @@ async def help_message(message: types.Message):
 # @dp.message_handler(commands=['test'])
 async def test(message: types.Message):
     if message.chat.id == message.from_user.id:
-        answer = await message.answer('Бот работает. Это сообщение будет удалено через 5 секунд')
+        answer = await message.answer('Бот работает. Это сообщение будет удалено')
         await delete_message_and_command([message, answer])
     else:
-        answer = await message.answer('Бот работает. Это сообщение будет удалено через 5 секунд\n'
+        answer = await message.answer('Бот работает. Это сообщение будет удалено\n'
                                       f'Group_id: <code>{message.chat.id}</code>', parse_mode=types.ParseMode.HTML)
         await delete_message_and_command([message, answer], message.chat.id)
 
@@ -193,6 +193,11 @@ async def balance(message: types.Message):
             return
 
     balance = get_balance(token)
+    if not balance:
+        await message.answer(errors["no_balance"])
+        await asyncio.sleep(3)
+        await message.delete()
+        return
     try:
         start_balance = int(balance["distr"]["amount"]) + int(balance["distr"]["sent"])
         sent = int(balance["distr"]["sent"])
@@ -206,7 +211,7 @@ async def balance(message: types.Message):
                                      f'Доступно для распределения: _{allowed}_\n'
                                      f'Осталось раздать: _{remain}_',
                                      parse_mode="Markdown")
-        if message.chat.type == types.ChatType.GROUP:
+        if message.chat.type != types.ChatType.PRIVATE:
             await delete_message_and_command([message, answer], message.chat.id)
     except KeyError:
         answer = await message.reply("Что то пошло не так")
@@ -356,20 +361,19 @@ async def tags(message: types.Message):
 # @dp.message_handler(commands='rating')
 async def rating(message: types.Message):
     user_rating = None
-    user = None
     limit = 5
-    if message.from_user.id != message.chat.id:
+    text_end = ""
+    if message.chat.type != types.ChatType.PRIVATE:
         user = get_user(telegram_id=message.from_user.id,
                         group_id=message.chat.id,
                         telegram_name=message.from_user.username,
                         first_name=message.from_user.first_name,
                         last_name=message.from_user.last_name)
-    elif message.chat.type == types.ChatType.PRIVATE:
+    else:
         limit = 500
         active_organization_id = get_active_organization(message.from_user.id)
         if not active_organization_id:
-            await message.answer("У вас не выбрано ни одной организации.\n"
-                                 "Используйте /go чтобы выбрать организацию")
+            await message.answer(errors["no_active_organization"])
             return
         user = get_user(telegram_id=message.from_user.id,
                         organization_id=active_organization_id,
@@ -383,20 +387,19 @@ async def rating(message: types.Message):
         return
     statistics_list = get_ratings(user["token"])
     if statistics_list:
-        for i in statistics_list:
-            try:
-                if i['user']['userId'] == user["user_id"]:
-                    user_rating = i['rating']
-            except KeyError:
-                continue
-        text = f'<u><b>Твой рейтинг:</b> <code>{user_rating}</code></u>\n\n' \
-               '<b>Статистика по ТОП пользователям:</b>\n\n'
         for i in statistics_list[:limit]:
-            text += f"Пользователь: <code>{i['user']['tg_name']}</code>\n" \
-                    f"Рейтинг: <code>{i['rating']}</code>\n\n"
+            if i['user']['userId'] == user["user_id"]:
+                user_rating = i['rating']
+            text_end += f"Пользователь: <code>{i['user']['tg_name']}</code>\n" \
+                        f"Рейтинг: <code>{i['rating']}</code>\n\n"
+        text = f'<u><b>Твой рейтинг:</b></u> <code>{user_rating}</code>\n\n' \
+               '<b>Статистика по ТОП пользователям:</b>\n\n' + text_end
         answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
-        answer = await message.answer("Ошибка ответа от сервера")
+        error = await message.answer(errors["server_error"])
+        await asyncio.sleep(5)
+        await error.delete()
+        return
     if message.chat.type != types.ChatType.PRIVATE:
         await delete_message_and_command([message, answer], message.chat.id)
 
@@ -404,7 +407,7 @@ async def rating(message: types.Message):
 # @dp.message_handler(commands='ratingxls')
 async def ratingxls(message: types.Message):
     user_token = None
-    filename = f"{message.from_user.id}_{datetime.datetime.now().strftime('%d_%m_%y_%H_%M')}.xlsx"
+    filename = f"{message.from_user.id}_{datetime.datetime.now().strftime('%d_%m_%y')}.xlsx"
     if message.chat.type == types.ChatType.GROUP:
         user_token = get_token(telegram_id=message.from_user.id,
                                group_id=message.chat.id,
@@ -414,8 +417,7 @@ async def ratingxls(message: types.Message):
     elif message.chat.type == types.ChatType.PRIVATE:
         active_organization_id = get_active_organization(message.from_user.id)
         if not active_organization_id:
-            await message.answer("У вас не выбрано ни одной организации.\n"
-                                 "Используйте /go чтобы выбрать организацию")
+            await message.answer(errors["no_active_organization"])
             return
         user_token = get_token_by_organization_id(telegram_id=message.from_user.id,
                                                   organization_id=active_organization_id,
@@ -431,12 +433,12 @@ async def ratingxls(message: types.Message):
             await bot.send_document(chat_id=message.from_user.id, document=open(filename, "rb"))
             await temp_answer.delete()
         except CantInitiateConversation:
-            await message.answer("Чтобы получить фаил начни со мной диалог")
+            await message.answer(errors["no_chat_with_bot"])
             await asyncio.sleep(5)
             await message.delete()
         os.remove(filename)
     else:
-        error_message = await temp_answer.edit_text("Ошибка при обработке запроса")
+        error_message = await temp_answer.edit_text(errors["server_error"])
         await asyncio.sleep(5)
         await error_message.delete()
 
