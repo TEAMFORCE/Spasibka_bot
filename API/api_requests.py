@@ -396,7 +396,8 @@ def get_active_organization(telegram_id: str):
 
 
 def tg_handle_start(tg_name: str, telegram_id: str, group_id: int = None, user_role: str = None,
-                    group_name: str = None, first_name: str = None, last_name: str = None) -> str or None:
+                    group_name: str = None, first_name: str = None, last_name: str = None,
+                    organization_id: int = None) -> str or None:
     """
     Для команды /start. Возвращает номер статуса или str если запрос выполнен неверно.
     """
@@ -412,6 +413,7 @@ def tg_handle_start(tg_name: str, telegram_id: str, group_id: int = None, user_r
         "group_name": group_name,
         "first_name": first_name,
         "last_name": last_name,
+        "organization_id": organization_id,
     }
 
     r = requests.post(drf_url + 'tg-handle-start/', headers=headers, json=body)
@@ -463,6 +465,29 @@ def get_rating_xls(user_token: str) -> tuple or None:
         return r.content
     else:
         logger.error(f"rating/download/ returns {r.status_code} on request:\n"
+                     f"headers: {headers} body: {body}\n"
+                     f"Error info: {r.text}")
+        return None
+
+
+def change_group_id(old_id: int, new_id: int):
+    """
+    Изменяет id группы в БД.
+    """
+    headers = {
+        "accept": "application/json",
+        "Authorization": token_drf,
+    }
+    body = {
+        "old_group_id": old_id,
+        "new_group_id": new_id,
+    }
+    r = requests.patch(drf_url + 'tg-group-migrate/', headers=headers, json=body)
+    if r.status_code == 200:
+        logger.info(f"Group id was changed from {old_id} to {new_id}")
+        return True
+    else:
+        logger.error(f"tg-group-migrate/ returns {r.status_code} on request:\n"
                      f"headers: {headers} body: {body}\n"
                      f"Error info: {r.text}")
         return None

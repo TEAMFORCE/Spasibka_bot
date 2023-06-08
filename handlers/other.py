@@ -1,11 +1,28 @@
 from aiogram import types, Dispatcher
 
-from create_bot import dp, bot
+from create_bot import dp, bot, logger
 from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id, all_like_tags, \
-    set_active_organization, get_active_organization
+    set_active_organization, get_active_organization, change_group_id
 from dict_cloud.dicts import messages, errors
 from handlers.client import delete_message_bot_answer
 import re
+
+
+@dp.message_handler(content_types=[types.ContentType.MIGRATE_TO_CHAT_ID, types.ContentType.MIGRATE_FROM_CHAT_ID])
+async def handle_migration(message: types.Message):
+    if message.migrate_from_chat_id:
+        old_id = message.migrate_from_chat_id
+        new_id = message.chat.id
+
+        text = f"Id группы был изменен с <code>{old_id}</code> на <code>{new_id}</code>\n" \
+               f"Возможно вам придется снова сделать меня администратором\n"
+
+        response = change_group_id(old_id, new_id)
+        if response:
+            text += "Я изменил id внутри базы, все хорошо ;)"
+        else:
+            text += "Пожалуйста перешлите это сообщение администратору"
+        await message.answer(text, parse_mode=types.ParseMode.HTML)
 
 
 # @dp.message_handler(content_types=['text'])

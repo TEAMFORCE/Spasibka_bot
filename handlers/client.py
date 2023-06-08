@@ -21,7 +21,7 @@ from contextlib import suppress
 from aiogram.utils.exceptions import MessageCantBeDeleted, \
     MessageToDeleteNotFound, CantInitiateConversation
 
-from dict_cloud.dicts import messages, errors
+from dict_cloud.dicts import messages, errors, start_messages
 
 
 async def delete_message_bot_answer(answer, group_id):
@@ -90,7 +90,10 @@ async def ready(message: types.Message):
     temp = message.from_user
     logger.warning(f"User info: {message.from_user}")
     logger.warning(f"Group info: {message.chat}")
-    await message.delete()
+    try:
+        await message.delete()
+    except MessageCantBeDeleted:
+        logger.warning("Bot trying to remove message, but it seems imposible")
 
 
 # @dp.message_handler(commands="start")
@@ -99,37 +102,80 @@ async def start(message: types.Message):
     tg_id = message.from_user.id
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name
-    if message.chat.type != types.ChatType.PRIVATE:  # todo переделать проверку
+    user_role = None
+    group_name = None
+    group_id = None
+    organization_id = None
+    if message.chat.type != types.ChatType.PRIVATE:
         chat_member = await bot.get_chat_member(message.chat.id, message.from_user.id)
         group_id = message.chat.id
         user_role = chat_member.status
         group_name = message.chat.title
-        resp = tg_handle_start(tg_name, tg_id, group_id, user_role, group_name, first_name, last_name)
+        await message.delete()
     else:
-        resp = tg_handle_start(tg_name, tg_id, first_name=first_name, last_name=last_name)
+        organization_id = get_active_organization(tg_id)
+        # if not organization_id:
+        #     await message.answer(start_messages['no_organizations'])
+        #     return
+    resp = tg_handle_start(tg_name, tg_id, group_id, user_role, group_name, first_name, last_name, organization_id)
     if resp:
-        resp_status = resp["status"]
-        if resp_status == 0:
-            text = f"Hello, {message.from_user.first_name}! Use /go to select Organization"
-        elif resp_status == 2:
-            text = f"Hello, {message.from_user.first_name}!\n" \
-                   "You have to register in community to continue.\n" \
-                   f"Please, use your invite link, or create your own community on tf360.com " \
-                   f"(use <code>{message.from_user.username}</code> as login)"
-        elif resp_status == -1:
-            text = f"Hello, {message.from_user.first_name}! Your account blocked, please contact support."
-        elif resp_status == 1:
-            text = f"Hello, {message.from_user.first_name}! Your code is: <code>{resp['verification_code']}</code>"
-        else:
-            text = resp_status
-        try:
-            await bot.send_message(chat_id=message.from_user.id, text=text, parse_mode=types.ParseMode.HTML)
-        except CantInitiateConversation:
-            await message.answer("Начните чат с ботом чтобы я смог отправить ваш код вам в ЛС")
 
+        logger.warning(resp)
+
+        resp_status = resp["status"]
+        if user_role in ["creator", "administrator"] and resp_status == 2:
+            # 1) Я админ группы,
+            # группа не привязана - сообщить id группы и попросить привязать
+            # (позже будем регать сразу организацию и группу)
+            text = start_messages["no_group_found"].format(group_id=group_id)
+            #  todo по идее в будующем этот статус будет регистрировать организацию и группу
+        elif resp_status == 2 and message.chat.type != types.ChatType.PRIVATE:
+            # 2) Я не админ группы, группа не привязана - сообщить id группы и попросить привязать
+            text = start_messages["no_group_found"].format(group_id=group_id)
+        elif resp_status == 2 and message.chat.type == types.ChatType.PRIVATE:
+            # запрос из лички
+            text = start_messages["ok"]
+        elif resp_status == 3:
+            # 3) Не важно кто я, группа привязана, в системе меня нет - зарегать и поздравить
+            text = start_messages["user_has_been_registered"]
+        elif resp_status == 4:
+            # 4) Не важно кто я, группа привязана,
+            # в системе я есть - сообщить что все ок
+            text = start_messages["ok"]
+        elif message.chat.type == types.ChatType.PRIVATE and resp_status == 1:
+            # 5) Группа на верификации, сообщить код
+            text = start_messages["on_verification"].format(code=resp["verification_code"])
+        else:
+            text = start_messages["error"]
     else:
-        await message.answer("Ошибка ответа от сервера, обратитесь к администратору")
-    await message.delete()
+        text = start_messages["no_respose_from_server"]
+    answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
+    if message.chat.type != types.ChatType.PRIVATE:
+        await asyncio.sleep(5)
+        await answer.delete()
+
+    #     current_organization = resp.get("current_organization_id")
+    #
+    #     if resp_status == 0:
+    #         text = f"Hello, {message.from_user.first_name}! Use /go to select Organization"
+    #     elif resp_status == 2:
+    #         text = f"Hello, {message.from_user.first_name}!\n" \
+    #                "You have to register in community to continue.\n" \
+    #                f"Please, use your invite link, or create your own community on tf360.com " \
+    #                f"(use <code>{message.from_user.username}</code> as login)"
+    #     elif resp_status == -1:
+    #         text = f"Hello, {message.from_user.first_name}! Your account blocked, please contact support."
+    #     elif resp_status == 1:
+    #         text = f"Hello, {message.from_user.first_name}! Your code is: <code>{resp['verification_code']}</code>"
+    #     else:
+    #         text = resp_status
+    #     try:
+    #         await bot.send_message(chat_id=message.from_user.id, text=text, parse_mode=types.ParseMode.HTML)
+    #     except CantInitiateConversation:
+    #         await message.answer(errors["no_chat_with_bot"])
+    # else:
+    #     await message.answer(errors["server_error"])
+    # await message.delete()
 
 
 # @dp.message_handler(commands=['help'])
@@ -152,11 +198,15 @@ async def help_message(message: types.Message):
 # @dp.message_handler(commands=['test'])
 async def test(message: types.Message):
     if message.chat.id == message.from_user.id:
+        await message.delete()
         answer = await message.answer('Бот работает. Это сообщение будет удалено')
-        await delete_message_and_command([message, answer])
+        await asyncio.sleep(3)
+        await answer.delete()
     else:
         answer = await message.answer('Бот работает. Это сообщение будет удалено\n'
                                       f'Group_id: <code>{message.chat.id}</code>', parse_mode=types.ParseMode.HTML)
+        chat_member = await bot.get_chat_member(message.chat.id, message.from_user.id)
+        logger.info(chat_member)
         await delete_message_and_command([message, answer], message.chat.id)
 
 
