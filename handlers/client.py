@@ -119,9 +119,7 @@ async def start(message: types.Message):
         #     return
     resp = tg_handle_start(tg_name, tg_id, group_id, user_role, group_name, first_name, last_name, organization_id)
     if resp:
-
         logger.warning(resp)
-
         resp_status = resp["status"]
         if user_role in ["creator", "administrator"] and resp_status == 2:
             # 1) Я админ группы,
