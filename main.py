@@ -1,12 +1,15 @@
 from aiogram.utils import executor
+
+from all_func.utils import set_default_commands
 from create_bot import dp
+import asyncio
 
 
 async def on_startup(_):
     """
     Запуск бота
     """
-
+    asyncio.create_task(set_default_commands(dp))
     print('Бот запущен')
 
 

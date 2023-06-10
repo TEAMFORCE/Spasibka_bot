@@ -93,7 +93,7 @@ async def ready(message: types.Message):
     try:
         await message.delete()
     except MessageCantBeDeleted:
-        logger.warning("Bot trying to remove message, but it seems imposible")
+        logger.warning(errors['cant_delete_message'])
 
 
 # @dp.message_handler(commands="start")
@@ -111,7 +111,10 @@ async def start(message: types.Message):
         group_id = message.chat.id
         user_role = chat_member.status
         group_name = message.chat.title
-        await message.delete()
+        try:
+            await message.delete()
+        except MessageCantBeDeleted:
+            logger.warning(errors['cant_delete_message'])
     else:
         organization_id = get_active_organization(tg_id)
         # if not organization_id:
@@ -218,6 +221,7 @@ async def balance(message: types.Message):
     telegram_name = message.from_user.username
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name
+    logger.warning(f"/balance from user: {message.from_user}")
     if message.chat.id != message.from_user.id:
         group_id = message.chat.id
         token = get_token(telegram_id, group_id, telegram_name, first_name, last_name)
@@ -287,17 +291,15 @@ async def ct(message: types.Message):
 
     if len(list_of_cancelable_likes) == 0:
         try:
-            answer = await bot.send_message(message.from_user.id, dicts.errors['no_likes_to_cancel'])
-            await delete_message_and_command([message, answer], message.chat.id)
+            await bot.send_message(message.from_user.id, dicts.errors['no_likes_to_cancel'])
         except CantInitiateConversation:
             answer = await message.reply(dicts.errors['no_chat_with_bot'])
             await delete_message_and_command([message, answer], message.chat.id)
     else:
         try:
-            answer = await bot.send_message(
+            await bot.send_message(
                 message.from_user.id, 'Для отмены транзакции выберите соответствующую транзакции кнопку',
                 reply_markup=not_complited_transactions)
-            await delete_message_and_command([message, answer], message.chat.id)
         except CantInitiateConversation:
             answer = await message.reply(dicts.errors['no_chat_with_bot'])
             await delete_message_and_command([message, answer], message.chat.id)
@@ -363,7 +365,6 @@ async def export(message: types.Message):
                                                  chat_id=message.from_user.id
                                                  )
                 os.remove(f'{filename}.xlsx')
-                await delete_message_and_command([message, answer], message.chat.id)
     except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])
         await delete_message_and_command([message, answer], message.chat.id)
@@ -403,7 +404,8 @@ async def tags(message: types.Message):
         tag_list += f'{i["id"]} - {i["name"]}\n'
 
     answer = await message.reply(tag_list)
-    await delete_message_and_command([message, answer], message.chat.id)
+    if message.chat.type != types.ChatType.PRIVATE:
+        await delete_message_and_command([message, answer], message.chat.id)
 
 
 # @dp.message_handler(commands='rating')

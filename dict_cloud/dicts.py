@@ -9,7 +9,8 @@ errors = {
                 "Убедитесь что организация зарегистрирована или обратитесь в поддержку.",
     'no_organization_by_id': "Пожалуйста, передайте id группы <code>{organization_id}</code> администратору.",
     'server_error': 'Ошибка при обработке запроса на сервере.',
-    'no_balance': "Не удалось получить баланс."
+    'no_balance': "Не удалось получить баланс.",
+    'cant_delete_message': 'Bot trying to remove message, but it seems imposible',
 }
 
 messages = {
