@@ -6,8 +6,11 @@ from API.api_requests import user_organizations
 """
 
 
-def get_user_organization_keyboard(telegram_id):
-    organiization_list = user_organizations(telegram_id)
+def get_user_organization_keyboard(telegram_id: str,
+                                   tg_name: str = None,
+                                   first_name: str = None,
+                                   last_name: str = None):
+    organiization_list = user_organizations(telegram_id, tg_name, first_name, last_name)
     user_organizations_kb = InlineKeyboardMarkup(row_width=2)
     for i in organiization_list:
         if i['is_current']:

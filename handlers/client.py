@@ -1,6 +1,8 @@
 import os
 import sys
 
+from all_func.utils import create_scores_message
+
 sys.path.insert(1, os.path.join(sys.path[0], '..'))  # todo наверняка импорт можно сделать проще
 from keyboards.inline_not_complited_transactions import get_not_complited_transactions_kb
 from keyboards.inline_user_organizations import get_user_organization_keyboard
@@ -10,7 +12,8 @@ from aiogram import types, Dispatcher
 from create_bot import dp, bot, logger
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
-    all_like_tags, get_active_organization, messages_lifetime, tg_handle_start, get_ratings, get_rating_xls, get_user
+    all_like_tags, get_active_organization, messages_lifetime, tg_handle_start, get_ratings, get_rating_xls, get_user, \
+    get_scores
 
 from dict_cloud import dicts
 
@@ -314,7 +317,10 @@ async def go(message: types.Message):
         answer = await bot.send_message(
             message.from_user.id,
             'Укажите вашу организацию:',
-            reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id)
+            reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id,
+                                                        tg_name=message.from_user.username,
+                                                        first_name=message.from_user.first_name,
+                                                        last_name=message.from_user.last_name)
         )
         if message.chat.type == types.ChatType.GROUP:
             await delete_message_and_command([message, answer], message.chat.id)
@@ -491,6 +497,31 @@ async def ratingxls(message: types.Message):
         error_message = await temp_answer.edit_text(errors["server_error"])
         await asyncio.sleep(5)
         await error_message.delete()
+
+
+@dp.message_handler(commands='scores')
+async def scores(message: types.Message):
+    user_tg_id = message.from_user.id
+    user_tg_name = message.from_user.username
+    user_first_name = message.from_user.first_name
+    user_last_name = message.from_user.last_name
+    group_id = None
+    if message.chat.type != types.ChatType.PRIVATE:
+        group_id = message.chat.id
+        user_token = get_token(user_tg_id, group_id, user_tg_name, user_first_name, user_last_name)
+    else:
+        active_organization_id = get_active_organization(message.from_user.id)
+        user_token = get_token_by_organization_id(user_tg_id, active_organization_id, user_tg_name, user_first_name,
+                                                  user_last_name)
+    likes_list = get_scores(user_token)
+    if likes_list:
+        user_likes = likes_list['user_likes']['total']
+        text = create_scores_message(likes_list['likes'], user_likes)
+    else:
+        text = errors['server_error']
+    answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
+    if message.chat.type != types.ChatType.PRIVATE:
+        await delete_message_bot_answer(answer, group_id)
 
 
 def register_handlers_client(dp: Dispatcher):

@@ -219,11 +219,9 @@ def send_like(user_token: str, **kwargs):
         return r.json()[0]
 
 
-def user_organizations(telegram_id: str):
+def user_organizations(telegram_id: str, tg_name: str = None, first_name: str = None, last_name: str = None):
     """
     Выводит json со всеми организациями пользователя
-    :type telegram_id: telegram_id пользователя str
-    :return: json фаил
     """
     headers = {
         "accept": "application/json",
@@ -231,6 +229,9 @@ def user_organizations(telegram_id: str):
     }
     body = {
         'telegram_id': telegram_id,
+        'tg_name': tg_name,
+        'first_name': first_name,
+        'last_name': last_name,
     }
 
     r = requests.post(drf_url + 'tg-user-organizations/', headers=headers, json=body)
@@ -492,5 +493,23 @@ def change_group_id(old_id: int, new_id: int):
     else:
         logger.error(f"tg-group-migrate/ returns {r.status_code} on request:\n"
                      f"headers: {headers} body: {body}\n"
+                     f"Error info: {r.text}")
+        return None
+
+
+def get_scores(user_token: str) -> dict or None:
+    """
+    Возвращает общее число спасибок по токену пользователя.
+    """
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Token {user_token}",
+    }
+    r = requests.get(drf_url + 'tg-likes-count/', headers=headers)
+    if r.status_code == 200:
+        return r.json()
+    else:
+        logger.error(f"rating/download/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}\n"
                      f"Error info: {r.text}")
         return None
