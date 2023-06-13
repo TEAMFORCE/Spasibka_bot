@@ -114,8 +114,9 @@ async def likes(message: types.Message):
         if tag_id is None and pattern_tag:
             answer = await message.answer(f"Тег {tag} не найден, спасибка не отправлена\n"
                                           f"Можно использовать только теги из списка /tags")
-            await delete_message_bot_answer(answer, message.chat.id)
-            return
+            if message.chat.type != types.ChatType.PRIVATE:
+                await delete_message_bot_answer(answer, message .chat.id)
+                return
 
         if token:
             result = send_like(user_token=token,
@@ -129,7 +130,8 @@ async def likes(message: types.Message):
                                recipient_last_name=recipient_last_name)
         if result is not None:
             answer = await message.reply(f"{result}")
-            await delete_message_bot_answer(answer, message.chat.id)
+            if message.chat.type != types.ChatType.PRIVATE:
+                await delete_message_bot_answer(answer, message.chat.id)
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith('delete '))

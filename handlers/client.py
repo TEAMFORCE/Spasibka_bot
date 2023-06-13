@@ -361,9 +361,9 @@ async def export(message: types.Message):
             except TypeError or KeyError:
                 with open(f'{filename}.xlsx', 'wb') as file:
                     file.write(response)
-                answer = await bot.send_document(document=open(f'{filename}.xlsx', 'rb'),
-                                                 chat_id=message.from_user.id
-                                                 )
+                await bot.send_document(document=open(f'{filename}.xlsx', 'rb'),
+                                        chat_id=message.from_user.id
+                                        )
                 os.remove(f'{filename}.xlsx')
     except CantInitiateConversation:
         answer = await message.reply(dicts.errors['no_chat_with_bot'])

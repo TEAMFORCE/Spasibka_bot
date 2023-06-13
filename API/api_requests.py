@@ -291,6 +291,9 @@ def export_file_transactions_by_organization_id(telegram_id: str, organization_i
     elif r.status_code == 400:
         return r.json()
     else:
+        logger.error(f"tg-export/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}, body: {body}\n"
+                     f"Error info: {r.text}")
         return {"message": "Что то пошло не так"}
 
 
