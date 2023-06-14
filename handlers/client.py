@@ -13,7 +13,7 @@ from create_bot import dp, bot, logger
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
     all_like_tags, get_active_organization, messages_lifetime, tg_handle_start, get_ratings, get_rating_xls, get_user, \
-    get_scores
+    get_scores, get_scoresxlsx
 
 from dict_cloud import dicts
 
@@ -499,24 +499,27 @@ async def ratingxls(message: types.Message):
         await error_message.delete()
 
 
-@dp.message_handler(commands='scores')
+# @dp.message_handler(commands='scores')
 async def scores(message: types.Message):
     user_tg_id = message.from_user.id
     user_tg_name = message.from_user.username
     user_first_name = message.from_user.first_name
     user_last_name = message.from_user.last_name
     group_id = None
+    active_organization_id = None
+    index = 20
     if message.chat.type != types.ChatType.PRIVATE:
         group_id = message.chat.id
         user_token = get_token(user_tg_id, group_id, user_tg_name, user_first_name, user_last_name)
+        index = 5
     else:
         active_organization_id = get_active_organization(message.from_user.id)
         user_token = get_token_by_organization_id(user_tg_id, active_organization_id, user_tg_name, user_first_name,
                                                   user_last_name)
     likes_list = get_scores(user_token)
     if likes_list:
-        user_likes = likes_list['user_likes']['total']
-        text = create_scores_message(likes_list['likes'], user_likes)
+        user = get_user(user_tg_id, group_id, active_organization_id, user_tg_name, user_first_name, user_last_name)
+        text = create_scores_message(likes_list['likes'], user['user_id'], index)
     else:
         text = errors['server_error']
     answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
@@ -524,7 +527,38 @@ async def scores(message: types.Message):
         await delete_message_bot_answer(answer, group_id)
 
 
+# @dp.message_handler(commands='scoresxlsx')
+async def scoresxlsx(message: types.Message):
+    user_tg_id = message.from_user.id
+    user_tg_name = message.from_user.username
+    user_first_name = message.from_user.first_name
+    user_last_name = message.from_user.last_name
+    group_id = None
+    active_organization_id = None
+    filename = f"{message.from_user.id}_{datetime.datetime.now().strftime('%d_%m_%y')}.xlsx"
+    if message.chat.type != types.ChatType.PRIVATE:
+        group_id = message.chat.id
+    else:
+        active_organization_id = get_active_organization(user_tg_id)
+    user = get_user(user_tg_id, group_id, active_organization_id, user_tg_name, user_first_name, user_last_name)
+    content = get_scoresxlsx(user['token'])
+    temp_answer = await bot.send_message(chat_id=message.from_user.id, text="Формирую фаил")
+    if content:
+        with open(filename, "wb") as file:
+            file.write(content)
+        try:
+            await bot.send_document(chat_id=message.from_user.id, document=open(filename, "rb"))
+            await temp_answer.delete()
+        except CantInitiateConversation:
+            await message.answer(errors["no_chat_with_bot"])
+            await asyncio.sleep(5)
+            await message.delete()
+        os.remove(filename)
+
+
 def register_handlers_client(dp: Dispatcher):
+    dp.register_message_handler(scores, commands='scores')
+    dp.register_message_handler(scoresxlsx, commands='scoresxlsx')
     dp.register_message_handler(start, commands=['start'])
     dp.register_message_handler(balance, commands=['баланс', 'balance'])
     dp.register_message_handler(ct, commands=['ct'])

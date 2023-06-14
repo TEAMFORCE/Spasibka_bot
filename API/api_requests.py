@@ -505,11 +505,29 @@ def get_scores(user_token: str) -> dict or None:
         "accept": "application/json",
         "Authorization": f"Token {user_token}",
     }
-    r = requests.get(drf_url + 'tg-likes-count/', headers=headers)
+    r = requests.get(drf_url + 'tg-transaction-count/', headers=headers)
     if r.status_code == 200:
         return r.json()
     else:
-        logger.error(f"rating/download/ returns {r.status_code} on request:\n"
+        logger.error(f"tg-transaction-count/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}\n"
+                     f"Error info: {r.text}")
+        return None
+
+
+def get_scoresxlsx(user_token: str) -> dict or None:
+    """
+    Возвращает общее число спасибок по токену пользователя.
+    """
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Token {user_token}",
+    }
+    r = requests.get(drf_url + 'tg-transaction-export/', headers=headers)
+    if r.status_code == 200:
+        return r.content
+    else:
+        logger.error(f"tg-transaction-export/ returns {r.status_code} on request:\n"
                      f"headers: {headers}\n"
                      f"Error info: {r.text}")
         return None
