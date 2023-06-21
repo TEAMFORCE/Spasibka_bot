@@ -158,29 +158,6 @@ async def start(message: types.Message):
         await asyncio.sleep(5)
         await answer.delete()
 
-    #     current_organization = resp.get("current_organization_id")
-    #
-    #     if resp_status == 0:
-    #         text = f"Hello, {message.from_user.first_name}! Use /go to select Organization"
-    #     elif resp_status == 2:
-    #         text = f"Hello, {message.from_user.first_name}!\n" \
-    #                "You have to register in community to continue.\n" \
-    #                f"Please, use your invite link, or create your own community on tf360.com " \
-    #                f"(use <code>{message.from_user.username}</code> as login)"
-    #     elif resp_status == -1:
-    #         text = f"Hello, {message.from_user.first_name}! Your account blocked, please contact support."
-    #     elif resp_status == 1:
-    #         text = f"Hello, {message.from_user.first_name}! Your code is: <code>{resp['verification_code']}</code>"
-    #     else:
-    #         text = resp_status
-    #     try:
-    #         await bot.send_message(chat_id=message.from_user.id, text=text, parse_mode=types.ParseMode.HTML)
-    #     except CantInitiateConversation:
-    #         await message.answer(errors["no_chat_with_bot"])
-    # else:
-    #     await message.answer(errors["server_error"])
-    # await message.delete()
-
 
 # @dp.message_handler(commands=['help'])
 async def help_message(message: types.Message):
@@ -224,7 +201,6 @@ async def balance(message: types.Message):
     telegram_name = message.from_user.username
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name
-    logger.warning(f"/balance from user: {message.from_user}")
     if message.chat.id != message.from_user.id:
         group_id = message.chat.id
         token = get_token(telegram_id, group_id, telegram_name, first_name, last_name)

@@ -5,8 +5,9 @@ from create_bot import logger
 
 
 async def create_transaction_log(**kwargs):
+    days_to_expire = 30
     today = date.today()
-    one_month = timedelta(30)
+    one_month = timedelta(days_to_expire)
     temp = f"--- *** ---\n" \
            f"New transaction:\n" \
            f"user_token: {kwargs.get('user_token')}\n" \
@@ -25,7 +26,7 @@ async def create_transaction_log(**kwargs):
     file_path = fr"Transactions_{today - one_month}.txt"
     try:
         os.unlink(file_path)
-        print("Log deleted")
+        logger.info(f"Log deleted due time expires ({days_to_expire} days)")
     except FileNotFoundError:
         pass
     os.chdir("..")

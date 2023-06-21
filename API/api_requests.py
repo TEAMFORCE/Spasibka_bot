@@ -336,6 +336,9 @@ def cansel_transaction(user_token: str, like_id: int):
     if r.status_code == 200:
         return 'Спасибка отменена'
     else:
+        logger.error(f"cancel-transaction/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}, body: {body}\n"
+                     f"Error info: {r.text}")
         return 'Не получилось отменить спасибку'
 
 
@@ -351,6 +354,9 @@ def all_like_tags(user_token: str):
     if r.status_code == 200:
         return r.json()['tags']
     else:
+        logger.error(f"send-coins-settings/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}\n"
+                     f"Error info: {r.text}")
         return 'Что то пошло не так'
 
 
@@ -371,6 +377,9 @@ def set_active_organization(organization_id: int, telegram_id: str):
     if r.status_code == 201:
         return True
     else:
+        logger.error(f"set-bot-organization/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}, body: {body}\n"
+                     f"Error info: {r.text}")
         return False
 
 
