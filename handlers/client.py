@@ -524,6 +524,34 @@ async def scoresxlsx(message: types.Message):
         os.remove(filename)
 
 
+# @dp.message_handler(commands='consent')
+async def consent(message: types.Message):
+    if message.chat.type == types.ChatType.PRIVATE:
+        await message.delete()
+        text = messages['consent']
+        await message.answer(text)
+        with open('files/agreement.pdf', 'rb') as file:
+            input_agree_file = types.InputFile(file)
+            await bot.send_document(message.chat.id, input_agree_file)
+        with open('files/privacy_policy.pdf', 'rb') as file:
+            input_policy_file = types.InputFile(file)
+            await bot.send_document(message.chat.id, input_policy_file)
+    else:
+        try:
+            sender_id = message.from_user.id
+            await message.delete()
+            text = messages['consent']
+            await bot.send_message(sender_id, text)
+            with open('files/agreement.pdf', 'rb') as file:
+                input_agree_file = types.InputFile(file)
+                await bot.send_document(sender_id, input_agree_file)
+            with open('files/privacy_policy.pdf', 'rb') as file:
+                input_policy_file = types.InputFile(file)
+                await bot.send_document(sender_id, input_policy_file)
+        except CantInitiateConversation:
+            await message.answer(errors['no_chat_with_bot'])
+
+
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(scores, commands='scores')
     dp.register_message_handler(scoresxlsx, commands='scoresxlsx')
@@ -538,3 +566,4 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(tags, commands=['tags'])
     dp.register_message_handler(rating, commands=['rating'])
     dp.register_message_handler(ratingxls, commands=['ratingxls'])
+    dp.register_message_handler(consent, commands=['consent'])

@@ -11,6 +11,7 @@ async def set_default_commands(dp):
         types.BotCommand("export", "Export account like"),
         types.BotCommand("rating", "List rating in organization"),
         types.BotCommand("scores", "List of incoming likes"),
+        types.BotCommand("consent", "Data processing agreement"),
     ])
 
 
