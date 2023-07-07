@@ -122,7 +122,7 @@ async def start(message: types.Message):
             logger.warning(errors['cant_delete_message'])
     else:
         organization_id = get_active_organization(tg_id)
-        
+
     resp = tg_handle_start(tg_name, tg_id, group_id, group_name, first_name, last_name, organization_id,
                            is_user_admin)
     if resp:
