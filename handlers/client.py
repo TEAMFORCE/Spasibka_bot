@@ -101,6 +101,12 @@ async def ready(message: types.Message):
 
 # @dp.message_handler(commands="start")
 async def start(message: types.Message):
+
+    try:
+        await message.edit_text('Обрабатываю ...')
+    except MessageCantBeEdited:
+        logger.warning(errors['cant_delete_message'])
+
     tg_name = message.from_user.username.replace("@", "")
     tg_id = message.from_user.id
     first_name = message.from_user.first_name
@@ -116,10 +122,6 @@ async def start(message: types.Message):
         group_name = message.chat.title
         if user_role in ["creator", "administrator"]:
             is_user_admin = True
-        try:
-            await message.edit_text('Обрабатываю ...')
-        except MessageCantBeEdited:
-            logger.warning(errors['cant_delete_message'])
     else:
         organization_id = get_active_organization(tg_id)
 
