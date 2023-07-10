@@ -22,7 +22,7 @@ import datetime
 import asyncio
 from contextlib import suppress
 from aiogram.utils.exceptions import MessageCantBeDeleted, \
-    MessageToDeleteNotFound, CantInitiateConversation
+    MessageToDeleteNotFound, CantInitiateConversation, MessageCantBeEdited
 
 from dict_cloud.dicts import messages, errors, start_messages
 
@@ -117,8 +117,8 @@ async def start(message: types.Message):
         if user_role in ["creator", "administrator"]:
             is_user_admin = True
         try:
-            await message.delete()
-        except MessageCantBeDeleted:
+            await message.edit_text('Обрабатываю ...')
+        except MessageCantBeEdited:
             logger.warning(errors['cant_delete_message'])
     else:
         organization_id = get_active_organization(tg_id)
@@ -132,6 +132,7 @@ async def start(message: types.Message):
         text = resp['verbose']
     else:
         text = start_messages["no_respose_from_server"]
+    await message.delete()
     answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
     if message.chat.type != types.ChatType.PRIVATE:
         await asyncio.sleep(5)
