@@ -101,11 +101,7 @@ async def ready(message: types.Message):
 
 # @dp.message_handler(commands="start")
 async def start(message: types.Message):
-
-    try:
-        await message.edit_text('Обрабатываю ...')
-    except MessageCantBeEdited:
-        logger.warning(errors['cant_delete_message'])
+    bot_answer = await message.answer('Обрабатываю ...')
 
     tg_name = message.from_user.username.replace("@", "")
     tg_id = message.from_user.id
@@ -135,7 +131,7 @@ async def start(message: types.Message):
     else:
         text = start_messages["no_respose_from_server"]
     await message.delete()
-    answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
+    answer = await bot_answer.edit_text(text, parse_mode=types.ParseMode.HTML)
     if message.chat.type != types.ChatType.PRIVATE:
         await asyncio.sleep(5)
         await answer.delete()
