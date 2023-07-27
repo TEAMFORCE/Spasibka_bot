@@ -103,7 +103,7 @@ async def ready(message: types.Message):
 async def start(message: types.Message):
     bot_answer = await message.answer('Обрабатываю ...')
 
-    tg_name = message.from_user.username.replace("@", "")
+    tg_name = message.from_user.username.replace("@", "") if message.from_user.username else None
     tg_id = message.from_user.id
     first_name = message.from_user.first_name
     last_name = message.from_user.last_name
