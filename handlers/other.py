@@ -118,6 +118,11 @@ async def likes(message: types.Message):
                 await delete_message_bot_answer(answer, message .chat.id)
                 return
 
+        if not recipient_telegram_id:
+            await message.answer("Я не смог найти id получателя. "
+                                 "Возможно вы ответили на сообщение которое было в чате до моего добавления.")
+            return
+
         if token:
             result = send_like(user_token=token,
                                telegram_id=recipient_telegram_id,
