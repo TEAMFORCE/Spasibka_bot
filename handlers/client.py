@@ -176,17 +176,8 @@ async def balance(message: types.Message):
     Если бот общается в ЛС, то выводит баланс по активной организации
     """
     telegram_id = message.from_user.id
-    telegram_name = message.from_user.username
-    first_name = message.from_user.first_name
-    last_name = message.from_user.last_name
     if message.chat.id != message.from_user.id:
         group_id = message.chat.id
-        token = get_token(telegram_id, group_id, telegram_name, first_name, last_name)
-        if not token:
-            answer = await message.answer(errors["no_organization_by_id"].format(organization_id=message.chat.id),
-                                          parse_mode=types.ParseMode.HTML)
-            await delete_message_and_command([message, answer], message.chat.id)
-            return
     else:
         organization_id = get_active_organization(telegram_id)
         if not organization_id:
@@ -194,14 +185,12 @@ async def balance(message: types.Message):
                                           parse_mode=types.ParseMode.HTML)
             await delete_message_and_command([message, answer], message.chat.id)
             return
-        if organization_id is not None:
-            token = get_token_by_organization_id(telegram_id, organization_id, telegram_name, first_name, last_name)
-        else:
+        if organization_id is None:
             answer = await message.reply(dicts.errors['no_active_organization'])
             asyncio.create_task(delete_message_and_command([message, answer], message.chat.id))
             return
 
-    balance = get_balance(token)
+    balance = get_balance(telegram_id, group_id, organization_id)  # todo
     if not balance:
         await message.answer(errors["no_balance"])
         await asyncio.sleep(3)

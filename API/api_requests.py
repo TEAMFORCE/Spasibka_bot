@@ -123,9 +123,8 @@ def get_token_by_organization_id(telegram_id, organization_id, telegram_name=Non
         return None
 
 
-def get_balance(token: str):
+def get_balance(telegram_id: int, group_id: int = None, organization_id: int = None):
     """
-    :param token: токен пользователя в drf
     :return: json со статистикой пользователя
     :format:
     {
@@ -149,11 +148,18 @@ def get_balance(token: str):
                 - cancelled - аннулировано
                 """
 
+    if not group_id and not organization_id:
+        return False
     headers = {
         "accept": "application/json",
-        'Authorization': f"Token {token}",
+        'Authorization': token_drf,
     }
-    r = requests.get(drf_url + 'user/balance/', headers=headers)
+    body = {
+        "telegram_id": telegram_id,
+        "group_id": group_id,
+        "organization_id": organization_id
+    }
+    r = requests.get(drf_url + 'tg-balance/', headers=headers, json=body)
     if r.status_code == 200:
         return r.json()
     else:
