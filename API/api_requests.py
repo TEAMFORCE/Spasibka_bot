@@ -211,10 +211,10 @@ def send_like(user_token: str, **kwargs):
         for i in all_tags:
             if i['id'] == int(kwargs.get("tags")):
                 tag_name = i['name']
-        return f'Перевод {kwargs.get("amount")} {thx} пользователю @{kwargs.get("telegram_name")} ' \
+        return f'Перевод {kwargs.get("amount")} {thx} пользователю {kwargs.get("mention")} ' \
                f'сформирован с тегом #{tag_name}'
     elif r.status_code == 201:
-        return f'Перевод {kwargs.get("amount")} {thx} пользователю @{kwargs.get("telegram_name")}'
+        return f'Перевод {kwargs.get("amount")} {thx} пользователю {kwargs.get("mention")}'
     elif r.status_code == 500:
         return 'Что то пошло не так\n' \
                'Проверьте что группа зарегистрирована в системе'

@@ -132,9 +132,10 @@ async def likes(message: types.Message):
                                reason=reason,
                                group_id=group_id,
                                recipient_name=recipient_name,
-                               recipient_last_name=recipient_last_name)
+                               recipient_last_name=recipient_last_name,
+                               mention=message.reply_to_message.from_user.get_mention(as_html=True))
         if result is not None:
-            answer = await message.reply(f"{result}")
+            answer = await message.reply(f"{result}", parse_mode=types.ParseMode.HTML)
             if message.chat.type != types.ChatType.PRIVATE:
                 await delete_message_bot_answer(answer, message.chat.id)
 
