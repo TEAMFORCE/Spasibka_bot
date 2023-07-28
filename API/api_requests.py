@@ -159,7 +159,7 @@ def get_balance(telegram_id: int, group_id: int = None, organization_id: int = N
         "group_id": group_id,
         "organization_id": organization_id
     }
-    r = requests.get(drf_url + 'tg-balance/', headers=headers, json=body)
+    r = requests.post(drf_url + 'tg-balance/', headers=headers, json=body)
     if r.status_code == 200:
         return r.json()
     else:
