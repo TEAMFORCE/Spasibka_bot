@@ -176,6 +176,8 @@ async def balance(message: types.Message):
     Если бот общается в ЛС, то выводит баланс по активной организации
     """
     telegram_id = message.from_user.id
+    group_id = None
+    organization_id = None
     if message.chat.id != message.from_user.id:
         group_id = message.chat.id
     else:
