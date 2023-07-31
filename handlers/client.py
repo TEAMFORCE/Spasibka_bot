@@ -24,7 +24,7 @@ from contextlib import suppress
 from aiogram.utils.exceptions import MessageCantBeDeleted, \
     MessageToDeleteNotFound, CantInitiateConversation, BotBlocked
 
-from dict_cloud.dicts import messages, errors, start_messages
+from dict_cloud.dicts import messages, errors, start_messages, sleep_timer
 
 
 async def delete_message_bot_answer(answer, group_id):
@@ -140,7 +140,7 @@ async def start(message: types.Message):
             username=message.from_user.get_mention(as_html=True)), parse_mode=types.ParseMode.HTML)
 
     if message.chat.type != types.ChatType.PRIVATE:
-        await asyncio.sleep(5)
+        await asyncio.sleep(sleep_timer)
         await answer.delete()
 
 
@@ -166,7 +166,7 @@ async def test(message: types.Message):
     if message.chat.id == message.from_user.id:
         await message.delete()
         answer = await message.answer('Бот работает. Это сообщение будет удалено')
-        await asyncio.sleep(3)
+        await asyncio.sleep(sleep_timer)
         await answer.delete()
     else:
         answer = await message.answer('Бот работает. Это сообщение будет удалено\n'
@@ -202,7 +202,7 @@ async def balance(message: types.Message):
     balance = get_balance(telegram_id, group_id, organization_id)  # todo
     if not balance:
         await message.answer(errors["no_balance"])
-        await asyncio.sleep(3)
+        await asyncio.sleep(sleep_timer)
         await message.delete()
         return
     try:
@@ -388,7 +388,7 @@ async def rating(message: types.Message):
                         last_name=message.from_user.last_name)
     if not user:
         error = await message.answer(errors["no_token"])
-        await asyncio.sleep(5)
+        await asyncio.sleep(sleep_timer)
         await error.delete()
         return
     statistics_list = get_ratings(user["token"])
@@ -397,7 +397,7 @@ async def rating(message: types.Message):
         answer = await message.answer(text, parse_mode=types.ParseMode.HTML)
     else:
         error = await message.answer(errors["server_error"])
-        await asyncio.sleep(5)
+        await asyncio.sleep(sleep_timer)
         await error.delete()
         return
     if message.chat.type != types.ChatType.PRIVATE:
@@ -434,12 +434,12 @@ async def ratingxls(message: types.Message):
             await temp_answer.delete()
         except CantInitiateConversation:
             await message.answer(errors["no_chat_with_bot"])
-            await asyncio.sleep(5)
+            await asyncio.sleep(sleep_timer)
             await message.delete()
         os.remove(filename)
     else:
         error_message = await temp_answer.edit_text(errors["server_error"])
-        await asyncio.sleep(5)
+        await asyncio.sleep(sleep_timer)
         await error_message.delete()
 
 
@@ -495,7 +495,7 @@ async def scoresxlsx(message: types.Message):
             await temp_answer.delete()
         except CantInitiateConversation:
             await message.answer(errors["no_chat_with_bot"])
-            await asyncio.sleep(5)
+            await asyncio.sleep(sleep_timer)
             await message.delete()
         os.remove(filename)
 
