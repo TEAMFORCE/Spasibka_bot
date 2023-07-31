@@ -132,8 +132,12 @@ async def start(message: types.Message):
 
     try:
         answer = await bot.send_message(message.from_user.id, text, parse_mode=types.ParseMode.HTML)
-    except (CantInitiateConversation, BotBlocked):
-        answer = await message.answer(errors['no_chat_with_bot'])
+    except CantInitiateConversation:
+        answer = await message.answer(errors['cant_initiate_chat'].format(
+            username=message.from_user.get_mention(as_html=True)), parse_mode=types.ParseMode.HTML)
+    except BotBlocked:
+        answer = await message.answer(errors['no_chat_with_bot'].format(
+            username=message.from_user.get_mention(as_html=True)), parse_mode=types.ParseMode.HTML)
 
     if message.chat.type != types.ChatType.PRIVATE:
         await asyncio.sleep(5)

@@ -8,6 +8,8 @@ errors = {
     'server_error': 'Ошибка при обработке запроса на сервере.',
     'no_balance': "Не удалось получить баланс.",
     'cant_delete_message': 'Bot trying to remove message, but it seems imposible',
+    'cant_initiate_chat': '{username}, не могу начать с Вами диалог, пожалуйста, напишите мне в личку',
+    'you_blocked_me': '{username}, не могу Вам написать, пожалуйста, разблокируйте меня',
 }
 
 messages = {
