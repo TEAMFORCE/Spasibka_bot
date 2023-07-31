@@ -101,8 +101,6 @@ async def ready(message: types.Message):
 
 # @dp.message_handler(commands="start")
 async def start(message: types.Message):
-    bot_answer = await message.answer('Обрабатываю ...')
-
     tg_name = message.from_user.username.replace("@", "") if message.from_user.username else None
     tg_id = message.from_user.id
     first_name = message.from_user.first_name
@@ -131,7 +129,12 @@ async def start(message: types.Message):
     else:
         text = start_messages["no_respose_from_server"]
     await message.delete()
-    answer = await bot_answer.edit_text(text, parse_mode=types.ParseMode.HTML)
+
+    try:
+        answer = await bot.send_message(message.from_user.id, text, parse_mode=types.ParseMode.HTML)
+    except CantInitiateConversation:
+        answer = await message.answer(errors['no_chat_with_bot'])
+
     if message.chat.type != types.ChatType.PRIVATE:
         await asyncio.sleep(5)
         await answer.delete()
