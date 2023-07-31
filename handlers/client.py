@@ -22,7 +22,7 @@ import datetime
 import asyncio
 from contextlib import suppress
 from aiogram.utils.exceptions import MessageCantBeDeleted, \
-    MessageToDeleteNotFound, CantInitiateConversation, MessageCantBeEdited
+    MessageToDeleteNotFound, CantInitiateConversation, BotBlocked
 
 from dict_cloud.dicts import messages, errors, start_messages
 
@@ -132,7 +132,7 @@ async def start(message: types.Message):
 
     try:
         answer = await bot.send_message(message.from_user.id, text, parse_mode=types.ParseMode.HTML)
-    except CantInitiateConversation:
+    except (CantInitiateConversation, BotBlocked):
         answer = await message.answer(errors['no_chat_with_bot'])
 
     if message.chat.type != types.ChatType.PRIVATE:
