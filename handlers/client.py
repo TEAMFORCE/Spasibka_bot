@@ -136,7 +136,7 @@ async def start(message: types.Message):
         answer = await message.answer(errors['cant_initiate_chat'].format(
             username=message.from_user.get_mention(as_html=True)), parse_mode=types.ParseMode.HTML)
     except BotBlocked:
-        answer = await message.answer(errors['no_chat_with_bot'].format(
+        answer = await message.answer(errors['you_blocked_me'].format(
             username=message.from_user.get_mention(as_html=True)), parse_mode=types.ParseMode.HTML)
 
     if message.chat.type != types.ChatType.PRIVATE:
