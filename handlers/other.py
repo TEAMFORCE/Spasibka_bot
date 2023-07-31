@@ -118,7 +118,7 @@ async def likes(message: types.Message):
                 await delete_message_bot_answer(answer, message .chat.id)
                 return
 
-        if not recipient_telegram_id:
+        if not recipient_telegram_id and message.chat.type != types.ChatType.PRIVATE:
             await message.answer("Я не смог найти id получателя. "
                                  "Возможно вы ответили на сообщение которое было в чате до моего добавления.")
             return
