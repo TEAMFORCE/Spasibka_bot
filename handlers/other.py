@@ -124,6 +124,8 @@ async def likes(message: types.Message):
             return
 
         if token:
+            mention = message.reply_to_message.from_user.get_mention(as_html=True) \
+                if message.chat.type != types.ChatType.PRIVATE else recipient_telegram_name
             result = send_like(user_token=token,
                                telegram_id=recipient_telegram_id,
                                telegram_name=recipient_telegram_name,
@@ -133,7 +135,7 @@ async def likes(message: types.Message):
                                group_id=group_id,
                                recipient_name=recipient_name,
                                recipient_last_name=recipient_last_name,
-                               mention=message.reply_to_message.from_user.get_mention(as_html=True))
+                               mention=mention)
         if result is not None:
             answer = await message.reply(f"{result}", parse_mode=types.ParseMode.HTML)
             if message.chat.type != types.ChatType.PRIVATE:
