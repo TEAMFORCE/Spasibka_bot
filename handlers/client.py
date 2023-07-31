@@ -2,6 +2,7 @@ import os
 import sys
 
 from all_func.utils import create_scores_message, create_rating_message
+from service.service_func import is_bot_admin
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))  # todo наверняка импорт можно сделать проще
 from keyboards.inline_not_complited_transactions import get_not_complited_transactions_kb
@@ -90,6 +91,7 @@ async def delete_message_and_command(message: list[types.Message], group_id: str
 
 @dp.message_handler(commands="log")
 async def ready(message: types.Message):
+    await is_bot_admin(message)
     temp = message.from_user
     logger.warning(f"User info: {message.from_user}")
     logger.warning(f"Group info: {message.chat}")
@@ -101,6 +103,7 @@ async def ready(message: types.Message):
 
 # @dp.message_handler(commands="start")
 async def start(message: types.Message):
+    await is_bot_admin(message)
     tg_name = message.from_user.username.replace("@", "") if message.from_user.username else None
     tg_id = message.from_user.id
     first_name = message.from_user.first_name
@@ -128,7 +131,10 @@ async def start(message: types.Message):
         text = resp['verbose']
     else:
         text = start_messages["no_respose_from_server"]
-    await message.delete()
+    try:
+        await message.delete()
+    except MessageCantBeDeleted:
+        pass
 
     try:
         answer = await bot.send_message(message.from_user.id, text, parse_mode=types.ParseMode.HTML)
@@ -146,6 +152,7 @@ async def start(message: types.Message):
 
 # @dp.message_handler(commands=['help'])
 async def help_message(message: types.Message):
+    await is_bot_admin(message)
     if message.chat.id == message.from_user.id:
         await bot.send_message(message.chat.id, messages['start_message'].format(user_name=message.from_user.username))
     else:
@@ -163,6 +170,7 @@ async def help_message(message: types.Message):
 
 # @dp.message_handler(commands=['test'])
 async def test(message: types.Message):
+    await is_bot_admin(message)
     if message.chat.id == message.from_user.id:
         await message.delete()
         answer = await message.answer('Бот работает. Это сообщение будет удалено')
@@ -182,6 +190,7 @@ async def balance(message: types.Message):
     Выводит в текущий чат количество спасибок у пользователя
     Если бот общается в ЛС, то выводит баланс по активной организации
     """
+    await is_bot_admin(message)
     telegram_id = message.from_user.id
     group_id = None
     organization_id = None
@@ -230,6 +239,7 @@ async def ct(message: types.Message):
     """
     Выводит инлайн клавиатуру с не проведенными транзакциями
     """
+    await is_bot_admin(message)
     telegram_id = message.from_user.id
     group_id = message.chat.id
     telegram_name = message.from_user.username
@@ -265,6 +275,7 @@ async def go(message: types.Message):
     """
     В личном общении выводит список доступных организаций в виде инлайн клавиатуры
     """
+    await is_bot_admin(message)
     try:
         answer = await bot.send_message(
             message.from_user.id,
@@ -286,6 +297,7 @@ async def export(message: types.Message):
     """
     Отправляет .xlxs фаил со списком транзакций, если общение в ЛС - то фаил формируется по активной группе
     """
+    await is_bot_admin(message)
     telegram_id = message.from_user.id
     group_id = message.chat.id
     telegram_name = message.from_user.username
@@ -330,6 +342,7 @@ async def export(message: types.Message):
 
 # @dp.message_handler(commands=['webwiev'])
 async def webwiev(message: types.Message):
+    await is_bot_admin(message)
     try:
         answer = await bot.send_message(chat_id=message.from_user.id, text='Для перехода в приложение нажимай:',
                                         reply_markup=start_web_app)
@@ -341,6 +354,7 @@ async def webwiev(message: types.Message):
 
 # @dp.message_handler(commands=['tags'])
 async def tags(message: types.Message):
+    await is_bot_admin(message)
     telegram_id = message.from_user.id
     group_id = message.chat.id
     telegram_name = message.from_user.username
@@ -368,6 +382,7 @@ async def tags(message: types.Message):
 
 # @dp.message_handler(commands='rating')
 async def rating(message: types.Message):
+    await is_bot_admin(message)
     limit = 5
     if message.chat.type != types.ChatType.PRIVATE:
         user = get_user(telegram_id=message.from_user.id,
@@ -406,6 +421,7 @@ async def rating(message: types.Message):
 
 # @dp.message_handler(commands='ratingxls')
 async def ratingxls(message: types.Message):
+    await is_bot_admin(message)
     user_token = None
     filename = f"{message.from_user.id}_{datetime.datetime.now().strftime('%d_%m_%y')}.xlsx"
     if message.chat.type == types.ChatType.GROUP:
@@ -445,6 +461,7 @@ async def ratingxls(message: types.Message):
 
 # @dp.message_handler(commands='scores')
 async def scores(message: types.Message):
+    await is_bot_admin(message)
     user_tg_id = message.from_user.id
     user_tg_name = message.from_user.username
     user_first_name = message.from_user.first_name
@@ -473,6 +490,7 @@ async def scores(message: types.Message):
 
 # @dp.message_handler(commands='scoresxlsx')
 async def scoresxlsx(message: types.Message):
+    await is_bot_admin(message)
     user_tg_id = message.from_user.id
     user_tg_name = message.from_user.username
     user_first_name = message.from_user.first_name
@@ -502,6 +520,7 @@ async def scoresxlsx(message: types.Message):
 
 # @dp.message_handler(commands='consent')
 async def consent(message: types.Message):
+    await is_bot_admin(message)
     await message.delete()
     if message.chat.type == types.ChatType.PRIVATE:
         text = messages['consent']
