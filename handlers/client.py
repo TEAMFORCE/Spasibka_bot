@@ -192,6 +192,7 @@ async def balance(message: types.Message):
     """
     await is_bot_admin(message)
     telegram_id = message.from_user.id
+    tg_name = message.from_user.username
     group_id = None
     organization_id = None
     if message.chat.id != message.from_user.id:
@@ -208,7 +209,7 @@ async def balance(message: types.Message):
             asyncio.create_task(delete_message_and_command([message, answer], message.chat.id))
             return
 
-    balance = get_balance(telegram_id, group_id, organization_id)  # todo
+    balance = get_balance(telegram_id, tg_name, group_id, organization_id)
     if not balance:
         await message.answer(errors["no_balance"])
         await asyncio.sleep(sleep_timer)

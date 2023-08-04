@@ -7,6 +7,7 @@ from censored import token_drf, drf_url
 from all_func.log_func import create_transaction_log
 
 from create_bot import logger
+from service.service_func import get_body_of_get_balance
 
 
 def messages_lifetime(group_id: str) -> dict:
@@ -123,7 +124,7 @@ def get_token_by_organization_id(telegram_id, organization_id, telegram_name=Non
         return None
 
 
-def get_balance(telegram_id: int, group_id: int = None, organization_id: int = None):
+def get_balance(telegram_id: int, tg_name: str = None, group_id: int = None, organization_id: int = None):
     """
     :return: json со статистикой пользователя
     :format:
@@ -154,11 +155,9 @@ def get_balance(telegram_id: int, group_id: int = None, organization_id: int = N
         "accept": "application/json",
         'Authorization': token_drf,
     }
-    body = {
-        "telegram_id": telegram_id,
-        "group_id": group_id,
-        "organization_id": organization_id
-    }
+
+    body = get_body_of_get_balance(telegram_id, tg_name, group_id, organization_id)
+
     r = requests.post(drf_url + 'tg-balance/', headers=headers, json=body)
     if r.status_code == 200:
         return r.json()
