@@ -124,8 +124,10 @@ async def likes(message: types.Message):
             return
 
         if token:
-            mention = message.reply_to_message.from_user.get_mention(as_html=True) \
-                if message.chat.type != types.ChatType.PRIVATE else recipient_telegram_name
+            try:
+                mention = message.reply_to_message.from_user.get_mention(as_html=True)
+            except AttributeError:
+                mention = recipient_telegram_name
             result = send_like(user_token=token,
                                telegram_id=recipient_telegram_id,
                                telegram_name=recipient_telegram_name,
