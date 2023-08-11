@@ -545,3 +545,21 @@ def get_scoresxlsx(user_token: str) -> dict or None:
                      f"headers: {headers}\n"
                      f"Error info: {r.text}")
         return None
+
+
+def get_balances(user_token: str, organization_id: int):
+    """
+    Returns b xls with balance stat.
+    """
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Token {user_token}",
+    }
+    r = requests.get(drf_url + f'api/{organization_id}/stats/balances/', headers=headers)
+    if r.status_code == 200:
+        return r.content
+    else:
+        logger.error(f"api/{organization_id}/stats/balances/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}\n"
+                     f"Error info: {r.text}")
+        return None
