@@ -1,4 +1,13 @@
+import asyncio
+import os
+
+from typing import Optional
+
 from aiogram import types
+from aiogram.utils.exceptions import CantInitiateConversation
+
+from create_bot import bot
+from dict_cloud.dicts import errors, sleep_timer
 
 
 async def set_default_commands(dp):
@@ -67,3 +76,23 @@ def get_name_surname_tgname_string(name: str = None, surname: str = None, tgname
     if tgname not in ('', None):
         string_parts.append(tgname)
     return ' '.join(string_parts)
+
+
+async def send_balances_xls(content: Optional[bytes], filename: str, message: types.Message) -> None:
+    """
+    Sending balances xls and removes file.
+    """
+    if content:
+        with open(filename, "wb") as file:
+            file.write(content)
+        try:
+            await bot.send_document(chat_id=message.from_user.id, document=open(filename, "rb"))
+        except CantInitiateConversation:
+            await message.answer(errors["no_chat_with_bot"])
+            await asyncio.sleep(sleep_timer)
+            await message.delete()
+        os.remove(filename)
+    else:
+        error_message = await message.answer(errors["no_permitions"])
+        await asyncio.sleep(sleep_timer)
+        await error_message.delete()

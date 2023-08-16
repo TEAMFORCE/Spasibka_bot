@@ -20,7 +20,7 @@ async def is_bot_admin(message: types.Message) -> None:
 def get_body_of_get_balance(telegram_id: int, tg_name: str = None, group_id: int = None,
                             organization_id: int = None) -> dict:
     """
-    Creates dict body for get_balance resquest.
+    Creates dict body for get_balance request.
     """
     if organization_id and tg_name:
         body = {

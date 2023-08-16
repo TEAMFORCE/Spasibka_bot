@@ -547,7 +547,7 @@ def get_scoresxlsx(user_token: str) -> dict or None:
         return None
 
 
-def get_balances(user_token: str, organization_id: int):
+def get_balances(user_token: str, organization_id: int = None, group_tg_id: int = None):
     """
     Returns b xls with balance stat.
     """
@@ -560,6 +560,25 @@ def get_balances(user_token: str, organization_id: int):
         return r.content
     else:
         logger.error(f"api/{organization_id}/stats/balances/ returns {r.status_code} on request:\n"
+                     f"headers: {headers}\n"
+                     f"Error info: {r.text}")
+        return None
+
+
+def get_balances_from_group(user_token: str, group_tg_id: int = None):
+    """
+    Returns b xls with balance stat.
+    """
+    group_tg_id = abs(group_tg_id)
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Token {user_token}",
+    }
+    r = requests.get(drf_url + f'api/{group_tg_id}/tg_stats/balances/', headers=headers)
+    if r.status_code == 200:
+        return r.content
+    else:
+        logger.error(f"api/{group_tg_id}/tg_stats/balances/ returns {r.status_code} on request:\n"
                      f"headers: {headers}\n"
                      f"Error info: {r.text}")
         return None

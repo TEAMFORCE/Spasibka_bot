@@ -1,7 +1,7 @@
 import os
 import sys
 
-from all_func.utils import create_scores_message, create_rating_message
+from all_func.utils import create_scores_message, create_rating_message, send_balances_xls
 from service.service_func import is_bot_admin
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))  # todo наверняка импорт можно сделать проще
@@ -14,7 +14,7 @@ from create_bot import dp, bot, logger
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
     all_like_tags, get_active_organization, messages_lifetime, tg_handle_start, get_ratings, get_rating_xls, get_user, \
-    get_scores, get_scoresxlsx, get_balances
+    get_scores, get_scoresxlsx, get_balances, get_balances_from_group
 
 from dict_cloud import dicts
 
@@ -238,8 +238,8 @@ async def balance(message: types.Message):
 # @dp.message_handler(commands='balances')
 async def balances(message: types.Message):
     await message.delete()
+    filename = f"{message.from_user.id}_{datetime.datetime.now().strftime('%d_%m_%y')}.xlsx"
     if message.chat.type == types.ChatType.PRIVATE:
-        filename = f"{message.from_user.id}_{datetime.datetime.now().strftime('%d_%m_%y')}.xlsx"
         organization_id = get_active_organization(message.from_user.id)
         if not organization_id:
             await message.answer(errors['no_active_organization'])
@@ -250,21 +250,29 @@ async def balances(message: types.Message):
                                                   telegram_name=message.from_user.username,
                                                   first_name=message.from_user.first_name,
                                                   last_name=message.from_user.last_name)
-        content = get_balances(user_token, organization_id)
-        if content:
-            with open(filename, "wb") as file:
-                file.write(content)
-            try:
-                await bot.send_document(chat_id=message.from_user.id, document=open(filename, "rb"))
-            except CantInitiateConversation:
-                await message.answer(errors["no_chat_with_bot"])
-                await asyncio.sleep(sleep_timer)
-                await message.delete()
-            os.remove(filename)
-        else:
-            error_message = await message.answer(errors["no_permitions"])
+        if not user_token:
+            error_message = await message.answer(errors['cant_find_token'])
             await asyncio.sleep(sleep_timer)
             await error_message.delete()
+            return
+        content = get_balances(user_token, organization_id)
+        await send_balances_xls(content, filename, message)
+    else:
+        user = get_user(telegram_id=message.from_user.id,
+                        group_id=message.chat.id,
+                        telegram_name=message.from_user.username,
+                        first_name=message.from_user.first_name,
+                        last_name=message.from_user.last_name)
+        if not user:
+            error_message = await message.answer(errors['cant_find_token'])
+            await asyncio.sleep(sleep_timer)
+            await error_message.delete()
+            return
+        chat_member = await bot.get_chat_member(message.chat.id, message.from_user.id)
+        user_role = chat_member.status
+        if user_role in ["creator", "administrator"]:
+            content = get_balances_from_group(user["token"], message.chat.id)
+            await send_balances_xls(content, filename, message)
 
 
 # @dp.message_handler(commands=['ct'])
