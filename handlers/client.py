@@ -28,12 +28,27 @@ from aiogram.utils.exceptions import MessageCantBeDeleted, \
 from dict_cloud.dicts import messages, errors, start_messages, sleep_timer
 
 
+async def delete_command(command: types.Message, group_id: int) -> None:
+    """
+    Удаляет только команду в соответствии с настройками сервера.
+    """
+    lifetime_dict = messages_lifetime(group_id)
+    if not lifetime_dict:
+        lifetime_dict = {'bot_messages_lifetime': sleep_timer, 'bot_commands_lifetime': sleep_timer}
+    if lifetime_dict["bot_commands_lifetime"] != 0:
+        await asyncio.sleep(lifetime_dict["bot_messages_lifetime"])
+        with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
+            await command.delete()
+    else:
+        return
+
+
 async def delete_message_bot_answer(answer, group_id):
     """
     Удаляет только одно сообщение от бота, в соответствии с настройками сервера
     """
     lifetime_dict = messages_lifetime(group_id)
-    if lifetime_dict is None:
+    if not lifetime_dict:
         lifetime_dict = {'bot_messages_lifetime': 10, 'bot_commands_lifetime': 3}
     if lifetime_dict["bot_messages_lifetime"] != 0:
         await asyncio.sleep(lifetime_dict["bot_messages_lifetime"])
@@ -50,8 +65,8 @@ async def delete_message_and_command(message: list[types.Message], group_id: str
     """
     lifetime_dict = messages_lifetime(group_id)
 
-    if lifetime_dict is None:
-        lifetime_dict = {'bot_messages_lifetime': 5, 'bot_commands_lifetime': 0}
+    if not lifetime_dict:
+        lifetime_dict = {'bot_messages_lifetime': sleep_timer, 'bot_commands_lifetime': sleep_timer}
 
     if lifetime_dict['bot_messages_lifetime'] == 0 and lifetime_dict['bot_commands_lifetime'] != 0:
         await asyncio.sleep(lifetime_dict["bot_commands_lifetime"])
@@ -237,7 +252,6 @@ async def balance(message: types.Message):
 
 # @dp.message_handler(commands='balances')
 async def balances(message: types.Message):
-    await message.delete()
     filename = f"{message.from_user.id}_{datetime.datetime.now().strftime('%d_%m_%y')}.xlsx"
     if message.chat.type == types.ChatType.PRIVATE:
         organization_id = get_active_organization(message.from_user.id)
@@ -273,6 +287,7 @@ async def balances(message: types.Message):
         if user_role in ["creator", "administrator"]:
             content = get_balances_from_group(user["token"], message.chat.id)
             await send_balances_xls(content, filename, message)
+    await delete_command(message, message.chat.id)
 
 
 # @dp.message_handler(commands=['ct'])
