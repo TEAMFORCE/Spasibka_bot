@@ -1,7 +1,7 @@
 import os
 import sys
 
-from all_func.utils import create_scores_message, create_rating_message
+from all_func.utils import create_scores_message, create_rating_message, send_balances_xls
 from service.service_func import is_bot_admin
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))  # todo наверняка импорт можно сделать проще
@@ -14,7 +14,7 @@ from create_bot import dp, bot, logger
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
     all_like_tags, get_active_organization, messages_lifetime, tg_handle_start, get_ratings, get_rating_xls, get_user, \
-    get_scores, get_scoresxlsx
+    get_scores, get_scoresxlsx, get_balances, get_balances_from_group
 
 from dict_cloud import dicts
 
@@ -28,12 +28,27 @@ from aiogram.utils.exceptions import MessageCantBeDeleted, \
 from dict_cloud.dicts import messages, errors, start_messages, sleep_timer
 
 
+async def delete_command(command: types.Message, group_id: int) -> None:
+    """
+    Удаляет только команду в соответствии с настройками сервера.
+    """
+    lifetime_dict = messages_lifetime(group_id)
+    if not lifetime_dict:
+        lifetime_dict = {'bot_messages_lifetime': sleep_timer, 'bot_commands_lifetime': sleep_timer}
+    if lifetime_dict["bot_commands_lifetime"] != 0:
+        await asyncio.sleep(lifetime_dict["bot_messages_lifetime"])
+        with suppress(MessageCantBeDeleted, MessageToDeleteNotFound):
+            await command.delete()
+    else:
+        return
+
+
 async def delete_message_bot_answer(answer, group_id):
     """
     Удаляет только одно сообщение от бота, в соответствии с настройками сервера
     """
     lifetime_dict = messages_lifetime(group_id)
-    if lifetime_dict is None:
+    if not lifetime_dict:
         lifetime_dict = {'bot_messages_lifetime': 10, 'bot_commands_lifetime': 3}
     if lifetime_dict["bot_messages_lifetime"] != 0:
         await asyncio.sleep(lifetime_dict["bot_messages_lifetime"])
@@ -50,8 +65,8 @@ async def delete_message_and_command(message: list[types.Message], group_id: str
     """
     lifetime_dict = messages_lifetime(group_id)
 
-    if lifetime_dict is None:
-        lifetime_dict = {'bot_messages_lifetime': 5, 'bot_commands_lifetime': 0}
+    if not lifetime_dict:
+        lifetime_dict = {'bot_messages_lifetime': sleep_timer, 'bot_commands_lifetime': sleep_timer}
 
     if lifetime_dict['bot_messages_lifetime'] == 0 and lifetime_dict['bot_commands_lifetime'] != 0:
         await asyncio.sleep(lifetime_dict["bot_commands_lifetime"])
@@ -192,6 +207,7 @@ async def balance(message: types.Message):
     """
     await is_bot_admin(message)
     telegram_id = message.from_user.id
+    tg_name = message.from_user.username
     group_id = None
     organization_id = None
     if message.chat.id != message.from_user.id:
@@ -208,7 +224,7 @@ async def balance(message: types.Message):
             asyncio.create_task(delete_message_and_command([message, answer], message.chat.id))
             return
 
-    balance = get_balance(telegram_id, group_id, organization_id)  # todo
+    balance = get_balance(telegram_id, tg_name, group_id, organization_id)
     if not balance:
         await message.answer(errors["no_balance"])
         await asyncio.sleep(sleep_timer)
@@ -232,6 +248,46 @@ async def balance(message: types.Message):
     except KeyError:
         answer = await message.reply("Что то пошло не так")
         await delete_message_and_command([message, answer], message.chat.id)
+
+
+# @dp.message_handler(commands='balances')
+async def balances(message: types.Message):
+    filename = f"{message.from_user.id}_{datetime.datetime.now().strftime('%d_%m_%y')}.xlsx"
+    if message.chat.type == types.ChatType.PRIVATE:
+        organization_id = get_active_organization(message.from_user.id)
+        if not organization_id:
+            await message.answer(errors['no_active_organization'])
+            logger.warning(f'User {message.from_user.username} has no active organizations')
+            return
+        user_token = get_token_by_organization_id(telegram_id=message.from_user.id,
+                                                  organization_id=organization_id,
+                                                  telegram_name=message.from_user.username,
+                                                  first_name=message.from_user.first_name,
+                                                  last_name=message.from_user.last_name)
+        if not user_token:
+            error_message = await message.answer(errors['cant_find_token'])
+            await asyncio.sleep(sleep_timer)
+            await error_message.delete()
+            return
+        content = get_balances(user_token, organization_id)
+        await send_balances_xls(content, filename, message)
+    else:
+        user = get_user(telegram_id=message.from_user.id,
+                        group_id=message.chat.id,
+                        telegram_name=message.from_user.username,
+                        first_name=message.from_user.first_name,
+                        last_name=message.from_user.last_name)
+        if not user:
+            error_message = await message.answer(errors['cant_find_token'])
+            await asyncio.sleep(sleep_timer)
+            await error_message.delete()
+            return
+        chat_member = await bot.get_chat_member(message.chat.id, message.from_user.id)
+        user_role = chat_member.status
+        if user_role in ["creator", "administrator"]:
+            content = get_balances_from_group(user["token"], message.chat.id)
+            await send_balances_xls(content, filename, message)
+    await delete_command(message, message.chat.id)
 
 
 # @dp.message_handler(commands=['ct'])
@@ -551,6 +607,7 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(scoresxlsx, commands='scoresxlsx')
     dp.register_message_handler(start, commands=['start'])
     dp.register_message_handler(balance, commands=['баланс', 'balance'])
+    dp.register_message_handler(balances, commands='balances')
     dp.register_message_handler(ct, commands=['ct'])
     dp.register_message_handler(go, commands=['go'])
     dp.register_message_handler(export, commands=['export'])

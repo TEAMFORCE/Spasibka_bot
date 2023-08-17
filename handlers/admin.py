@@ -4,7 +4,7 @@
 
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
-from API.api_requests import send_like, get_token
+from API.api_requests import send_like, get_token, get_user
 from handlers.client import delete_message_and_command
 
 ID = [5148438149, ]
@@ -59,9 +59,12 @@ async def info(message: types.Message):
     Выводит информацию об отправителе
     """
     if message.from_user.id in ID:
+        user = get_user(telegram_id=message.from_user.id, group_id=message.chat.id)
         await message.reply(f'id пользователя: {message.from_user.id}\n'
                             f'имя пользователя {message.from_user.username}\n'
-                            f'id группы: {message.chat.id}')
+                            f'id группы: {message.chat.id}\n\n'
+                            f'Backend:\n'
+                            f'{user}')
 
 
 def register_handlers_admin(dp: Dispatcher):
