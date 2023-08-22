@@ -429,7 +429,7 @@ async def tags(message: types.Message):
 
     tag_list = 'Вот список основных тэгов:\n'
     for i in all_like_tags(user_token=token):
-        tag_list += f'{i["id"]} - {i["name"]}\n'
+        tag_list += f'{i["id"]} - {i["name"].replace(" ", "_")}\n'
 
     answer = await message.reply(tag_list)
     if message.chat.type != types.ChatType.PRIVATE:
