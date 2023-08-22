@@ -211,7 +211,7 @@ def send_like(user_token: str, **kwargs):
             if i['id'] == int(kwargs.get("tags")):
                 tag_name = i['name']
         return f'Перевод {kwargs.get("amount")} {thx} пользователю {kwargs.get("mention")} ' \
-               f'сформирован с тегом #{tag_name}'
+               f'сформирован с тегом #{tag_name.replace(" ", "_")}'
     elif r.status_code == 201:
         return f'Перевод {kwargs.get("amount")} {thx} пользователю {kwargs.get("mention")}'
     elif r.status_code == 500:
