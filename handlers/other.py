@@ -102,7 +102,7 @@ async def likes(message: types.Message):
                     await message.answer(errors["no_token"])
                     return
                 if pattern_tag:
-                    tag = pattern_tag.group(1).lower()
+                    tag = pattern_tag.group(1).lower().replace("_", " ")
                     all_tags = all_like_tags(user_token=token)
                     for i in all_tags:
                         if i['name'].lower() == tag:
