@@ -20,3 +20,36 @@ tag_id: 8
 reason: Отправлено через telegram
 Response code: 201
 
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: -888649764
+telegram_id: 183417405
+telegram_name: Brukva2
+amount: 1
+tag_id: 7
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: -888649764
+telegram_id: 183417405
+telegram_name: Brukva2
+amount: 1
+tag_id: 7
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: -888649764
+telegram_id: 183417405
+telegram_name: Brukva2
+amount: 1
+tag_id: 8
+reason: Отправлено через telegram
+Response code: 201
+

@@ -1,0 +1,132 @@
+--- *** ---
+New transaction:
+user_token: 01db63fe40a1444b2541d5055006d59a4499e0f3
+group_id: -888649764
+telegram_id: None
+telegram_name: WLeeto
+amount: 5
+tag_id: 8
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: -888649764
+telegram_id: 183417405
+telegram_name: Brukva2
+amount: 5
+tag_id: 8
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: -888649764
+telegram_id: None
+telegram_name: Brukva2
+amount: 5
+tag_id: 8
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: None
+telegram_id: None
+telegram_name: brukva2
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: None
+telegram_id: None
+telegram_name: brukva2
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: None
+telegram_id: None
+telegram_name: brukva2
+amount: 1
+tag_id: 8
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: None
+telegram_id: None
+telegram_name: brukva2
+amount: 1
+tag_id: 8
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: None
+telegram_id: None
+telegram_name: brukva2
+amount: 1
+tag_id: 8
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: None
+telegram_id: None
+telegram_name: brukva2
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: None
+telegram_id: None
+telegram_name: brukva2
+amount: 1
+tag_id: 8
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: ef53b50aae66c8d359681e7b76e54cbaddf3d211
+group_id: None
+telegram_id: None
+telegram_name: brukva2
+amount: 1
+tag_id: 8
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: 01db63fe40a1444b2541d5055006d59a4499e0f3
+group_id: -888649764
+telegram_id: 5148438149
+telegram_name: WLeeto
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+

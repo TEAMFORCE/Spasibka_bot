@@ -1,0 +1,368 @@
+Starting team_force_bot ... 
+Starting team_force_bot ... done
+Attaching to team_force_bot
+[36mteam_force_bot |[0m Updates were skipped successfully.
+[36mteam_force_bot |[0m Cause exception while getting updates.
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 381, in start_polling
+[36mteam_force_bot |[0m     updates = await self.bot.get_updates(
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 110, in get_updates
+[36mteam_force_bot |[0m     result = await self.request(api.Methods.GET_UPDATES, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 128, in check_result
+[36mteam_force_bot |[0m     raise exceptions.TelegramAPIError(description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.TelegramAPIError: Bad Gateway
+[36mteam_force_bot |[0m Cause exception while getting updates.
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 381, in start_polling
+[36mteam_force_bot |[0m     updates = await self.bot.get_updates(
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 110, in get_updates
+[36mteam_force_bot |[0m     result = await self.request(api.Methods.GET_UPDATES, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 119, in check_result
+[36mteam_force_bot |[0m     exceptions.ConflictError.detect(description)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/utils/exceptions.py", line 140, in detect
+[36mteam_force_bot |[0m     raise err(cls.text or description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.TerminatedByOtherGetUpdates: Terminated by other getupdates request; make sure that only one bot instance is running
+[36mteam_force_bot |[0m Cause exception while getting updates.
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 381, in start_polling
+[36mteam_force_bot |[0m     updates = await self.bot.get_updates(
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 110, in get_updates
+[36mteam_force_bot |[0m     result = await self.request(api.Methods.GET_UPDATES, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 119, in check_result
+[36mteam_force_bot |[0m     exceptions.ConflictError.detect(description)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/utils/exceptions.py", line 140, in detect
+[36mteam_force_bot |[0m     raise err(cls.text or description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.TerminatedByOtherGetUpdates: Terminated by other getupdates request; make sure that only one bot instance is running
+[36mteam_force_bot exited with code 137
+[0mStarting team_force_bot ... 
+Starting team_force_bot ... done
+Attaching to team_force_bot
+[36mteam_force_bot |[0m Updates were skipped successfully.
+[36mteam_force_bot |[0m Task exception was never retrieved
+[36mteam_force_bot |[0m future: <Task finished name='Task-3131' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py:407> exception=TypeError("'NoneType' object is not iterable")>
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 415, in _process_polling_updates
+[36mteam_force_bot |[0m     for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 235, in process_updates
+[36mteam_force_bot |[0m     return await asyncio.gather(*tasks)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 256, in process_update
+[36mteam_force_bot |[0m     return await self.message_handlers.notify(update.message)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/app/handlers/client.py", line 258, in go
+[36mteam_force_bot |[0m     reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id)
+[36mteam_force_bot |[0m   File "/app/keyboards/inline_user_organizations.py", line 12, in get_user_organization_keyboard
+[36mteam_force_bot |[0m     for i in organiization_list:
+[36mteam_force_bot |[0m TypeError: 'NoneType' object is not iterable
+[36mteam_force_bot |[0m Cause exception while getting updates.
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 381, in start_polling
+[36mteam_force_bot |[0m     updates = await self.bot.get_updates(
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 110, in get_updates
+[36mteam_force_bot |[0m     result = await self.request(api.Methods.GET_UPDATES, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 119, in check_result
+[36mteam_force_bot |[0m     exceptions.ConflictError.detect(description)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/utils/exceptions.py", line 140, in detect
+[36mteam_force_bot |[0m     raise err(cls.text or description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.TerminatedByOtherGetUpdates: Terminated by other getupdates request; make sure that only one bot instance is running
+[36mteam_force_bot |[0m Cause exception while getting updates.
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 381, in start_polling
+[36mteam_force_bot |[0m     updates = await self.bot.get_updates(
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 110, in get_updates
+[36mteam_force_bot |[0m     result = await self.request(api.Methods.GET_UPDATES, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 119, in check_result
+[36mteam_force_bot |[0m     exceptions.ConflictError.detect(description)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/utils/exceptions.py", line 140, in detect
+[36mteam_force_bot |[0m     raise err(cls.text or description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.TerminatedByOtherGetUpdates: Terminated by other getupdates request; make sure that only one bot instance is running
+[36mteam_force_bot |[0m Task exception was never retrieved
+[36mteam_force_bot |[0m future: <Task finished name='Task-7458' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py:407> exception=BotKicked('Forbidden: bot was kicked from the group chat')>
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 415, in _process_polling_updates
+[36mteam_force_bot |[0m     for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 235, in process_updates
+[36mteam_force_bot |[0m     return await asyncio.gather(*tasks)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 256, in process_update
+[36mteam_force_bot |[0m     return await self.message_handlers.notify(update.message)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/app/handlers/other.py", line 140, in greetings
+[36mteam_force_bot |[0m     await delete_message_bot_answer(answer, message.chat.id)
+[36mteam_force_bot |[0m   File "/app/handlers/client.py", line 37, in delete_message_bot_answer
+[36mteam_force_bot |[0m     await answer.delete()
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/types/message.py", line 3088, in delete
+[36mteam_force_bot |[0m     return await self.bot.delete_message(self.chat.id, self.message_id)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 3274, in delete_message
+[36mteam_force_bot |[0m     return await self.request(api.Methods.DELETE_MESSAGE, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 121, in check_result
+[36mteam_force_bot |[0m     exceptions.Unauthorized.detect(description)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/utils/exceptions.py", line 140, in detect
+[36mteam_force_bot |[0m     raise err(cls.text or description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.BotKicked: Forbidden: bot was kicked from the group chat
+[36mteam_force_bot |[0m Task exception was never retrieved
+[36mteam_force_bot |[0m future: <Task finished name='Task-7881' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py:407> exception=MessageCantBeDeleted("Message can't be deleted for everyone")>
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 415, in _process_polling_updates
+[36mteam_force_bot |[0m     for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 235, in process_updates
+[36mteam_force_bot |[0m     return await asyncio.gather(*tasks)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 256, in process_update
+[36mteam_force_bot |[0m     return await self.message_handlers.notify(update.message)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/app/handlers/client.py", line 132, in start
+[36mteam_force_bot |[0m     await message.delete()
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/types/message.py", line 3088, in delete
+[36mteam_force_bot |[0m     return await self.bot.delete_message(self.chat.id, self.message_id)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 3274, in delete_message
+[36mteam_force_bot |[0m     return await self.request(api.Methods.DELETE_MESSAGE, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 115, in check_result
+[36mteam_force_bot |[0m     exceptions.BadRequest.detect(description)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/utils/exceptions.py", line 140, in detect
+[36mteam_force_bot |[0m     raise err(cls.text or description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.MessageCantBeDeleted: Message can't be deleted for everyone
+[36mteam_force_bot |[0m Task exception was never retrieved
+[36mteam_force_bot |[0m future: <Task finished name='Task-7894' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py:407> exception=MessageCantBeDeleted("Message can't be deleted for everyone")>
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 415, in _process_polling_updates
+[36mteam_force_bot |[0m     for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 235, in process_updates
+[36mteam_force_bot |[0m     return await asyncio.gather(*tasks)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 256, in process_update
+[36mteam_force_bot |[0m     return await self.message_handlers.notify(update.message)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/app/handlers/client.py", line 132, in start
+[36mteam_force_bot |[0m     await message.delete()
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/types/message.py", line 3088, in delete
+[36mteam_force_bot |[0m     return await self.bot.delete_message(self.chat.id, self.message_id)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 3274, in delete_message
+[36mteam_force_bot |[0m     return await self.request(api.Methods.DELETE_MESSAGE, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 115, in check_result
+[36mteam_force_bot |[0m     exceptions.BadRequest.detect(description)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/utils/exceptions.py", line 140, in detect
+[36mteam_force_bot |[0m     raise err(cls.text or description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.MessageCantBeDeleted: Message can't be deleted for everyone
+[36mteam_force_bot |[0m Task exception was never retrieved
+[36mteam_force_bot |[0m future: <Task finished name='Task-7901' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py:407> exception=MessageCantBeDeleted("Message can't be deleted for everyone")>
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 415, in _process_polling_updates
+[36mteam_force_bot |[0m     for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 235, in process_updates
+[36mteam_force_bot |[0m     return await asyncio.gather(*tasks)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 256, in process_update
+[36mteam_force_bot |[0m     return await self.message_handlers.notify(update.message)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/app/handlers/client.py", line 132, in start
+[36mteam_force_bot |[0m     await message.delete()
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/types/message.py", line 3088, in delete
+[36mteam_force_bot |[0m     return await self.bot.delete_message(self.chat.id, self.message_id)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 3274, in delete_message
+[36mteam_force_bot |[0m     return await self.request(api.Methods.DELETE_MESSAGE, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 115, in check_result
+[36mteam_force_bot |[0m     exceptions.BadRequest.detect(description)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/utils/exceptions.py", line 140, in detect
+[36mteam_force_bot |[0m     raise err(cls.text or description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.MessageCantBeDeleted: Message can't be deleted for everyone
+[36mteam_force_bot exited with code 137
+[0mStarting team_force_bot ... 
+Starting team_force_bot ... done
+Attaching to team_force_bot
+[36mteam_force_bot |[0m [32mINFO:aiogram:Bot: new_test_bot [@new_test_for_tests_bot][0m
+[36mteam_force_bot |[0m [33mWARNING:aiogram:Updates were skipped successfully.[0m
+[36mteam_force_bot |[0m [32mINFO:aiogram.dispatcher.dispatcher:Start polling.[0m
+[36mteam_force_bot |[0m [31mERROR:root:tg-organization-settings/ returns 404 on request:
+[36mteam_force_bot |[0m headers: {'accept': 'application/json', 'Authorization': 'Token 2b07bac53773b9c74059aa0a533652219f27a879'}, body: {'group_id': -980990730}
+[36mteam_force_bot |[0m Error info: {"status":"Не найдена организация с таким group_id"}[0m
+[36mteam_force_bot |[0m [31mERROR:aiogram.dispatcher.dispatcher:Cause exception while getting updates.[0m
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 381, in start_polling
+[36mteam_force_bot |[0m     updates = await self.bot.get_updates(
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 110, in get_updates
+[36mteam_force_bot |[0m     result = await self.request(api.Methods.GET_UPDATES, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 128, in check_result
+[36mteam_force_bot |[0m     raise exceptions.TelegramAPIError(description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.TelegramAPIError: Bad Gateway
+[36mteam_force_bot |[0m [31mERROR:root:tg-user-organizations/ returns 404 on request:
+[36mteam_force_bot |[0m headers: {'accept': 'application/json', 'Authorization': 'Token 2b07bac53773b9c74059aa0a533652219f27a879'} body: {'telegram_id': 6126799078}
+[36mteam_force_bot |[0m Error info: {"status":"Организации не найдены"}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 3, 'verbose': 'user 546 has been registered'}[0m
+[36mteam_force_bot |[0m [31mERROR:root:user/balance/ returns 404 on request:
+[36mteam_force_bot |[0m headers: {'accept': 'application/json', 'Authorization': 'Token 2b07bac53773b9c74059aa0a533652219f27a879'}
+[36mteam_force_bot |[0m Error info: {"status":"Организации не найдены"}[0m
+[36mteam_force_bot |[0m [31mERROR:asyncio:Task exception was never retrieved
+[36mteam_force_bot |[0m future: <Task finished name='Task-35422' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py:407> exception=TypeError("'NoneType' object is not iterable")>[0m
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 415, in _process_polling_updates
+[36mteam_force_bot |[0m     for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 235, in process_updates
+[36mteam_force_bot |[0m     return await asyncio.gather(*tasks)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 256, in process_update
+[36mteam_force_bot |[0m     return await self.message_handlers.notify(update.message)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/handler.py", line 117, in notify
+[36mteam_force_bot |[0m     response = await handler_obj.handler(*args, **partial_data)
+[36mteam_force_bot |[0m   File "/app/handlers/client.py", line 320, in go
+[36mteam_force_bot |[0m     reply_markup=get_user_organization_keyboard(telegram_id=message.from_user.id,
+[36mteam_force_bot |[0m   File "/app/keyboards/inline_user_organizations.py", line 15, in get_user_organization_keyboard
+[36mteam_force_bot |[0m     for i in organiization_list:
+[36mteam_force_bot |[0m TypeError: 'NoneType' object is not iterable
+[36mteam_force_bot |[0m [31mERROR:root:tg-user-organizations/ returns 404 on request:
+[36mteam_force_bot |[0m headers: {'accept': 'application/json', 'Authorization': 'Token 2b07bac53773b9c74059aa0a533652219f27a879'} body: {'telegram_id': 6126799078}
+[36mteam_force_bot |[0m Error info: {"status":"Организации не найдены"}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 1, 'verbose': 'Waiting for verification', 'verification_code': '9786'}[0m
+[36mteam_force_bot |[0m [31mERROR:root:tg-user-organizations/ returns 404 on request:
+[36mteam_force_bot |[0m headers: {'accept': 'application/json', 'Authorization': 'Token 2b07bac53773b9c74059aa0a533652219f27a879'} body: {'telegram_id': 6126799078}
+[36mteam_force_bot |[0m Error info: {"status":"Организации не найдены"}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 1, 'verbose': 'Waiting for verification', 'verification_code': '8907'}[0m
+[36mteam_force_bot |[0m [31mERROR:root:tg-user-organizations/ returns 404 on request:
+[36mteam_force_bot |[0m headers: {'accept': 'application/json', 'Authorization': 'Token 2b07bac53773b9c74059aa0a533652219f27a879'} body: {'telegram_id': 6126799078}
+[36mteam_force_bot |[0m Error info: {"status":"Организации не найдены"}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 1, 'verbose': 'Waiting for verification', 'verification_code': '8907'}[0m
+[36mteam_force_bot |[0m [31mERROR:root:tg-user-organizations/ returns 404 on request:
+[36mteam_force_bot |[0m headers: {'accept': 'application/json', 'Authorization': 'Token 2b07bac53773b9c74059aa0a533652219f27a879'} body: {'telegram_id': 6126799078}
+[36mteam_force_bot |[0m Error info: {"status":"Организации не найдены"}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 1, 'verbose': 'Waiting for verification', 'verification_code': '8967'}[0m
+[36mteam_force_bot |[0m [31mERROR:root:tg-user-organizations/ returns 404 on request:
+[36mteam_force_bot |[0m headers: {'accept': 'application/json', 'Authorization': 'Token 2b07bac53773b9c74059aa0a533652219f27a879'} body: {'telegram_id': 6126799078}
+[36mteam_force_bot |[0m Error info: {"status":"Организации не найдены"}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 1, 'verbose': 'Waiting for verification', 'verification_code': '9690'}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 2, 'verbose': 'user and group are not exists'}[0m
+[36mteam_force_bot |[0m [31mERROR:root:tg-user-organizations/ returns 404 on request:
+[36mteam_force_bot |[0m headers: {'accept': 'application/json', 'Authorization': 'Token 2b07bac53773b9c74059aa0a533652219f27a879'} body: {'telegram_id': 6126799078}
+[36mteam_force_bot |[0m Error info: {"status":"Организации не найдены"}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 1, 'verbose': 'Waiting for verification', 'verification_code': '3890'}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 2, 'verbose': 'user and group are not exists'}[0m
+[36mteam_force_bot |[0m [31mERROR:aiogram.dispatcher.dispatcher:Cause exception while getting updates.[0m
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 381, in start_polling
+[36mteam_force_bot |[0m     updates = await self.bot.get_updates(
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 110, in get_updates
+[36mteam_force_bot |[0m     result = await self.request(api.Methods.GET_UPDATES, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 128, in check_result
+[36mteam_force_bot |[0m     raise exceptions.TelegramAPIError(description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.TelegramAPIError: Bad Gateway
+[36mteam_force_bot |[0m [31mERROR:aiogram.dispatcher.dispatcher:Cause exception while getting updates.[0m
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 139, in make_request
+[36mteam_force_bot |[0m     async with session.post(url, data=req, **kwargs) as response:
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiohttp/client.py", line 1141, in __aenter__
+[36mteam_force_bot |[0m     self._resp = await self._coro
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiohttp/client.py", line 560, in _request
+[36mteam_force_bot |[0m     await resp.start(conn)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 899, in start
+[36mteam_force_bot |[0m     message, payload = await protocol.read()  # type: ignore[union-attr]
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiohttp/streams.py", line 616, in read
+[36mteam_force_bot |[0m     await self._waiter
+[36mteam_force_bot |[0m aiohttp.client_exceptions.ServerDisconnectedError: Server disconnected
+[36mteam_force_bot |[0m 
+[36mteam_force_bot |[0m During handling of the above exception, another exception occurred:
+[36mteam_force_bot |[0m 
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 381, in start_polling
+[36mteam_force_bot |[0m     updates = await self.bot.get_updates(
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 110, in get_updates
+[36mteam_force_bot |[0m     result = await self.request(api.Methods.GET_UPDATES, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 142, in make_request
+[36mteam_force_bot |[0m     raise exceptions.NetworkError(f"aiohttp client throws an error: {e.__class__.__name__}: {e}")
+[36mteam_force_bot |[0m aiogram.utils.exceptions.NetworkError: Aiohttp client throws an error: ServerDisconnectedError: Server disconnected
+[36mteam_force_bot |[0m [31mERROR:aiogram.dispatcher.dispatcher:Cause exception while getting updates.[0m
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 381, in start_polling
+[36mteam_force_bot |[0m     updates = await self.bot.get_updates(
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 110, in get_updates
+[36mteam_force_bot |[0m     result = await self.request(api.Methods.GET_UPDATES, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 128, in check_result
+[36mteam_force_bot |[0m     raise exceptions.TelegramAPIError(description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.TelegramAPIError: Bad Gateway
+[36mteam_force_bot |[0m [31mERROR:aiogram.dispatcher.dispatcher:Cause exception while getting updates.[0m
+[36mteam_force_bot |[0m Traceback (most recent call last):
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/dispatcher/dispatcher.py", line 381, in start_polling
+[36mteam_force_bot |[0m     updates = await self.bot.get_updates(
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/bot.py", line 110, in get_updates
+[36mteam_force_bot |[0m     result = await self.request(api.Methods.GET_UPDATES, payload)
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/base.py", line 236, in request
+[36mteam_force_bot |[0m     return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 140, in make_request
+[36mteam_force_bot |[0m     return check_result(method, response.content_type, response.status, await response.text())
+[36mteam_force_bot |[0m   File "/usr/local/lib/python3.10/site-packages/aiogram/bot/api.py", line 128, in check_result
+[36mteam_force_bot |[0m     raise exceptions.TelegramAPIError(description)
+[36mteam_force_bot |[0m aiogram.utils.exceptions.TelegramAPIError: Bad Gateway
+[36mteam_force_bot |[0m [32mINFO:root:Log added[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 4, 'verbose': 'user and group are exists'}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:/balance from user: {"id": 436315762, "is_bot": false, "first_name": "Andrey", "username": "thisisflight", "language_code": "ru"}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 2, 'verbose': 'user and group are not exists'}[0m
+[36mteam_force_bot |[0m [32mINFO:root:{"user": {"id": 5148438149, "is_bot": false, "first_name": "Oleg", "last_name": "Mar4", "username": "WLeeto", "language_code": "ru"}, "status": "creator", "is_anonymous": false, "can_manage_chat": true, "can_post_messages": true, "can_edit_messages": true, "can_delete_messages": true, "can_manage_voice_chats": true, "can_manage_video_chats": true, "can_restrict_members": true, "can_promote_members": true, "can_change_info": true, "can_invite_users": true, "can_pin_messages": true, "can_manage_topics": true}[0m
+[36mteam_force_bot |[0m [31mERROR:root:tg-organization-settings/ returns 404 on request:
+[36mteam_force_bot |[0m headers: {'accept': 'application/json', 'Authorization': 'Token 2b07bac53773b9c74059aa0a533652219f27a879'}, body: {'group_id': -999055616}
+[36mteam_force_bot |[0m Error info: {"status":"Не найдена организация с таким group_id"}[0m
+[36mteam_force_bot |[0m [33mWARNING:root:{'status': 2, 'verbose': 'user and group are not exists'}[0m
+[36mteam_force_bot |[0m [31mERROR:root:tg-organization-settings/ returns 404 on request:
+[36mteam_force_bot |[0m headers: {'accept': 'application/json', 'Authorization': 'Token 2b07bac53773b9c74059aa0a533652219f27a879'}, body: {'group_id': -999055616}
+[36mteam_force_bot |[0m Error info: {"status":"Не найдена организация с таким group_id"}[0m
+[36mteam_force_bot |[0m [32mINFO:root:{"user": {"id": 5148438149, "is_bot": false, "first_name": "Oleg", "last_name": "Mar4", "username": "WLeeto", "language_code": "ru"}, "status": "creator", "is_anonymous": false, "can_manage_chat": true, "can_post_messages": true, "can_edit_messages": true, "can_delete_messages": true, "can_manage_voice_chats": true, "can_manage_video_chats": true, "can_restrict_members": true, "can_promote_members": true, "can_change_info": true, "can_invite_users": true, "can_pin_messages": true, "can_manage_topics": true}[0m
+[36mteam_force_bot exited with code 137
+[0m
