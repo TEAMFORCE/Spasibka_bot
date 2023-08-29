@@ -117,6 +117,8 @@ async def likes(message: types.Message):
             if message.chat.type != types.ChatType.PRIVATE:
                 await delete_message_bot_answer(answer, message .chat.id)
                 return
+            else:
+                return
 
         if not recipient_telegram_id and message.chat.type != types.ChatType.PRIVATE and not pattern_username \
                 and amount:
