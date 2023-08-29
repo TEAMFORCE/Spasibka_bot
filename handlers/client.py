@@ -104,10 +104,14 @@ async def delete_message_and_command(message: list[types.Message], group_id: str
                 await i.delete()
 
 
+@dp.message_handler(commands='logging')
+async def logging(message: types.Message):
+    await message.answer('test')
+
+
 @dp.message_handler(commands="log")
 async def ready(message: types.Message):
     await is_bot_admin(message)
-    temp = message.from_user
     logger.warning(f"User info: {message.from_user}")
     logger.warning(f"Group info: {message.chat}")
     try:
@@ -118,6 +122,7 @@ async def ready(message: types.Message):
 
 # @dp.message_handler(commands="start")
 async def start(message: types.Message):
+    logger.warning(message)
     await is_bot_admin(message)
     tg_name = message.from_user.username.replace("@", "") if message.from_user.username else None
     tg_id = message.from_user.id
