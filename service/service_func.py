@@ -1,10 +1,7 @@
-import asyncio
-
 from aiogram import types
-from aiogram.utils.exceptions import MessageCantBeDeleted
 
 from create_bot import bot
-from dict_cloud.dicts import errors, sleep_timer
+from dict_cloud.dicts import errors
 
 
 async def is_bot_admin(message: types.Message) -> None:

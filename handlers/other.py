@@ -7,6 +7,8 @@ from dict_cloud.dicts import messages, errors
 from handlers.client import delete_message_bot_answer
 import re
 
+from service.misc import find_tag_id
+
 
 @dp.message_handler(content_types=[types.ContentType.MIGRATE_TO_CHAT_ID, types.ContentType.MIGRATE_FROM_CHAT_ID])
 async def handle_migration(message: types.Message):
@@ -72,22 +74,12 @@ async def likes(message: types.Message):
                     recipient_name = message.reply_to_message.from_user.first_name
                     recipient_last_name = message.reply_to_message.from_user.last_name
                     if pattern_tag:
-                        tag = pattern_tag.group(1).lower().replace("_", " ")
-                        all_tags = all_like_tags(user_token=token)
-                        for i in all_tags:
-                            if i['name'].lower() == tag:
-                                tag_id = str(i['id'])
-                                break
-
+                        tag_id = find_tag_id(pattern_tag, token)
                 elif pattern_username:
                     recipient_telegram_name = pattern_username.group(1)
                     if pattern_tag:
-                        tag = pattern_tag.group(1).lower().replace("_", " ")
-                        all_tags = all_like_tags(user_token=token)
-                        for i in all_tags:
-                            if i['name'].lower() == tag:
-                                tag_id = str(i['id'])
-                                break
+                        tag_id = find_tag_id(pattern_tag, token)
+
         else:
             if pattern_username:
                 recipient_telegram_name = pattern_username.group(1)
@@ -102,12 +94,7 @@ async def likes(message: types.Message):
                     await message.answer(errors["no_token"])
                     return
                 if pattern_tag:
-                    tag = pattern_tag.group(1).lower().replace("_", " ")
-                    all_tags = all_like_tags(user_token=token)
-                    for i in all_tags:
-                        if i['name'].lower() == tag:
-                            tag_id = str(i['id'])
-                            break
+                    tag_id = find_tag_id(pattern_tag, token)
             else:
                 return
 
@@ -115,7 +102,7 @@ async def likes(message: types.Message):
             answer = await message.answer(f"Тег {tag} не найден, спасибка не отправлена\n"
                                           f"Можно использовать только теги из списка /tags")
             if message.chat.type != types.ChatType.PRIVATE:
-                await delete_message_bot_answer(answer, message .chat.id)
+                await delete_message_bot_answer(answer, message.chat.id)
                 return
             else:
                 return
