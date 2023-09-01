@@ -50,10 +50,6 @@ async def likes(message: types.Message):
         group_id = None
         recipient_name = None
         recipient_last_name = None
-        first_name = message.from_user.first_name
-        last_name = message.from_user.last_name
-        sender_telegram_id = message.from_user.id
-        sender_telegram_name = message.from_user.username
 
         if len(pattern_reason.group(2)) > 0:
             reason = pattern_reason.group(2).capitalize()
@@ -63,8 +59,9 @@ async def likes(message: types.Message):
         if message.from_user.id != message.chat.id:
             if amount:
                 group_id = str(message.chat.id)
-                token = get_token(telegram_id=sender_telegram_id, group_id=group_id, telegram_name=sender_telegram_name,
-                                  first_name=first_name, last_name=last_name)
+                token = get_token(telegram_id=message.from_user.id, group_id=group_id,
+                                  telegram_name=message.from_user.username, first_name=message.from_user.first_name,
+                                  last_name=message.from_user.last_name)
                 if not token:
                     await message.answer(errors["no_token"])
                     return
@@ -83,13 +80,13 @@ async def likes(message: types.Message):
         else:
             if pattern_username:
                 recipient_telegram_name = pattern_username.group(1)
-                organization_id = get_active_organization(sender_telegram_id)
+                organization_id = get_active_organization(message.from_user.id)
                 group_id = None
-                token = get_token_by_organization_id(telegram_id=sender_telegram_id,
-                                                     telegram_name=sender_telegram_name,
+                token = get_token_by_organization_id(telegram_id=message.from_user.id,
+                                                     telegram_name=message.from_user.username,
                                                      organization_id=organization_id,
-                                                     first_name=first_name,
-                                                     last_name=last_name)
+                                                     first_name=message.from_user.first_name,
+                                                     last_name=message.from_user.last_name)
                 if not token:
                     await message.answer(errors["no_token"])
                     return
