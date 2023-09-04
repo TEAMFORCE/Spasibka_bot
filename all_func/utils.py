@@ -1,13 +1,17 @@
 import asyncio
 import os
+import re
 
 from typing import Optional
 
 from aiogram import types
 from aiogram.utils.exceptions import CantInitiateConversation
 
-from create_bot import bot
+from API.api_requests import get_token, get_active_organization, get_token_by_organization_id, send_like
+from create_bot import bot, logger
 from dict_cloud.dicts import errors, sleep_timer
+from all_func.delete_messages_func import delete_message_bot_answer
+from service.misc import find_tag_id
 
 
 async def set_default_commands(dp):
@@ -96,3 +100,138 @@ async def send_balances_xls(content: Optional[bytes], filename: str, message: ty
         error_message = await message.answer(errors["no_permitions"])
         await asyncio.sleep(sleep_timer)
         await error_message.delete()
+
+
+async def logger_send_like(msg: types.Message) -> None:
+    """
+    
+    """
+    logger.info(f'User {msg.from_user.id}:{msg.from_user.username} sending likes')
+
+
+async def get_reason(pattern_reason: re) -> str:
+    """
+    Get str reason from user message.
+    """
+    if len(pattern_reason.group(2)) > 0:
+        return pattern_reason.group(2).capitalize()
+    else:
+        return "Отправлено через telegram"
+
+
+async def send_like_in_group(amount: int, message: types.Message, pattern_tag: re, pattern_username: re) -> dict:
+    """
+    Create a dict with values to send api req. For public chat only.
+    """
+    result = {}
+    if amount:
+        group_id = str(message.chat.id)
+        result.setdefault('group_id', group_id)
+        token = get_token(telegram_id=message.from_user.id, group_id=group_id,
+                          telegram_name=message.from_user.username, first_name=message.from_user.first_name,
+                          last_name=message.from_user.last_name)
+        result.setdefault('token', token)
+        if not token:
+            await message.answer(errors["no_token"])
+            return
+        if message.reply_to_message:
+            recipient_telegram_id = str(message.reply_to_message.from_user.id)
+            result.setdefault('recipient_telegram_id', recipient_telegram_id)
+
+            recipient_telegram_name = message.reply_to_message.from_user.username
+            result.setdefault('recipient_telegram_name', recipient_telegram_name)
+
+            recipient_name = message.reply_to_message.from_user.first_name
+            result.setdefault('recipient_name', recipient_name)
+
+            recipient_last_name = message.reply_to_message.from_user.last_name
+            result.setdefault('recipient_last_name', recipient_last_name)
+
+            if pattern_tag:
+                tag_id = find_tag_id(pattern_tag, token)
+                result.setdefault('tag_id', tag_id)
+
+        elif pattern_username:
+            recipient_telegram_name = pattern_username.group(1)
+            result.setdefault('recipient_telegram_name', recipient_telegram_name)
+            if pattern_tag:
+                tag_id = find_tag_id(pattern_tag, token)
+                result.setdefault('tag_id', tag_id)
+
+        return result
+
+
+async def send_like_in_private_msg(pattern_username: re, message: types.Message, pattern_tag: re) -> dict:
+    """
+    Create a dict with values to send api req. For private chat only.
+    """
+    result = {}
+    if pattern_username:
+        recipient_telegram_name = pattern_username.group(1)
+        result.setdefault('recipient_telegram_name', recipient_telegram_name)
+        organization_id = get_active_organization(message.from_user.id)
+        token = get_token_by_organization_id(telegram_id=message.from_user.id,
+                                             telegram_name=message.from_user.username,
+                                             organization_id=organization_id,
+                                             first_name=message.from_user.first_name,
+                                             last_name=message.from_user.last_name)
+        result.setdefault('token', token)
+        if not token:
+            await message.answer(errors["no_token"])
+            return
+        if pattern_tag:
+            tag_id = find_tag_id(pattern_tag, token)
+            result.setdefault('tag_id', tag_id)
+    else:
+        return
+    return result
+
+
+async def check_tag(send_like_dict: dict, pattern_tag: re, message: types.Message) -> bool:
+    """
+    Check is tag has id, so is it possible to use this tag.
+    """
+    if not send_like_dict.get('tag_id') and pattern_tag:
+        answer = await message.answer(f"Тег {pattern_tag.group(1)} не найден, спасибка не отправлена\n"
+                                      f"Можно использовать только теги из списка /tags")
+        if message.chat.type != types.ChatType.PRIVATE:
+            await delete_message_bot_answer(answer, message.chat.id)
+            return False
+    return True
+
+
+async def check_recipient_id(send_like_dict: dict, pattern_username: re, amount: int, message: types.Message) -> bool:
+    """
+    Check if bot can send api req to send-coins/ endpoint.
+    """
+    if not send_like_dict.get('recipient_telegram_id')\
+            and not pattern_username \
+            and amount:
+        await message.answer("Я не смог найти id получателя. "
+                             "Возможно вы ответили на сообщение которое было в чате до моего добавления.")
+        return False
+    return True
+
+
+async def send_like_to_user(message: types.Message, send_like_dict: dict, amount: int, reason: str):
+    """
+    Call an api endpoint to send like to user.
+    """
+    try:
+        mention = message.reply_to_message.from_user.get_mention(as_html=True)
+    except AttributeError:
+        mention = send_like_dict.get('recipient_telegram_name')
+    result = send_like(user_token=send_like_dict.get('token'),
+                       telegram_id=send_like_dict.get('recipient_telegram_id'),
+                       telegram_name=send_like_dict.get('recipient_telegram_name'),
+                       amount=amount,
+                       tags=send_like_dict.get('tag_id'),
+                       reason=reason,
+                       group_id=send_like_dict.get('group_id'),
+                       recipient_name=send_like_dict.get('recipient_name'),
+                       recipient_last_name=send_like_dict.get('recipient_last_name'),
+                       mention=mention)
+    if result:
+        answer = await message.reply(f"{result}", parse_mode=types.ParseMode.HTML)
+        if message.chat.type != types.ChatType.PRIVATE:
+            await delete_message_bot_answer(answer, message.chat.id)
