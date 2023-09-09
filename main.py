@@ -20,9 +20,10 @@ async def on_shutdown(_):
     print('Бот отключен')
 
 
-from handlers import client, admin, other
+from handlers import client, admin, other, withdraw
 
 admin.register_handlers_admin(dp)
+withdraw.register_handlers_withdraw(dp)
 client.register_handlers_client(dp)
 other.register_handlers_other(dp)
 

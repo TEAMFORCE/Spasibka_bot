@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 import os
 
-from create_bot import logger
+from create_logger import logger
 
 
 async def create_transaction_log(**kwargs):

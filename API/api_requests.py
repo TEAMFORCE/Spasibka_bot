@@ -1,12 +1,12 @@
 import asyncio
 
 import requests
-import sys
 
+from API.utils import logger_api_message
 from censored import token_drf, drf_url
 from all_func.log_func import create_transaction_log
 
-from create_bot import logger
+from create_logger import logger
 from service.service_func import get_body_of_get_balance
 
 
@@ -582,3 +582,21 @@ def get_balances_from_group(user_token: str, group_tg_id: int = None):
                      f"headers: {headers}\n"
                      f"Error info: {r.text}")
         return None
+
+
+class UserRequests:
+    def __init__(self):
+        self.url = drf_url
+
+    def withdraw_amount_check(self, token: str, amount: int) -> dict:
+        url = f'{self.url}api/withdraw/request/check/{amount}/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r)
+            return
