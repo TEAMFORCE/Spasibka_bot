@@ -600,3 +600,51 @@ class UserRequests:
         else:
             logger_api_message('error', url, r.request.method, r.status_code, r)
             return
+
+    def get_organization_admin_list(self, token: str, organization_id: int = None, group_id: int = None) -> list:
+        """
+        Get organization's admin tg list by organization id or tg group id.
+        """
+        url = f'{self.url}api/withdraw/request/organization_admins/?organization_id={organization_id}'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            return r.json()['details']['list_of_admins']
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r)
+            return
+
+    def get_organization_id_by_group_id(self, token: str, group_id: int) -> int:
+        """
+        Get organization id by group tg id.
+        """
+        url = f'{self.url}api/withdraw/request/organization_admins/?group_id={group_id}'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            return r.json()['details']['organization_id']
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r)
+            return
+
+    def create_withdraw_record(self, token: str, amount: int):
+        """
+        Create withdraw request record.
+        """
+        url = f'{self.url}api/withdraw/withdraw_request/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        r = requests.post(url, headers=headers)
+        if r.status_code == 201:
+            return r.json()
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r)
+            return
