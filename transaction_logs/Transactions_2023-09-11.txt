@@ -1,0 +1,11 @@
+--- *** ---
+New transaction:
+user_token: 872fdc9c3ad9f9ba13aed45384711f847ccd0a62
+group_id: -1001957480426
+telegram_id: 6126799078
+telegram_name: WLeeto_test
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+

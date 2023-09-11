@@ -598,7 +598,7 @@ class UserRequests:
         if r.status_code == 200:
             return r.json()
         else:
-            logger_api_message('error', url, r.request.method, r.status_code, r)
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers)
             return
 
     def get_organization_admin_list(self, token: str, organization_id: int = None, group_id: int = None) -> list:
@@ -614,7 +614,7 @@ class UserRequests:
         if r.status_code == 200:
             return r.json()['details']['list_of_admins']
         else:
-            logger_api_message('error', url, r.request.method, r.status_code, r)
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers)
             return
 
     def get_organization_id_by_group_id(self, token: str, group_id: int) -> int:
@@ -630,21 +630,62 @@ class UserRequests:
         if r.status_code == 200:
             return r.json()['details']['organization_id']
         else:
-            logger_api_message('error', url, r.request.method, r.status_code, r)
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers)
             return
 
     def create_withdraw_record(self, token: str, amount: int):
         """
         Create withdraw request record.
         """
-        url = f'{self.url}api/withdraw/withdraw_request/'
+        url = f'{self.url}api/withdraw/withdraw_request/create_from_bot/'
         headers = {
             "accept": "application/json",
             "Authorization": f"Token {token}",
         }
-        r = requests.post(url, headers=headers)
-        if r.status_code == 201:
+        body = {
+            'amount': amount
+        }
+        r = requests.post(url, headers=headers, json=body)
+        if r.status_code == 200:
             return r.json()
         else:
-            logger_api_message('error', url, r.request.method, r.status_code, r)
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
+            return
+
+    def confirm_withdraw(self, token: str, withdraw_id: int):
+        """
+        Confirm withdraw request.
+        """
+        url = f'{self.url}api/withdraw/confirm/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        body = {
+            'withdraw_request_id': withdraw_id,
+        }
+        r = requests.post(url, headers=headers, json=body)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
+            return
+
+    def decline_withdraw(self, token: str, withdraw_id: int):
+        """
+        Decline withdraw request.
+        """
+        url = f'{self.url}api/withdraw/decline/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        body = {
+            'withdraw_request_id': withdraw_id
+        }
+        r = requests.post(url, headers=headers, json=body)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
             return

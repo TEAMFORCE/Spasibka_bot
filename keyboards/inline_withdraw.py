@@ -7,11 +7,12 @@ def get_withdraw_info_keyboard(recipient_user_id: int, amount: int, callback_sta
     Yes/No keyboard for confirming currency withdraw.
     """
     returned_markup = InlineKeyboardMarkup(row_width=2)
-    cbd = f'{callback_start_letter} y {recipient_user_id} {amount} {request_id}'
+    cbd_y = f'{callback_start_letter} y {recipient_user_id} {amount} {request_id}'
     button_yes = InlineKeyboardButton(text='Yes',
-                                      callback_data=cbd
+                                      callback_data=cbd_y
                                       )
+    cbd_n = f'{callback_start_letter} n {recipient_user_id} {amount} {request_id}'
     button_no = InlineKeyboardButton(text='No',
-                                     callback_data=f'{callback_start_letter} n')
+                                     callback_data=cbd_n)
     returned_markup.add(button_yes, button_no)
     return returned_markup
