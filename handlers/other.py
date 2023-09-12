@@ -2,7 +2,8 @@ from aiogram import types, Dispatcher
 
 from all_func.utils import get_reason, send_like_in_group, send_like_in_private_msg, check_tag, check_recipient_id, \
     send_like_to_user
-from create_bot import dp, bot, logger
+from create_bot import dp, bot
+from create_logger import logger
 from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id, all_like_tags, \
     set_active_organization, get_active_organization, change_group_id
 from dict_cloud.dicts import messages, errors
@@ -12,7 +13,7 @@ import re
 from service.misc import find_tag_id
 
 
-@dp.message_handler(content_types=[types.ContentType.MIGRATE_TO_CHAT_ID, types.ContentType.MIGRATE_FROM_CHAT_ID])
+# @dp.message_handler(content_types=[types.ContentType.MIGRATE_TO_CHAT_ID, types.ContentType.MIGRATE_FROM_CHAT_ID])
 async def handle_migration(message: types.Message):
     if message.migrate_from_chat_id:
         old_id = message.migrate_from_chat_id
@@ -103,3 +104,6 @@ def register_handlers_other(dp: Dispatcher):
     dp.register_callback_query_handler(cancel_like, lambda c: c.data.startswith('delete '))
     dp.register_callback_query_handler(change_active_organization, lambda c: c.data.startswith('org '))
     dp.register_message_handler(greetings, content_types=[types.ContentType.NEW_CHAT_MEMBERS])
+    dp.register_message_handler(handle_migration, content_types=[types.ContentType.MIGRATE_TO_CHAT_ID,
+                                                                 types.ContentType.MIGRATE_FROM_CHAT_ID
+                                                                 ])

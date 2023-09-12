@@ -1,27 +1,13 @@
-import logging
-import colorlog
-
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher
 
+from API.api_requests import UserRequests
 from censored import token_tg
 
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
+storage = MemoryStorage()
 bot = Bot(token=token_tg)
-dp = Dispatcher(bot)
+dp = Dispatcher(bot, storage=storage)
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-formatter = colorlog.ColoredFormatter(
-    '%(log_color)s%(levelname)s:%(name)s:%(message)s',
-    log_colors={
-        'DEBUG': 'cyan',
-        'INFO': 'green',
-        'WARNING': 'yellow',
-        'ERROR': 'red',
-        'CRITICAL': 'red,bg_white'
-    }
-)
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
+user_req = UserRequests()

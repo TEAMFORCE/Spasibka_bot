@@ -3,7 +3,7 @@ import sys
 
 from all_func.delete_messages_func import delete_message_and_command, delete_command, delete_message_bot_answer
 from all_func.utils import create_scores_message, create_rating_message, send_balances_xls
-from service.service_func import is_bot_admin
+from service.misc import is_bot_admin
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))  # todo наверняка импорт можно сделать проще
 from keyboards.inline_not_complited_transactions import get_not_complited_transactions_kb
@@ -11,7 +11,8 @@ from keyboards.inline_user_organizations import get_user_organization_keyboard
 from keyboards.inline_webapp_test import start_web_app
 
 from aiogram import types, Dispatcher
-from create_bot import dp, bot, logger
+from create_bot import dp, bot
+from create_logger import logger
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
     all_like_tags, get_active_organization, tg_handle_start, get_ratings, get_rating_xls, get_user, \
@@ -107,7 +108,7 @@ async def help_message(message: types.Message):
 
 
 # @dp.message_handler(commands=['test'])
-async def test(message: types.Message):
+async def test_message(message: types.Message):
     await is_bot_admin(message)
     if message.chat.id == message.from_user.id:
         await message.delete()
@@ -535,7 +536,7 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(go, commands=['go'])
     dp.register_message_handler(export, commands=['export'])
     dp.register_message_handler(webwiev, commands=['webwiev'])
-    dp.register_message_handler(test, commands=['test'])
+    dp.register_message_handler(test_message, commands=['test'])
     dp.register_message_handler(help_message, commands=['help'])
     dp.register_message_handler(tags, commands=['tags'])
     dp.register_message_handler(rating, commands=['rating'])

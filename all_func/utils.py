@@ -8,7 +8,7 @@ from aiogram import types
 from aiogram.utils.exceptions import CantInitiateConversation
 
 from API.api_requests import get_token, get_active_organization, get_token_by_organization_id, send_like
-from create_bot import bot, logger
+from create_bot import bot
 from dict_cloud.dicts import errors, sleep_timer
 from all_func.delete_messages_func import delete_message_bot_answer
 from service.misc import find_tag_id
@@ -100,13 +100,6 @@ async def send_balances_xls(content: Optional[bytes], filename: str, message: ty
         error_message = await message.answer(errors["no_permitions"])
         await asyncio.sleep(sleep_timer)
         await error_message.delete()
-
-
-async def logger_send_like(msg: types.Message) -> None:
-    """
-    
-    """
-    logger.info(f'User {msg.from_user.id}:{msg.from_user.username} sending likes')
 
 
 async def get_reason(pattern_reason: re) -> str:
