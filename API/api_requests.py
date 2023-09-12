@@ -621,13 +621,14 @@ class UserRequests:
         """
         Get organization id by group tg id.
         """
-        url = f'{self.url}api/withdraw/request/organization_admins/?group_id={group_id}'
+        url = f'{self.url}api/withdraw/request/organization/?group_id={group_id}'
         headers = {
             "accept": "application/json",
             "Authorization": f"Token {token}",
         }
         r = requests.get(url, headers=headers)
         if r.status_code == 200:
+            logger.warning(r.json())
             return r.json()['details']['organization_id']
         else:
             logger_api_message('error', url, r.request.method, r.status_code, r, headers)
