@@ -18,7 +18,7 @@ class FSMWithdraw(StatesGroup):
 
 
 @dp.message_handler(commands='withdraw')
-async def withdraw(message: types.Message, state: FSMContext):
+async def withdraw(message: types.Message):
     amount = get_withdraw_amount(message)
     if not amount:
         await message.answer(errors['wrong_withdraw_amount'])
@@ -30,7 +30,7 @@ async def withdraw(message: types.Message, state: FSMContext):
     if not organization_id:
         await message.answer(errors['no_organizations'])
         return
-    await set_state_and_send_approve_keyboard(message, FSMWithdraw, token, organization_id, amount)
+    await set_state_and_send_approve_keyboard(message, FSMWithdraw, token, organization_id, amount, user_id)
 
 
 @dp.callback_query_handler(lambda c: c.data.startswith('withdraw_proceed'), state=FSMWithdraw.step_1)
@@ -40,6 +40,7 @@ async def withdraw_callback(callback_query: types.CallbackQuery, state: FSMConte
         recipient_token = data['token']
         organization_id = data['organization_id']
         amount = data['amount']
+        user_id = data['user_id']
     if callback_query.data.split(' ')[1] == 'y':
         account_check = user_req.withdraw_amount_check(recipient_token, amount)
         if account_check:
@@ -48,7 +49,7 @@ async def withdraw_callback(callback_query: types.CallbackQuery, state: FSMConte
                                        .format(available=account_check.get('errors').get('on_account')))
                 await state.finish()
                 return
-        await withdraw_callback_yes_process(callback_query, recipient_token, organization_id)
+        await withdraw_callback_yes_process(callback_query, recipient_token, organization_id, user_id)
     if callback_query.data.split(' ')[1] == 'n':
         await callback_query.message.answer(messages['withdraw']['cancel'])
     await state.finish()
@@ -63,7 +64,9 @@ async def withdraw_confirming(callback_query: types.CallbackQuery):
     temp_dict = dict(global_admin_keyboards[recipient_tg_user_id])
     for admin, message in temp_dict.items():
         try:
-            await message.delete_reply_markup()
+            await message.edit_text(f'{message.text.replace("Подтверждаем ?", "")}\n'
+                                    f'Администратор {callback_query.from_user.username} уже ответил на запрос',
+                                    reply_markup=None)
             global_admin_keyboards[recipient_tg_user_id].pop(admin)
         except Exception as ex:
             logger.warning(f'Trying to delete markup but got exeption: {ex}')
@@ -77,7 +80,6 @@ async def withdraw_confirming(callback_query: types.CallbackQuery):
 
     if data_list[1] == 'y':
         result = user_req.confirm_withdraw(token, request_id)
-        logger.warning(result)
         if result['status'] == 0:
             await callback_query.message.reply(messages['withdraw']['confirmed_for_admin'])
             await bot.send_message(recipient_tg_user_id, messages['withdraw']['confirmed_for_user'])

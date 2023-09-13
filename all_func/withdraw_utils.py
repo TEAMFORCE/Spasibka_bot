@@ -40,7 +40,6 @@ def get_user_token_and_organization_id(message: types.Message) -> (str, int, int
                         organization_id=organization_id,
                         first_name=message.from_user.first_name,
                         last_name=message.from_user.last_name)
-    print(user['token'], user['user_id'], organization_id)
     return user['token'], user['user_id'], organization_id
 
 
@@ -58,7 +57,7 @@ async def message_timeout_without_keyboard(message: types.Message, state: FSMCon
 
 
 async def set_state_and_send_approve_keyboard(message: types.Message, FSMWithdraw: StatesGroup, token: str,
-                                              organization_id: int, amount: int) -> None:
+                                              organization_id: int, amount: int, user_id: int) -> None:
     """
     Creates approval keyboard, set state for user to withdraw.
     """
@@ -68,6 +67,7 @@ async def set_state_and_send_approve_keyboard(message: types.Message, FSMWithdra
         data['token'] = token
         data['organization_id'] = organization_id
         data['amount'] = amount
+        data['user_id'] = user_id
 
     keyboard = get_withdraw_info_keyboard(message.from_id, amount, 'withdraw_proceed')
     temp_answer = await bot.send_message(message.from_id, f'Будет создан запрос на вывод {amount} спасибок.\n'
@@ -77,14 +77,18 @@ async def set_state_and_send_approve_keyboard(message: types.Message, FSMWithdra
 
 
 async def withdraw_callback_yes_process(callback_query: types.CallbackQuery, recipient_token: str,
-                                        organization_id: int) -> None:
+                                        organization_id: int, user_id: int) -> None:
     """
     Creates multiple keyboards for organization admins.
     """
     recipient_user_id = callback_query.data.split(' ')[2]
     amount = callback_query.data.split(' ')[3]
     await callback_query.message.edit_text(messages['withdraw']['request_sent'])
-    logger.info(f'Запрос на вывод средств от id:{recipient_user_id} на {amount}')
+    logger.info(f'Запрос на вывод средств от:'
+                f'tg_id:{recipient_user_id}'
+                f'user_id:{user_id}'
+                f'organization_id:{organization_id}'
+                f'amount:{amount}')
     withdraw_request = user_req.create_withdraw_record(recipient_token, amount)
     if withdraw_request:
         admin_list = user_req.get_organization_admin_list(recipient_token, organization_id)
@@ -96,7 +100,7 @@ async def withdraw_callback_yes_process(callback_query: types.CallbackQuery, rec
             try:
                 global_admin_keyboards.setdefault(recipient_user_id, {})
                 keyboard = await bot.send_message(admin,
-                                                  f'Запрос на вывод средств от пользователя '
+                                                  f'Запрос на вывод <code>{amount}</code> от пользователя '
                                                   f'{callback_query.from_user.get_mention(as_html=True)}.\n'
                                                   f'Подтверждаем ?',
                                                   reply_markup=confirm_keyboard, parse_mode=types.ParseMode.HTML)
