@@ -200,20 +200,16 @@ def send_like(user_token: str, **kwargs):
         response_code=r.status_code,
     ))
 
-    #  Перевод 1 спасибки пользователю
-    thx = 'спасибки'
-    if int(kwargs.get("amount")) >= 5:
-        thx = 'спасибок'
-
+    amount_word = r.json().get('amount_word')
     if r.status_code == 201 and kwargs.get("tags"):
         all_tags = all_like_tags(user_token)
         for i in all_tags:
             if i['id'] == int(kwargs.get("tags")):
                 tag_name = i['name']
-        return f'Перевод {kwargs.get("amount")} {thx} пользователю {kwargs.get("mention")} ' \
+        return f'Перевод {kwargs.get("amount")} {amount_word} пользователю {kwargs.get("mention")} ' \
                f'сформирован с тегом #{tag_name.replace(" ", "_")}'
     elif r.status_code == 201:
-        return f'Перевод {kwargs.get("amount")} {thx} пользователю {kwargs.get("mention")}'
+        return f'Перевод {kwargs.get("amount")} {amount_word} пользователю {kwargs.get("mention")}'
     elif r.status_code == 500:
         return 'Что то пошло не так\n' \
                'Проверьте что группа зарегистрирована в системе'
