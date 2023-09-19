@@ -282,3 +282,4 @@ temp.txt
 .envs/
 req_sandbox.py
 tests/
+transaction_logs/
