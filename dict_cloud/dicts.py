@@ -21,7 +21,7 @@ errors = {
 }
 
 messages = {
-    'greetings': 'Привет {user_name}. Рад что ты присоединился!\n'
+    'greetings': 'Привет {user_name}. Рад, что ты с нами!!\n'
                  'Начни диалог с ботом @{bot_name} для доступа ко всем функциям✨',
     'start_message': 'Привет {user_name}\n'
                      'Вот что я умею:\n'
