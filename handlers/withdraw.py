@@ -17,7 +17,7 @@ class FSMWithdraw(StatesGroup):
     step_1 = State()
 
 
-@dp.message_handler(commands='withdraw')
+# @dp.message_handler(commands='withdraw')
 async def withdraw(message: types.Message):
     amount = get_withdraw_amount(message)
     if not amount:
