@@ -202,7 +202,7 @@ def send_like(user_token: str, **kwargs):
 
     amount_word = r.json().get('amount_word')
     logger.info(r.json())
-    
+
     if r.status_code == 201 and kwargs.get("tags"):
         all_tags = all_like_tags(user_token)
         for i in all_tags:
