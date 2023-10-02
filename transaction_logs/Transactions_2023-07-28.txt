@@ -1,0 +1,22 @@
+--- *** ---
+New transaction:
+user_token: 7ef578fe1fffe94b1d67f3c9c72c3a38c8c4f86b
+group_id: -888649764
+telegram_id: 183417405
+telegram_name: Brukva2
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+
+--- *** ---
+New transaction:
+user_token: 7ef578fe1fffe94b1d67f3c9c72c3a38c8c4f86b
+group_id: -888649764
+telegram_id: 436315762
+telegram_name: thisisflight
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+

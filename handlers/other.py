@@ -1,14 +1,19 @@
 from aiogram import types, Dispatcher
 
-from create_bot import dp, bot, logger
+from all_func.utils import get_reason, send_like_in_group, send_like_in_private_msg, check_tag, check_recipient_id, \
+    send_like_to_user
+from create_bot import dp, bot
+from create_logger import logger
 from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id, all_like_tags, \
     set_active_organization, get_active_organization, change_group_id
 from dict_cloud.dicts import messages, errors
 from handlers.client import delete_message_bot_answer
 import re
 
+from service.misc import find_tag_id
 
-@dp.message_handler(content_types=[types.ContentType.MIGRATE_TO_CHAT_ID, types.ContentType.MIGRATE_FROM_CHAT_ID])
+
+# @dp.message_handler(content_types=[types.ContentType.MIGRATE_TO_CHAT_ID, types.ContentType.MIGRATE_FROM_CHAT_ID])
 async def handle_migration(message: types.Message):
     if message.migrate_from_chat_id:
         old_id = message.migrate_from_chat_id
@@ -25,7 +30,7 @@ async def handle_migration(message: types.Message):
         await message.answer(text, parse_mode=types.ParseMode.HTML)
 
 
-# @dp.message_handler(content_types=['text'])
+# @dp.message_handler(lambda message: message.text.startswith('+'))
 async def likes(message: types.Message):
     """
     При получении сообщения начинающегося с '+' отправляет лайки пользователю цитируемого сообщения
@@ -33,118 +38,26 @@ async def likes(message: types.Message):
     Формат +n @Nickname 'необязательное сообщение', n-количество спасибок по никнейму
     Формат +n @Nickname 'необязательное сообщение' #тэг, n-количество спасибок по никнейму с тэгом
     """
-    if message.text.startswith('+'):
-        pattern_username = re.search(r'@(\w+)', message.text)
-        pattern_tag = re.search(r'#(\D*)', message.text)
-        pattern_amount = re.match(r'\+(\d*)(.*)', message.text)
-        pattern_reason = re.match(r'\+\d*\s?(@\w*)?\s?(.*?)\s*(#|$)', message.text)
-        amount = pattern_amount.group(1)
-        result = None
-        tag_id = None
-        token = None
-        recipient_telegram_id = None
-        recipient_telegram_name = None
-        tag = None
-        group_id = None
-        recipient_name = None
-        recipient_last_name = None
-        first_name = message.from_user.first_name
-        last_name = message.from_user.last_name
-        sender_telegram_id = message.from_user.id
-        sender_telegram_name = message.from_user.username
+    pattern_username = re.search(r'@(\w+)', message.text)
+    pattern_tag = re.search(r'#(\D*)', message.text)
+    pattern_amount = re.match(r'\+(\d*)(.*)', message.text)
+    pattern_reason = re.match(r'\+\d*\s?(@\w*)?\s?(.*?)\s*(#|$)', message.text)
+    amount = pattern_amount.group(1)
 
-        if len(pattern_reason.group(2)) > 0:
-            reason = pattern_reason.group(2).capitalize()
-        else:
-            reason = "Отправлено через telegram"
+    reason = await get_reason(pattern_reason)
 
-        if message.from_user.id != message.chat.id:
-            if amount:
-                group_id = str(message.chat.id)
-                token = get_token(telegram_id=sender_telegram_id, group_id=group_id, telegram_name=sender_telegram_name,
-                                  first_name=first_name, last_name=last_name)
-                if not token:
-                    await message.answer(errors["no_token"])
-                    return
-                if message.reply_to_message:
-                    recipient_telegram_id = str(message.reply_to_message.from_user.id)
-                    recipient_telegram_name = message.reply_to_message.from_user.username
-                    recipient_name = message.reply_to_message.from_user.first_name
-                    recipient_last_name = message.reply_to_message.from_user.last_name
-                    if pattern_tag:
-                        tag = pattern_tag.group(1).lower().replace("_", " ")
-                        all_tags = all_like_tags(user_token=token)
-                        for i in all_tags:
-                            if i['name'].lower() == tag:
-                                tag_id = str(i['id'])
-                                break
+    if message.from_user.id != message.chat.id:
+        send_like_dict = await send_like_in_group(amount, message, pattern_tag, pattern_username)
+    else:
+        send_like_dict = await send_like_in_private_msg(pattern_username, message, pattern_tag)
 
-                elif pattern_username:
-                    recipient_telegram_name = pattern_username.group(1)
-                    if pattern_tag:
-                        tag = pattern_tag.group(1).lower().replace("_", " ")
-                        all_tags = all_like_tags(user_token=token)
-                        for i in all_tags:
-                            if i['name'].lower() == tag:
-                                tag_id = str(i['id'])
-                                break
-        else:
-            if pattern_username:
-                recipient_telegram_name = pattern_username.group(1)
-                organization_id = get_active_organization(sender_telegram_id)
-                group_id = None
-                token = get_token_by_organization_id(telegram_id=sender_telegram_id,
-                                                     telegram_name=sender_telegram_name,
-                                                     organization_id=organization_id,
-                                                     first_name=first_name,
-                                                     last_name=last_name)
-                if not token:
-                    await message.answer(errors["no_token"])
-                    return
-                if pattern_tag:
-                    tag = pattern_tag.group(1).lower().replace("_", " ")
-                    all_tags = all_like_tags(user_token=token)
-                    for i in all_tags:
-                        if i['name'].lower() == tag:
-                            tag_id = str(i['id'])
-                            break
-            else:
-                return
+    if not await check_tag(send_like_dict, pattern_tag, message):
+        return
+    if not await check_recipient_id(send_like_dict, pattern_username, amount, message):
+        return
 
-        if tag_id is None and pattern_tag:
-            answer = await message.answer(f"Тег {tag} не найден, спасибка не отправлена\n"
-                                          f"Можно использовать только теги из списка /tags")
-            if message.chat.type != types.ChatType.PRIVATE:
-                await delete_message_bot_answer(answer, message .chat.id)
-                return
-            else:
-                return
-
-        if not recipient_telegram_id and message.chat.type != types.ChatType.PRIVATE and not pattern_username \
-                and amount:
-            await message.answer("Я не смог найти id получателя. "
-                                 "Возможно вы ответили на сообщение которое было в чате до моего добавления.")
-            return
-
-        if token:
-            try:
-                mention = message.reply_to_message.from_user.get_mention(as_html=True)
-            except AttributeError:
-                mention = recipient_telegram_name
-            result = send_like(user_token=token,
-                               telegram_id=recipient_telegram_id,
-                               telegram_name=recipient_telegram_name,
-                               amount=amount,
-                               tags=tag_id,
-                               reason=reason,
-                               group_id=group_id,
-                               recipient_name=recipient_name,
-                               recipient_last_name=recipient_last_name,
-                               mention=mention)
-        if result is not None:
-            answer = await message.reply(f"{result}", parse_mode=types.ParseMode.HTML)
-            if message.chat.type != types.ChatType.PRIVATE:
-                await delete_message_bot_answer(answer, message.chat.id)
+    if send_like_dict.get('token'):
+        await send_like_to_user(message, send_like_dict, amount, reason)
 
 
 # @dp.callback_query_handler(lambda c: c.data.startswith('delete '))
@@ -187,7 +100,10 @@ async def greetings(message: types.Message):
 
 
 def register_handlers_other(dp: Dispatcher):
-    dp.register_message_handler(likes, content_types=['text'])
+    dp.register_message_handler(likes, lambda message: message.text.startswith('+'))
     dp.register_callback_query_handler(cancel_like, lambda c: c.data.startswith('delete '))
     dp.register_callback_query_handler(change_active_organization, lambda c: c.data.startswith('org '))
     dp.register_message_handler(greetings, content_types=[types.ContentType.NEW_CHAT_MEMBERS])
+    dp.register_message_handler(handle_migration, content_types=[types.ContentType.MIGRATE_TO_CHAT_ID,
+                                                                 types.ContentType.MIGRATE_FROM_CHAT_ID
+                                                                 ])

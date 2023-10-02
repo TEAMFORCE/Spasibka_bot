@@ -1,12 +1,12 @@
 import asyncio
 
 import requests
-import sys
 
+from API.utils import logger_api_message
 from censored import token_drf, drf_url
 from all_func.log_func import create_transaction_log
 
-from create_bot import logger
+from create_logger import logger
 from service.service_func import get_body_of_get_balance
 
 
@@ -200,20 +200,18 @@ def send_like(user_token: str, **kwargs):
         response_code=r.status_code,
     ))
 
-    #  Перевод 1 спасибки пользователю
-    thx = 'спасибки'
-    if int(kwargs.get("amount")) >= 5:
-        thx = 'спасибок'
+    amount_word = r.json().get('amount_word')
+    logger.info(r.json())
 
     if r.status_code == 201 and kwargs.get("tags"):
         all_tags = all_like_tags(user_token)
         for i in all_tags:
             if i['id'] == int(kwargs.get("tags")):
                 tag_name = i['name']
-        return f'Перевод {kwargs.get("amount")} {thx} пользователю {kwargs.get("mention")} ' \
+        return f'Перевод {kwargs.get("amount")} {amount_word} пользователю {kwargs.get("mention")} ' \
                f'сформирован с тегом #{tag_name.replace(" ", "_")}'
     elif r.status_code == 201:
-        return f'Перевод {kwargs.get("amount")} {thx} пользователю {kwargs.get("mention")}'
+        return f'Перевод {kwargs.get("amount")} {amount_word} пользователю {kwargs.get("mention")}'
     elif r.status_code == 500:
         return 'Что то пошло не так\n' \
                'Проверьте что группа зарегистрирована в системе'
@@ -582,3 +580,111 @@ def get_balances_from_group(user_token: str, group_tg_id: int = None):
                      f"headers: {headers}\n"
                      f"Error info: {r.text}")
         return None
+
+
+class UserRequests:
+    def __init__(self):
+        self.url = drf_url
+
+    def withdraw_amount_check(self, token: str, amount: int) -> dict:
+        url = f'{self.url}api/withdraw/request/check/{amount}/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers)
+            return
+
+    def get_organization_admin_list(self, token: str, organization_id: int = None, group_id: int = None) -> list:
+        """
+        Get organization's admin tg list by organization id or tg group id.
+        """
+        url = f'{self.url}api/withdraw/request/organization_admins/?organization_id={organization_id}'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            return r.json()['details']['list_of_admins']
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers)
+            return
+
+    def get_organization_id_by_group_id(self, token: str, group_id: int) -> int:
+        """
+        Get organization id by group tg id.
+        """
+        url = f'{self.url}api/withdraw/request/organization/?group_id={group_id}'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            logger.warning(r.json())
+            return r.json()['details']['organization_id']
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers)
+            return
+
+    def create_withdraw_record(self, token: str, amount: int):
+        """
+        Create withdraw request record.
+        """
+        url = f'{self.url}api/withdraw/withdraw_request/create_from_bot/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        body = {
+            'amount': amount
+        }
+        r = requests.post(url, headers=headers, json=body)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
+            return
+
+    def confirm_withdraw(self, token: str, withdraw_id: int):
+        """
+        Confirm withdraw request.
+        """
+        url = f'{self.url}api/withdraw/confirm/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        body = {
+            'withdraw_request_id': withdraw_id,
+        }
+        r = requests.post(url, headers=headers, json=body)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
+            return
+
+    def decline_withdraw(self, token: str, withdraw_id: int):
+        """
+        Decline withdraw request.
+        """
+        url = f'{self.url}api/withdraw/decline/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        body = {
+            'withdraw_request_id': withdraw_id
+        }
+        r = requests.post(url, headers=headers, json=body)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
+            return

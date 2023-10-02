@@ -1,0 +1,11 @@
+--- *** ---
+New transaction:
+user_token: ff9c87ff4ad0c412dadbb3d91e941b2a8dfebded
+group_id: -965280759
+telegram_id: 386386009
+telegram_name: Ayazbayev_D
+amount: 1
+tag_id: None
+reason: Отправлено через telegram
+Response code: 201
+
