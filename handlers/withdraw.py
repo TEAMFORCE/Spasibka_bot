@@ -17,7 +17,7 @@ class FSMWithdraw(StatesGroup):
     step_1 = State()
 
 
-# @dp.message_handler(commands='withdraw')
+@dp.message_handler(commands='withdraw')
 async def withdraw(message: types.Message):
     amount = get_withdraw_amount(message)
     if not amount:
@@ -71,16 +71,16 @@ async def withdraw_confirming(callback_query: types.CallbackQuery):
         except Exception as ex:
             logger.warning(f'Trying to delete markup but got exeption: {ex}')
 
-    organization_id = get_active_organization(callback_query.from_user.id)
-    token = get_token_by_organization_id(telegram_id=callback_query.from_user.id,
-                                         telegram_name=callback_query.from_user.username,
-                                         organization_id=organization_id,
-                                         first_name=callback_query.from_user.first_name,
-                                         last_name=callback_query.from_user.last_name)
+    # organization_id = get_active_organization(callback_query.from_user.id)
+    # token = get_token_by_organization_id(telegram_id=callback_query.from_user.id,
+    #                                      telegram_name=callback_query.from_user.username,
+    #                                      organization_id=organization_id,
+    #                                      first_name=callback_query.from_user.first_name,
+    #                                      last_name=callback_query.from_user.last_name)
 
     if data_list[1] == 'y':
-        result = user_req.confirm_withdraw(token, request_id)
-        if result['status'] == 0:
+        result = user_req.confirm_withdraw(request_id, callback_query.from_user.id)
+        if result and result['status'] == 0:
             await callback_query.message.reply(messages['withdraw']['confirmed_for_admin'])
             await bot.send_message(recipient_tg_user_id, messages['withdraw']['confirmed_for_user'])
         else:
@@ -89,7 +89,7 @@ async def withdraw_confirming(callback_query: types.CallbackQuery):
             await callback_query.message.answer(f"<code>{result['errors']}</code>", parse_mode=types.ParseMode.HTML)
 
     elif data_list[1] == 'n':
-        result = user_req.decline_withdraw(token, request_id)
+        result = user_req.decline_withdraw(request_id, callback_query.from_user.id)
         if result:
             await callback_query.message.reply(messages['withdraw']['cancel'])
             await bot.send_message(data_list[2], messages['withdraw']['admin_cancel_withdraw'])

@@ -651,17 +651,18 @@ class UserRequests:
             logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
             return
 
-    def confirm_withdraw(self, token: str, withdraw_id: int):
+    def confirm_withdraw(self, withdraw_id: int, controller_tg_id: int):
         """
         Confirm withdraw request.
         """
         url = f'{self.url}api/withdraw/confirm/'
         headers = {
             "accept": "application/json",
-            "Authorization": f"Token {token}",
+            "Authorization": token_drf,
         }
         body = {
             'withdraw_request_id': withdraw_id,
+            'controller_tg_id': controller_tg_id,
         }
         r = requests.post(url, headers=headers, json=body)
         if r.status_code == 200:
@@ -670,17 +671,18 @@ class UserRequests:
             logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
             return
 
-    def decline_withdraw(self, token: str, withdraw_id: int):
+    def decline_withdraw(self, withdraw_id: int, controller_tg_id: int):
         """
         Decline withdraw request.
         """
         url = f'{self.url}api/withdraw/decline/'
         headers = {
             "accept": "application/json",
-            "Authorization": f"Token {token}",
+            "Authorization": token_drf,
         }
         body = {
-            'withdraw_request_id': withdraw_id
+            'withdraw_request_id': withdraw_id,
+            'controller_tg_id': controller_tg_id,
         }
         r = requests.post(url, headers=headers, json=body)
         if r.status_code == 200:
