@@ -84,9 +84,10 @@ async def withdraw_confirming(callback_query: types.CallbackQuery):
             await callback_query.message.reply(messages['withdraw']['confirmed_for_admin'])
             await bot.send_message(recipient_tg_user_id, messages['withdraw']['confirmed_for_user'])
         else:
+            user_req.decline_withdraw(request_id, callback_query.from_user.id)
             await callback_query.message.answer(errors['withdraw_error'])
             await bot.send_message(data_list[2], messages['withdraw']['admin_cancel_withdraw'])
-            await callback_query.message.answer(f"<code>{result['errors']}</code>", parse_mode=types.ParseMode.HTML)
+            await callback_query.message.answer(f"<code>{result.get('errors')}</code>", parse_mode=types.ParseMode.HTML)
 
     elif data_list[1] == 'n':
         result = user_req.decline_withdraw(request_id, callback_query.from_user.id)
