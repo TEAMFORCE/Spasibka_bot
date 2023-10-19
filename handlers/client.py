@@ -580,4 +580,4 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(rating, commands=['rating'])
     dp.register_message_handler(ratingxls, commands=['ratingxls'])
     dp.register_message_handler(consent, commands=['consent'])
-    dp.register_message_handler(conf_challenge, commands='winner')
+    dp.register_message_handler(confirm_challenge, commands='winner')
