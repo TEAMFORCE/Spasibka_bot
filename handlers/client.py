@@ -3,7 +3,7 @@ import sys
 
 from all_func.delete_messages_func import delete_message_and_command, delete_command, delete_message_bot_answer
 from all_func.utils import create_scores_message, create_rating_message, send_balances_xls
-from service.misc import is_bot_admin
+from service.misc import is_bot_admin, get_challenge_vars
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))  # todo наверняка импорт можно сделать проще
 from keyboards.inline_not_complited_transactions import get_not_complited_transactions_kb
@@ -11,7 +11,7 @@ from keyboards.inline_user_organizations import get_user_organization_keyboard
 from keyboards.inline_webapp_test import start_web_app
 
 from aiogram import types, Dispatcher
-from create_bot import dp, bot
+from create_bot import dp, bot, conf_challenge
 from create_logger import logger
 from API.api_requests import get_token, get_balance, get_token_by_organization_id, \
     export_file_transactions_by_group_id, export_file_transactions_by_organization_id, get_all_cancelable_likes, \
@@ -524,6 +524,42 @@ async def consent(message: types.Message):
                 await bot.send_document(sender_id, input_policy_file)
         except CantInitiateConversation:
             await message.answer(errors['no_chat_with_bot'])
+
+
+@dp.message_handler(commands='confirm')
+async def confirm_challenge(message: types.Message):
+    if message.from_id != message.chat.id:
+        if message.reply_to_message:
+            challenge_id, challenge_amount = get_challenge_vars(message)
+            confirming_user_token = get_token(telegram_id=message.reply_to_message.from_id,
+                                              group_id=message.chat.id,
+                                              telegram_name=message.reply_to_message.from_user.username,
+                                              first_name=message.reply_to_message.from_user.first_name,
+                                              last_name=message.reply_to_message.from_user.last_name)
+            admin_token = get_token(telegram_id=message.from_id,
+                                    group_id=message.chat.id,
+                                    telegram_name=message.from_user.username,
+                                    first_name=message.from_user.first_name,
+                                    last_name=message.from_user.last_name)
+            create_report_result = conf_challenge.create_contender_report(token=confirming_user_token,
+                                                                          challenge_id=challenge_id,
+                                                                          text=message.reply_to_message.text)
+            if not create_report_result:
+                await message.answer(f'Не удалось создать отчет участника челенжа.')
+                return
+            confirm_result = conf_challenge.confirm_winner(token=admin_token,
+                                                           report_id=create_report_result['id'])
+            if not confirm_result:
+                await message.answer(f'Не удалось подвердить результат.')
+                return
+
+            await message.answer(f'Результат подвержден, '
+                                 f'пользователь {message.reply_to_message.from_user.username} назначен победителем!')
+
+
+@dp.message_handler(commands='deny')
+async def deny_challenge(message: types.Message):
+    pass
 
 
 def register_handlers_client(dp: Dispatcher):

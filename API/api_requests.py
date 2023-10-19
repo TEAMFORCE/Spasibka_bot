@@ -690,3 +690,109 @@ class UserRequests:
         else:
             logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
             return
+
+
+class ConfirmChallenge(UserRequests):
+
+    def get_contenders_list(self, token: str, challenge_id: int):
+        """
+
+        :param token:
+        :param challenge_id:
+        :return:
+        """
+        url = f'{self.url}challenge-contenders/{challenge_id}/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        r = requests.get(url, headers)
+        logger.info(f'Send {r.request.method} to {url} with headers {headers}')
+        if r.status_code == 200:
+            '''
+            Resp example:
+            [
+                {
+                    "nickname": null,
+                    "challenge_id": 351,
+                    "user_liked": false,
+                    "my_report": false,
+                    "can_approve": true,
+                    "participant_id": 325,
+                    "participant_photo": "/media/users_photo/c9b4a8e7430a4a248d2a86e5226c85d0_thumb.jpg",
+                    "participant_name": "Олег",
+                    "participant_surname": "Марченко",
+                    "report_created_at": "2023-10-19T08:05:15.142268Z",
+                    "report_text": "Просто тест",
+                    "report_photo": null,
+                    "report_id": 492,
+                    "comments_amount": 0,
+                    "likes_amount": 0,
+                    "report_photos": null
+                }
+            ]
+            '''
+            logger.info(f'Status: {r.status_code}. Result: {r.text}')
+            return r.json()
+        else:
+            logger.warning(f'Status: {r.status_code}. Result: {r.text}')
+            return
+
+    def create_contender_report(self, token: str, challenge_id: int, text: str) -> dict:
+        """
+        :param token:
+        :param challenge_id:
+        :param text:
+        :return:
+        """
+        url = f'{self.url}create-challenge-report/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        body = {
+            'challenge': challenge_id,
+            'text': text
+        }
+        r = requests.post(url, headers, json=body)
+        logger.info(f'Send {r.request.method} to {url} with headers: {headers} and body: {body}')
+        if r.status_code == 201:
+            '''
+            Resp example:
+            {
+                "id": 497,
+                "challenge": 351,
+                "text": "Тест через апи"
+            }
+            '''
+            logger.info(f'Status: {r.status_code}. Result: {r.text}')
+            return r.json()
+        else:
+            logger.warning(f'Status: {r.status_code}. Result: {r.text}')
+            return
+
+    def confirm_winner(self, token: str, report_id: int):
+        url = f'{self.url}check-challenge-report/{report_id}/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Token {token}",
+        }
+        body = {
+            'state': 'W',
+            'text': 'Confirm from bot.'
+        }
+        r = requests.put(url, headers, json=body)
+        logger.info(f'Send {r.request.method} to {url} with headers: {headers} and body: {body}')
+        if r.status_code == 200:
+            '''
+            Resp example:
+            {
+                "state": "W",
+                "new_reports_exists": true
+            }
+            '''
+            logger.info(f'Status: {r.status_code}. Result: {r.text}')
+            return r.json()
+        else:
+            logger.warning(f'Status: {r.status_code}. Result: {r.text}')
+            return

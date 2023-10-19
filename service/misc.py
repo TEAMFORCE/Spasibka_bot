@@ -20,3 +20,17 @@ async def is_bot_admin(message: types.Message) -> None:
         bot_as_chat_member = await bot.get_chat_member(message.chat.id, bot.id)
         if not bot_as_chat_member.is_chat_admin():
             await bot.send_message(message.chat.id, errors['not_chat_admin'])
+
+
+def get_challenge_vars(message: types.Message):
+    challenge_id = None
+    challenge_amount = None
+    splitted_text = message.text.split(' ')
+    if len(splitted_text) == 2:
+        challenge_id = splitted_text[1]
+    elif len(splitted_text) == 3:
+        challenge_id = splitted_text[1]
+        challenge_amount = splitted_text[2]
+    else:
+        pass
+    return challenge_id, challenge_amount
