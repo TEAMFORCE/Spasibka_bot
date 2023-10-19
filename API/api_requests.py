@@ -706,7 +706,7 @@ class ConfirmChallenge(UserRequests):
             "accept": "application/json",
             "Authorization": f"Token {token}",
         }
-        r = requests.get(url, headers)
+        r = requests.get(url, headers=headers)
         logger.info(f'Send {r.request.method} to {url} with headers {headers}')
         if r.status_code == 200:
             '''
@@ -754,7 +754,7 @@ class ConfirmChallenge(UserRequests):
             'challenge': challenge_id,
             'text': text
         }
-        r = requests.post(url, headers, json=body)
+        r = requests.post(url, headers=headers, json=body)
         logger.info(f'Send {r.request.method} to {url} with headers: {headers} and body: {body}')
         if r.status_code == 201:
             '''
@@ -781,7 +781,7 @@ class ConfirmChallenge(UserRequests):
             'state': 'W',
             'text': 'Confirm from bot.'
         }
-        r = requests.put(url, headers, json=body)
+        r = requests.put(url, headers=headers, json=body)
         logger.info(f'Send {r.request.method} to {url} with headers: {headers} and body: {body}')
         if r.status_code == 200:
             '''
