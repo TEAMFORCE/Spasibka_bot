@@ -771,7 +771,12 @@ class ConfirmChallenge(UserRequests):
             logger.warning(f'Status: {r.status_code}. Result: {r.text}')
             return
 
-    def confirm_winner(self, token: str, report_id: int):
+    def confirm_winner(self, token: str, report_id: int) -> dict:
+        """
+        :param token:
+        :param report_id:
+        :return:
+        """
         url = f'{self.url}check-challenge-report/{report_id}/'
         headers = {
             "accept": "application/json",

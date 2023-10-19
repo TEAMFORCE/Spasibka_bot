@@ -531,6 +531,8 @@ async def confirm_challenge(message: types.Message):
     if message.from_id != message.chat.id:
         if message.reply_to_message:
             challenge_id, challenge_amount = get_challenge_vars(message)
+            if not challenge_id:
+                await message.answer(f'Не указан id челенжа.')
             confirming_user_token = get_token(telegram_id=message.reply_to_message.from_id,
                                               group_id=message.chat.id,
                                               telegram_name=message.reply_to_message.from_user.username,
