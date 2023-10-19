@@ -526,7 +526,7 @@ async def consent(message: types.Message):
             await message.answer(errors['no_chat_with_bot'])
 
 
-@dp.message_handler(commands='confirm')
+# @dp.message_handler(commands='winner')
 async def confirm_challenge(message: types.Message):
     if message.from_id != message.chat.id:
         if message.reply_to_message:
@@ -578,3 +578,4 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(rating, commands=['rating'])
     dp.register_message_handler(ratingxls, commands=['ratingxls'])
     dp.register_message_handler(consent, commands=['consent'])
+    dp.register_message_handler(conf_challenge, commands=['winner', 'win'])
