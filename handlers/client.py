@@ -639,9 +639,10 @@ async def confirm_challenge(message: types.Message):
                                     telegram_name=message.from_user.username,
                                     first_name=message.from_user.first_name,
                                     last_name=message.from_user.last_name)
+            text = message.reply_to_message.text if not photo else message.reply_to_message.caption
             create_report_result = conf_challenge.create_contender_report(token=confirming_user_token,
                                                                           challenge_id=challenge_id,
-                                                                          text=message.reply_to_message.text,
+                                                                          text=text,
                                                                           photo_path=photo)
             if photo:
                 os.remove(photo)
