@@ -738,11 +738,12 @@ class ConfirmChallenge(UserRequests):
             logger.warning(f'Status: {r.status_code}. Result: {r.text}')
             return
 
-    def create_contender_report(self, token: str, challenge_id: int, text: str) -> dict:
+    def create_contender_report(self, token: str, challenge_id: int, text: str, photo_path: str = None) -> dict:
         """
         :param token:
         :param challenge_id:
         :param text:
+        :param photo_path:
         :return:
         """
         url = f'{self.url}create-challenge-report/'
@@ -754,7 +755,11 @@ class ConfirmChallenge(UserRequests):
             'challenge': challenge_id,
             'text': text
         }
-        r = requests.post(url, headers=headers, json=body)
+        if photo_path:
+            files = {'photo': open(photo_path, 'rb')}
+            r = requests.post(url, headers=headers, data=body, files=files)
+        else:
+            r = requests.post(url, headers=headers, json=body)
         logger.info(f'Send {r.request.method} to {url} with headers: {headers} and body: {body}')
         if r.status_code == 201:
             '''

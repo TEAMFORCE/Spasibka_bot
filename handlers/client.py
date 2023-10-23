@@ -28,8 +28,102 @@ from aiogram.utils.exceptions import MessageCantBeDeleted, CantInitiateConversat
 from dict_cloud.dicts import messages, errors, start_messages, sleep_timer
 
 
+async def get_photo_from_reply_message(msg: types.Message):
+    if msg.reply_to_message:
+        if msg.reply_to_message.document and 'image' in msg.reply_to_message.document.mime_type:
+            file_id = msg.reply_to_message.document.file_id
+            destination = f'temp_files/{file_id}.jpg'
+            await msg.reply_to_message.document.download(destination_file=destination)
+            logger.info(f'Photo downloaded to {destination}')
+            return destination
+        elif msg.reply_to_message.photo:
+            file_id = msg.reply_to_message.photo[-1].file_id
+            destination = f'temp_files/{file_id}.jpg'
+            await msg.reply_to_message.photo[-1].download(destination_file=destination)
+            logger.info(f'Photo downloaded to {destination}')
+            return destination
+        return
+
+
 @dp.message_handler(commands="log")
 async def ready(message: types.Message):
+    # -----------------------------------------------
+    # with compression
+    reply_message = {"message_id": 113,
+                     "from":
+                         {"id": 5148438149,
+                          "is_bot": False,
+                          "first_name": "Oleg",
+                          "last_name": "Mar4",
+                          "username": "WLeeto",
+                          "language_code": "ru"},
+                     "chat":
+                         {"id": -1001957480426,
+                          "title": "LOCAL_DIGREF_TEST",
+                          "type": "supergroup"},
+                     "date": 1698067995,
+                     "document":
+                         {"file_name": "test_pic.png",
+                          "mime_type": "image/png",
+                          "thumbnail":
+                              {"file_id": "AAMCAgADHQJ0rMfqAANxZTZL66UWBDwj07YES2wggdO2vwMAAvc2AALAC7FJjHuaVmDIK9MBAAdtAAMwBA",
+                               "file_unique_id": "AQAD9zYAAsALsUly",
+                               "file_size": 25785,
+                               "width": 320,
+                               "height": 311},
+                          "thumb":
+                              {"file_id": "AAMCAgADHQJ0rMfqAANxZTZL66UWBDwj07YES2wggdO2vwMAAvc2AALAC7FJjHuaVmDIK9MBAAdtAAMwBA",
+                               "file_unique_id": "AQAD9zYAAsALsUly",
+                               "file_size": 25785,
+                               "width": 320,
+                               "height": 311},
+                          "file_id": "BQACAgIAAx0CdKzH6gADcWU2S-ulFgQ8I9O2BEtsIIHTtr8DAAL3NgACwAuxSYx7mlZgyCvTMAQ",
+                          "file_unique_id": "AgAD9zYAAsALsUk",
+                          "file_size": 63449},
+                     "caption": "Текст в верхнем окне"}
+    # without compression
+    reply_message = {"message_id": 114,
+                     "from":
+                         {"id": 5148438149,
+                          "is_bot": False,
+                          "first_name": "Oleg",
+                          "last_name": "Mar4",
+                          "username": "WLeeto",
+                          "language_code": "ru"},
+                     "chat":
+                         {"id": -1001957480426,
+                          "title": "LOCAL_DIGREF_TEST",
+                          "type": "supergroup"},
+                     "date": 1698068008,
+                     "photo":
+                         [
+                             {"file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADcwADMAQ",
+                              "file_unique_id": "AQADUcwxG8ALsUl4",
+                              "file_size": 1236,
+                              "width": 90,
+                              "height": 87},
+                             {"file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADbQADMAQ",
+                              "file_unique_id": "AQADUcwxG8ALsUly",
+                              "file_size": 30799,
+                              "width": 320,
+                              "height": 311},
+                             {"file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADeAADMAQ",
+                              "file_unique_id": "AQADUcwxG8ALsUl9",
+                              "file_size": 116307,
+                              "width": 800,
+                              "height": 778},
+                             {"file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADeQADMAQ",
+                              "file_unique_id": "AQADUcwxG8ALsUl-",
+                              "file_size": 124372,
+                              "width": 900,
+                              "height": 875}
+                         ],
+                     "caption": "Текст в нижнем окне"}
+    # if message.reply_to_message:
+    #     logger.warning(message.reply_to_message)
+    #     res = await get_photo_from_reply_message(message)
+    #     await message.answer(res)
+    # -----------------------------------------------
     await is_bot_admin(message)
     logger.warning(f"User info: {message.from_user}")
     logger.warning(f"Group info: {message.chat}")
@@ -533,6 +627,8 @@ async def confirm_challenge(message: types.Message):
             challenge_id, challenge_amount = get_challenge_vars(message)
             if not challenge_id:
                 await message.answer(f'Не указан id челенжа.')
+                return
+            photo = await get_photo_from_reply_message(message)
             confirming_user_token = get_token(telegram_id=message.reply_to_message.from_id,
                                               group_id=message.chat.id,
                                               telegram_name=message.reply_to_message.from_user.username,
@@ -545,7 +641,11 @@ async def confirm_challenge(message: types.Message):
                                     last_name=message.from_user.last_name)
             create_report_result = conf_challenge.create_contender_report(token=confirming_user_token,
                                                                           challenge_id=challenge_id,
-                                                                          text=message.reply_to_message.text)
+                                                                          text=message.reply_to_message.text,
+                                                                          photo_path=photo)
+            if photo:
+                os.remove(photo)
+                logger.info(f'Temp photo {photo} removed')
             if not create_report_result:
                 await message.answer(f'Не удалось создать отчет участника челенжа.')
                 return
