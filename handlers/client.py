@@ -66,17 +66,19 @@ async def ready(message: types.Message):
                          {"file_name": "test_pic.png",
                           "mime_type": "image/png",
                           "thumbnail":
-                              {"file_id": "AAMCAgADHQJ0rMfqAANxZTZL66UWBDwj07YES2wggdO2vwMAAvc2AALAC7FJjHuaVmDIK9MBAAdtAAMwBA",
-                               "file_unique_id": "AQAD9zYAAsALsUly",
-                               "file_size": 25785,
-                               "width": 320,
-                               "height": 311},
+                              {
+                                  "file_id": "AAMCAgADHQJ0rMfqAANxZTZL66UWBDwj07YES2wggdO2vwMAAvc2AALAC7FJjHuaVmDIK9MBAAdtAAMwBA",
+                                  "file_unique_id": "AQAD9zYAAsALsUly",
+                                  "file_size": 25785,
+                                  "width": 320,
+                                  "height": 311},
                           "thumb":
-                              {"file_id": "AAMCAgADHQJ0rMfqAANxZTZL66UWBDwj07YES2wggdO2vwMAAvc2AALAC7FJjHuaVmDIK9MBAAdtAAMwBA",
-                               "file_unique_id": "AQAD9zYAAsALsUly",
-                               "file_size": 25785,
-                               "width": 320,
-                               "height": 311},
+                              {
+                                  "file_id": "AAMCAgADHQJ0rMfqAANxZTZL66UWBDwj07YES2wggdO2vwMAAvc2AALAC7FJjHuaVmDIK9MBAAdtAAMwBA",
+                                  "file_unique_id": "AQAD9zYAAsALsUly",
+                                  "file_size": 25785,
+                                  "width": 320,
+                                  "height": 311},
                           "file_id": "BQACAgIAAx0CdKzH6gADcWU2S-ulFgQ8I9O2BEtsIIHTtr8DAAL3NgACwAuxSYx7mlZgyCvTMAQ",
                           "file_unique_id": "AgAD9zYAAsALsUk",
                           "file_size": 63449},
@@ -97,26 +99,30 @@ async def ready(message: types.Message):
                      "date": 1698068008,
                      "photo":
                          [
-                             {"file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADcwADMAQ",
-                              "file_unique_id": "AQADUcwxG8ALsUl4",
-                              "file_size": 1236,
-                              "width": 90,
-                              "height": 87},
-                             {"file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADbQADMAQ",
-                              "file_unique_id": "AQADUcwxG8ALsUly",
-                              "file_size": 30799,
-                              "width": 320,
-                              "height": 311},
-                             {"file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADeAADMAQ",
-                              "file_unique_id": "AQADUcwxG8ALsUl9",
-                              "file_size": 116307,
-                              "width": 800,
-                              "height": 778},
-                             {"file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADeQADMAQ",
-                              "file_unique_id": "AQADUcwxG8ALsUl-",
-                              "file_size": 124372,
-                              "width": 900,
-                              "height": 875}
+                             {
+                                 "file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADcwADMAQ",
+                                 "file_unique_id": "AQADUcwxG8ALsUl4",
+                                 "file_size": 1236,
+                                 "width": 90,
+                                 "height": 87},
+                             {
+                                 "file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADbQADMAQ",
+                                 "file_unique_id": "AQADUcwxG8ALsUly",
+                                 "file_size": 30799,
+                                 "width": 320,
+                                 "height": 311},
+                             {
+                                 "file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADeAADMAQ",
+                                 "file_unique_id": "AQADUcwxG8ALsUl9",
+                                 "file_size": 116307,
+                                 "width": 800,
+                                 "height": 778},
+                             {
+                                 "file_id": "AgACAgIAAx0CdKzH6gADcmU2S_iATLdbuaeoyqzwv5ybb4KYAAJRzDEbwAuxSSC_TzN16gd_AQADAgADeQADMAQ",
+                                 "file_unique_id": "AQADUcwxG8ALsUl-",
+                                 "file_size": 124372,
+                                 "width": 900,
+                                 "height": 875}
                          ],
                      "caption": "Текст в нижнем окне"}
     # if message.reply_to_message:
@@ -665,6 +671,13 @@ async def deny_challenge(message: types.Message):
     pass
 
 
+# @dp.message_handler(commands='me')
+async def me(message: types.Message):
+    if message.chat.id == message.from_user.id:
+        await message.answer(messages['me'].format(username=message.from_user.username, user_id=message.from_id),
+                             parse_mode=types.ParseMode.HTML)
+
+
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(scores, commands='scores')
     dp.register_message_handler(scoresxlsx, commands='scoresxlsx')
@@ -682,3 +695,4 @@ def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(ratingxls, commands=['ratingxls'])
     dp.register_message_handler(consent, commands=['consent'])
     dp.register_message_handler(confirm_challenge, commands='winner')
+    dp.register_message_handler(me, commands='me')

@@ -38,7 +38,9 @@ messages = {
         'admin_cancel_withdraw': 'Администратор отклонил ваш запрос перевода.',
         'confirmed_for_admin': 'Запрос подтвержден.',
         'confirmed_for_user': 'Ваш запрос на вывод средств подтвержден.'
-    }
+    },
+    'me': 'Привет <code>{username}</code>!\n'
+          'Твой id <code>{user_id}</code>'
 }
 
 start_messages = {
