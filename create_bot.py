@@ -1,7 +1,7 @@
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher
 
-from API.api_requests import UserRequests, ConfirmChallenge
+from API.api_requests import UserRequests, ConfirmChallenge, GroupRequests
 from censored import token_tg
 
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -12,3 +12,4 @@ dp = Dispatcher(bot, storage=storage)
 
 user_req = UserRequests()
 conf_challenge = ConfirmChallenge()
+group_req = GroupRequests()

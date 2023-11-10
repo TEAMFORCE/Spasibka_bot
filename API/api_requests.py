@@ -806,3 +806,25 @@ class ConfirmChallenge(UserRequests):
         else:
             logger.warning(f'Status: {r.status_code}. Result: {r.text}')
             return
+
+
+class GroupRequests(UserRequests):
+
+    def change_group_name(self, chat_id: int, new_name: str):
+        url = f'{self.url}api/organizations/telegramgroups/changenamefrombot/'
+        headers = {
+            "accept": "application/json",
+            "Authorization": token_drf,
+        }
+        body = {
+            'chat_id': chat_id,
+            'name': new_name
+        }
+        r = requests.patch(url=url, headers=headers, json=body)
+        logger.info(f'Send {r.request.method} to {url} with headers {headers} and bodt {body}')
+        if r.status_code == 200:
+            logger.info(f'Status: {r.status_code}. Result: {r.text}')
+            return r.json()
+        else:
+            logger.warning(f'Status: {r.status_code}. Result: {r.text}')
+            return

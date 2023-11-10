@@ -2,7 +2,7 @@ from aiogram import types, Dispatcher
 
 from all_func.utils import get_reason, send_like_in_group, send_like_in_private_msg, check_tag, check_recipient_id, \
     send_like_to_user
-from create_bot import dp, bot
+from create_bot import dp, bot, group_req
 from create_logger import logger
 from API.api_requests import send_like, get_token, cansel_transaction, get_token_by_organization_id, all_like_tags, \
     set_active_organization, get_active_organization, change_group_id
@@ -11,6 +11,18 @@ from handlers.client import delete_message_bot_answer
 import re
 
 from service.misc import find_tag_id
+
+
+@dp.message_handler(content_types=types.ContentType.NEW_CHAT_TITLE)
+async def handle_chat_title_change(msg: types.Message):
+    result = group_req.change_group_name(chat_id=msg.chat.id, new_name=msg.chat.title)
+    if result:
+        logger.info(f'For group id {msg.chat.id} title was chnged to {msg.chat.title}')
+
+
+@dp.message_handler(commands='change')
+async def test_change_title(msg: types.Message):
+    await bot.set_chat_title(msg.chat.id, "test title")
 
 
 # @dp.message_handler(content_types=[types.ContentType.MIGRATE_TO_CHAT_ID, types.ContentType.MIGRATE_FROM_CHAT_ID])
