@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+import datetime
 import os
 
 from create_logger import logger
@@ -7,9 +8,12 @@ from create_logger import logger
 async def create_transaction_log(**kwargs):
     days_to_expire = 30
     today = date.today()
+    now = datetime.datetime.now()
     one_month = timedelta(days_to_expire)
     temp = f"--- *** ---\n" \
            f"New transaction:\n" \
+           f"Date: {now.strftime('%d-%m-%Y')}\n" \
+           f"Time: {now.strftime('%H:%M:%S')}\n" \
            f"user_token: {kwargs.get('user_token')}\n" \
            f"group_id: {kwargs.get('group_id')}\n" \
            f"telegram_id: {kwargs.get('telegram_id')}\n" \
