@@ -169,7 +169,7 @@ def get_balance(telegram_id: int, tg_name: str = None, group_id: int = None, org
         return None
 
 
-def send_like(user_token: str, **kwargs):
+def send_like(user_token: str, **kwargs) -> str:
     global tag_name
     headers = {
         "accept": "application/json",
@@ -202,8 +202,12 @@ def send_like(user_token: str, **kwargs):
     ))
 
     if r.status_code == 400:
-        logger_api_message('warning', url, r.request.method, r.status_code, r, headers, body)
-        return 'Недостаточно валюты на счете, транзакция не выполнена'
+        logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
+        try:
+            return r.json()[0]
+        except Exception as ex:
+            logger.error(ex)
+            return 'Не удалось выполнить перевод'
 
     amount_word = r.json().get('amount_word')
 
