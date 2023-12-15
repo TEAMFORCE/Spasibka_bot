@@ -13,3 +13,6 @@ def logger_api_message(status: str, url: str, method: str, status_code: str = No
     elif status == 'error':
         logger.error(f'{now}//request {method} to {url} get status {status_code}\nheaders:{headers}\nbody:{body}\n'
                      f'details:{request.text}')
+    else:
+        logger.critical(f'{now}//request {method} to {url} get status {status_code}\nheaders:{headers}\nbody:{body}\n'
+                        f'details:{request.text}')

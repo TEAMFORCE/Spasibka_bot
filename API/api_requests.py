@@ -202,7 +202,7 @@ def send_like(user_token: str, **kwargs):
     ))
 
     if r.status_code == 400:
-        logger_api_message('warning', url, r.request.method, r.status_code, r, headers)
+        logger_api_message('warning', url, r.request.method, r.status_code, r, headers, body)
         return 'Недостаточно валюты на счете, транзакция не выполнена'
 
     amount_word = r.json().get('amount_word')
@@ -212,18 +212,18 @@ def send_like(user_token: str, **kwargs):
         for i in all_tags:
             if i['id'] == int(kwargs.get("tags")):
                 tag_name = i['name']
-        logger_api_message('info', url, r.request.method, r.status_code, r, headers)
+        logger_api_message('info', url, r.request.method, r.status_code, r, headers, body)
         return f'Перевод {kwargs.get("amount")} {amount_word} пользователю {kwargs.get("mention")} ' \
                f'сформирован с тегом #{tag_name.replace(" ", "_")}'
     elif r.status_code == 201:
-        logger_api_message('info', url, r.request.method, r.status_code, r, headers)
+        logger_api_message('info', url, r.request.method, r.status_code, r, headers, body)
         return f'Перевод {kwargs.get("amount")} {amount_word} пользователю {kwargs.get("mention")}'
     elif r.status_code == 500:
-        logger_api_message('error', url, r.request.method, r.status_code, r, headers)
+        logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
         return 'Что то пошло не так\n' \
                'Проверьте что группа зарегистрирована в системе'
     else:
-        logger_api_message('error', url, r.request.method, r.status_code, r, headers)
+        logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
         return r.json()[0]
 
 
