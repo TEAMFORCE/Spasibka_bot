@@ -208,8 +208,10 @@ def send_like(user_token: str, **kwargs) -> str:
         except Exception as ex:
             logger.error(ex)
             return 'Не удалось выполнить перевод'
-
-    amount_word = r.json().get('amount_word')
+    try:
+        amount_word = r.json().get('amount_word')
+    except Exception:
+        amount_word = 'спасибки'
 
     if r.status_code == 201 and kwargs.get("tags"):
         all_tags = all_like_tags(user_token)
