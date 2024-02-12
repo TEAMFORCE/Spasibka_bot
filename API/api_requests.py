@@ -449,10 +449,10 @@ def tg_handle_start(tg_name: str, telegram_id: str, group_id: int = None,
     r = requests.post(url, headers=headers, json=body)
 
     if r.status_code == 200:
-        logger_api_message('info', url, r.request.method, r.status_code, r, headers)
+        logger_api_message('info', url, r.request.method, r.status_code, r, headers, body)
         return r.json()
     else:
-        logger_api_message('error', url, r.request.method, r.status_code, r, headers)
+        logger_api_message('error', url, r.request.method, r.status_code, r, headers, body)
         return None
 
 
