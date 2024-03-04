@@ -151,7 +151,7 @@ async def start(message: types.Message):
     group_id = None
     organization_id = None
     is_user_admin = False
-    if message.chat.type != message.from_id:
+    if message.chat.id != message.from_id:
         chat_member = await bot.get_chat_member(message.chat.id, message.from_user.id)
         group_id = message.chat.id
         user_role = chat_member.status
