@@ -285,3 +285,4 @@ tests/
 transaction_logs/
 files/privacy_policy.pdf
 files/agreement.pdf
+.idea
